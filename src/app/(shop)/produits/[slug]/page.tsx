@@ -27,7 +27,6 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           className="card aspect-square w-full overflow-hidden"
         />
         <div className="space-y-4">
-          {p.origin && <p className="text-sm uppercase tracking-wide text-stone-500">Origine : {p.origin}</p>}
           <h1 className="text-3xl font-extrabold">{p.name}</h1>
           <p className="text-2xl font-bold text-terre-700">{formatMoney(p.priceCents)}</p>
           {p.description && <p className="whitespace-pre-line text-stone-700">{p.description}</p>}

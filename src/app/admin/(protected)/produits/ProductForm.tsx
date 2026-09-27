@@ -65,10 +65,7 @@ export function ProductForm({
           ))}
         </select>
       </div>
-      <div>
-        <label className="label" htmlFor="origin">Pays d&apos;origine</label>
-        <input id="origin" name="origin" defaultValue={p?.origin} className="input" />
-      </div>
+      <input type="hidden" name="origin" value={p?.origin ?? ""} />
       <div>
         <label className="label" htmlFor="weightGrams">Poids (grammes)</label>
         <input id="weightGrams" name="weightGrams" type="number" min={0} defaultValue={p?.weightGrams ?? 500} className="input" />

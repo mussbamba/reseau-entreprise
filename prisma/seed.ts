@@ -53,7 +53,7 @@ async function main() {
       data: {
         name,
         slug: slugify(name),
-        description: `${name}, importé de ${origin}. Acheté pour vous dans nos épiceries partenaires.`,
+        description: `${name}. Acheté pour vous dans nos épiceries partenaires.`,
         origin,
         priceCents: Math.round(price * 100),
         costCents: Math.round(cost * 100),

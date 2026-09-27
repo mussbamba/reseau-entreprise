@@ -29,7 +29,7 @@ export default async function ProductsPage({
 
       <form className="mt-5 flex gap-2" action="/produits">
         {categorie && <input type="hidden" name="categorie" value={categorie} />}
-        <input name="q" defaultValue={q} placeholder="Rechercher : gari, attiéké, Ghana…" className="input" />
+        <input name="q" defaultValue={q} placeholder="Rechercher : gari, attiéké, bissap…" className="input" />
         <button className="btn-primary">Rechercher</button>
       </form>
 

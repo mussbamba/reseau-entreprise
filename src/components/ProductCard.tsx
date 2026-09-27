@@ -20,7 +20,6 @@ export function ProductCard({ p }: { p: ProductCardData }) {
         <ProductImage imageUrl={p.imageUrl} emoji={p.category.emoji} name={p.name} className="aspect-square w-full" />
       </Link>
       <div className="flex flex-1 flex-col gap-2 p-3">
-        {p.origin && <p className="text-xs uppercase tracking-wide text-stone-500">{p.origin}</p>}
         <Link href={`/produits/${p.slug}`} className="line-clamp-2 text-sm font-semibold hover:text-terre-600">
           {p.name}
         </Link>
