@@ -13,6 +13,7 @@ export function Footer() {
         <div className="flex flex-col gap-2">
           <Link href="/produits" className="hover:text-white">Boutique</Link>
           <Link href="/comment-ca-marche" className="hover:text-white">Comment ça marche / FAQ</Link>
+          <Link href="/demande" className="hover:text-white">Demander un produit introuvable</Link>
           <Link href="/suivi" className="hover:text-white">Suivre ma commande</Link>
         </div>
         <div className="flex flex-col gap-2">

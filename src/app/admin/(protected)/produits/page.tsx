@@ -5,6 +5,7 @@ import { toggleActive } from "./actions";
 
 export default async function AdminProductsPage() {
   const products = await db.product.findMany({
+    where: { listed: true },
     include: { category: true, store: true },
     orderBy: [{ active: "desc" }, { name: "asc" }],
   });

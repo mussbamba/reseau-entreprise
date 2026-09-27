@@ -37,6 +37,20 @@ Le client suit sa commande via le lien reçu par courriel ou sur `/suivi` (numé
 ⚠️ Une autorisation Stripe **expire après 7 jours** : encaissez avant. Le tableau de bord signale
 les commandes de plus de 5 jours.
 
+## Demandes spéciales (produits introuvables)
+
+Un client qui ne trouve pas un produit remplit `/demande` : nom du produit, détails, quantité,
+prix maximum et photo, tous facultatifs sauf le nom. Il reçoit un lien de suivi par courriel.
+
+1. Vous voyez la demande dans `/admin/demandes`. Le tableau de bord affiche aussi une alerte.
+2. Vous la cherchez en boutique, puis vous envoyez un prix (prix de vente, coût, boutique, message).
+   L'app crée un produit **non listé** au catalogue et le client reçoit un courriel.
+3. Le client ajoute l'article à son panier depuis sa page de demande, ou refuse.
+4. À la commande, la demande passe à **Commandé** et l'article apparaît dans la liste d'achat,
+   comme les autres produits.
+
+Si le produit est introuvable, le bouton « Introuvable » prévient le client par courriel.
+
 ## Réglages d'affaires
 
 Dans `src/lib/config.ts` : nom de la boutique, minimum de commande, tarifs de livraison, seuil de
@@ -66,5 +80,5 @@ Tailwind CSS 4 · Resend (optionnel).
 
 ## Pas encore dans le MVP (phase 2)
 
-Téléversement de photos (URL pour l'instant), comptes clients, remplacement d'article avec accord
+Téléversement de photos produits (URL pour l'instant), comptes clients, remplacement d'article avec accord
 du client, étiquettes d'expédition automatiques, codes promo, version anglaise.

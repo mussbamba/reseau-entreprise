@@ -88,6 +88,12 @@ export async function placeOrder(_prev: CheckoutState, formData: FormData): Prom
     },
   });
 
+  // Les demandes spéciales dont le produit est commandé passent à « Commandé »
+  await db.productRequest.updateMany({
+    where: { productId: { in: lines.map((l) => l.product.id) }, status: "QUOTED" },
+    data: { status: "ORDERED" },
+  });
+
   // MODE DÉMO : pas de clé Stripe → on simule l'autorisation du paiement
   if (!stripeEnabled()) {
     await markAuthorized(order.id, null);

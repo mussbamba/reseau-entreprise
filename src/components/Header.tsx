@@ -20,6 +20,10 @@ export function Header() {
           <Link href="/comment-ca-marche" className="hidden rounded-full px-3 py-2 hover:bg-terre-50 sm:block">
             Comment ça marche
           </Link>
+          <Link href="/demande" className="rounded-full px-3 py-2 hover:bg-terre-50">
+            <span className="sm:hidden">Demander</span>
+            <span className="hidden sm:inline">Demande spéciale</span>
+          </Link>
           <Link href="/suivi" className="hidden rounded-full px-3 py-2 hover:bg-terre-50 sm:block">
             Suivre ma commande
           </Link>

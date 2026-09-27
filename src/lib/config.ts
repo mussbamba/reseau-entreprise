@@ -32,3 +32,6 @@ export const PROVINCE_NAMES: Record<string, string> = {
   AB: "Alberta",
   BC: "Colombie-Britannique",
 };
+
+// Catégorie technique des produits créés pour les demandes spéciales (jamais affichée au catalogue)
+export const SPECIAL_CATEGORY = { slug: "demandes-speciales", name: "Demandes spéciales", emoji: "✨" };

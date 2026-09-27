@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
-import { SHOP, MIN_ORDER_CENTS, SHIPPING } from "@/lib/config";
+import { SHOP, MIN_ORDER_CENTS, SHIPPING, SPECIAL_CATEGORY } from "@/lib/config";
 import { formatMoney } from "@/lib/money";
 import { ProductCard } from "@/components/ProductCard";
 
@@ -8,9 +8,9 @@ export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const [categories, featured] = await Promise.all([
-    db.category.findMany({ orderBy: { position: "asc" } }),
+    db.category.findMany({ where: { slug: { not: SPECIAL_CATEGORY.slug } }, orderBy: { position: "asc" } }),
     db.product.findMany({
-      where: { active: true, featured: true },
+      where: { active: true, listed: true, featured: true },
       include: { category: true },
       take: 8,
       orderBy: { updatedAt: "desc" },
@@ -62,6 +62,15 @@ export default async function HomePage() {
             <ProductCard key={p.id} p={p} />
           ))}
         </div>
+      </section>
+
+      <section className="card flex flex-col items-start gap-3 bg-gradient-to-br from-amber-50 to-rose-50 p-6 sm:flex-row sm:items-center">
+        <span className="text-4xl" aria-hidden>✨</span>
+        <div className="flex-1">
+          <h2 className="text-xl font-bold">Vous ne trouvez pas un produit ?</h2>
+          <p className="text-sm text-stone-600">Envoyez-nous une demande : on le cherche pour vous dans nos épiceries partenaires.</p>
+        </div>
+        <Link href={"/demande"} className="btn-primary">Demander un produit</Link>
       </section>
 
       <section className="grid gap-4 sm:grid-cols-3">

@@ -104,3 +104,60 @@ export function mailOrderCancelled(o: OrderForMail) {
       sign,
   });
 }
+
+type RequestForMail = {
+  id: number;
+  publicId: string;
+  name: string;
+  quantity: number;
+  customerName: string;
+  email: string;
+  vendorNote: string;
+};
+
+const requestLink = (r: RequestForMail) => `${siteUrl()}/demande/${r.publicId}`;
+
+export function mailRequestReceived(r: RequestForMail) {
+  const admin = process.env.ADMIN_EMAIL;
+  if (admin) {
+    void sendEmail({
+      to: admin,
+      subject: `Demande spéciale : ${r.quantity} × ${r.name}`,
+      text: `${r.customerName} <${r.email}> cherche : ${r.quantity} × ${r.name}\n\n${siteUrl()}/admin/demandes/${r.id}`,
+    });
+  }
+  return sendEmail({
+    to: r.email,
+    subject: `Demande reçue : ${r.name}`,
+    text:
+      `Bonjour ${r.customerName},\n\nNous avons bien reçu votre demande : ${r.quantity} × ${r.name}.\n` +
+      `Nous vérifions sa disponibilité dans nos épiceries partenaires et vous envoyons un prix sous 24 à 48 h. ` +
+      `Aucun engagement de votre part.\n\nSuivre ma demande : ${requestLink(r)}` +
+      sign,
+  });
+}
+
+export function mailRequestQuoted(r: RequestForMail, unitPriceCents: number) {
+  return sendEmail({
+    to: r.email,
+    subject: `Bonne nouvelle : nous avons trouvé ${r.name}`,
+    text:
+      `Bonjour ${r.customerName},\n\nNous avons trouvé votre produit : ${r.name}.\n` +
+      `Prix : ${formatMoney(unitPriceCents)} l'unité, soit ${formatMoney(unitPriceCents * r.quantity)} pour ${r.quantity}.` +
+      (r.vendorNote ? `\n${r.vendorNote}` : "") +
+      `\n\nAjoutez-le à votre panier ici : ${requestLink(r)}` +
+      sign,
+  });
+}
+
+export function mailRequestUnavailable(r: RequestForMail) {
+  return sendEmail({
+    to: r.email,
+    subject: `Votre demande : ${r.name}`,
+    text:
+      `Bonjour ${r.customerName},\n\nMalheureusement, nous n'avons pas trouvé « ${r.name} » dans nos épiceries partenaires pour le moment.` +
+      (r.vendorNote ? `\n${r.vendorNote}` : "") +
+      `\n\nNous vous écrirons s'il redevient disponible.` +
+      sign,
+  });
+}

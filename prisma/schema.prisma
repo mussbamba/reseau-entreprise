@@ -40,12 +40,14 @@ model Product {
   weightGrams Int         @default(500)
   imageUrl    String      @default("")
   active      Boolean     @default(true)
+  listed      Boolean     @default(true) // false : créé pour une demande spéciale, absent du catalogue
   featured    Boolean     @default(false)
   categoryId  Int
   category    Category    @relation(fields: [categoryId], references: [id])
   storeId     Int?
   store       Store?      @relation(fields: [storeId], references: [id], onDelete: SetNull)
   orderItems  OrderItem[]
+  requests    ProductRequest[]
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 }
@@ -108,4 +110,26 @@ model OrderEvent {
   order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   message   String
   createdAt DateTime @default(now())
+}
+
+// Demande spéciale : un client cherche un produit absent du catalogue.
+// status : PENDING | QUOTED | ORDERED | DECLINED | UNAVAILABLE
+model ProductRequest {
+  id            Int      @id @default(autoincrement())
+  publicId      String   @unique @default(cuid())
+  status        String   @default("PENDING")
+  name          String
+  details       String   @default("")
+  quantity      Int      @default(1)
+  maxPriceCents Int?
+  photo         String   @default("") // petite image JPEG en data URL, réduite dans le navigateur
+  customerName  String
+  email         String
+  phone         String   @default("")
+  vendorNote    String   @default("")
+  // Produit (non listé) créé quand on envoie un prix : le client l'ajoute à son panier
+  productId     Int?
+  product       Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }

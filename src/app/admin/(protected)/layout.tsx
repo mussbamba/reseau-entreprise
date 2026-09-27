@@ -9,6 +9,7 @@ export const metadata = { title: "Admin", robots: { index: false } };
 const links = [
   ["/admin", "📋 Commandes"],
   ["/admin/liste-achat", "🛍️ Liste d'achat"],
+  ["/admin/demandes", "✨ Demandes"],
   ["/admin/produits", "🏷️ Produits"],
   ["/admin/boutiques", "🏪 Boutiques & catégories"],
 ];

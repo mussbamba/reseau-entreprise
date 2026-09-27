@@ -15,7 +15,8 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
   const { statut = "A_TRAITER" } = await searchParams;
   const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 
-  const [counts, orders, month] = await Promise.all([
+  const [pendingRequests, counts, orders, month] = await Promise.all([
+    db.productRequest.count({ where: { status: "PENDING" } }),
     db.order.groupBy({ by: ["status"], _count: true }),
     db.order.findMany({
       where: { status: statut === "A_TRAITER" ? { in: TO_HANDLE } : statut },
@@ -42,6 +43,11 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
 
   return (
     <div className="space-y-6">
+      {pendingRequests > 0 && (
+        <Link href="/admin/demandes" className="block rounded-xl bg-amber-50 p-3 text-sm font-semibold text-amber-900 hover:underline">
+          ✨ {pendingRequests} demande(s) spéciale(s) en attente de prix →
+        </Link>
+      )}
       <div className="grid gap-3 sm:grid-cols-4">
         <Stat label="Nouvelles" value={count("NEW")} />
         <Stat label="À acheter / en cours" value={count("NEW") + count("SHOPPING")} />
