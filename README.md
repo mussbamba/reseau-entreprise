@@ -22,6 +22,28 @@ npm run dev               # http://localhost:3000
 Sans clé Stripe, l'application tourne en **mode démo** : le paiement est simulé et les courriels
 s'affichent dans la console. Vous pouvez donc tester tout le parcours tout de suite.
 
+### Ouvrir le projet dans VS Code
+
+1. Installez [Node.js 20 ou plus](https://nodejs.org) (version LTS) et [VS Code](https://code.visualstudio.com).
+2. Décompressez le dossier, puis dans VS Code : **Fichier → Ouvrir le dossier…**
+3. Ouvrez le terminal intégré (**Terminal → Nouveau terminal**) et lancez :
+
+   ```bash
+   npm install
+   npm run setup
+   npm run dev
+   ```
+
+   Sous Windows, avant `npm run setup`, créez le fichier `.env` avec `copy .env.example .env`
+   (macOS/Linux : `cp .env.example .env`).
+4. Ouvrez http://localhost:3000 dans votre navigateur.
+
+### Démo mobile 3D
+
+`demo-mobile/index.html` est la maquette mobile interactive (produits en 3D, espace vendeur,
+demandes spéciales). Double-cliquez sur le fichier pour l'ouvrir dans votre navigateur (connexion
+Internet nécessaire pour charger la 3D et les polices). Elle fonctionne seule, sans serveur.
+
 ## Workflow d'une commande
 
 | Étape | Qui | Où | Effet |
