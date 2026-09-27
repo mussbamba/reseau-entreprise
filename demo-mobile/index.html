@@ -322,6 +322,136 @@ h1,h2,h3{letter-spacing:-.02em;font-weight:800}
 .step.done .dot,.step.done:not(:last-child)::before{background:#10b981}
 .how div span.n{filter:saturate(.9)}
 :focus-visible{outline-color:#10b981}
+
+/* ================= Présentation marketplace (inspirée des grandes plateformes) ================= */
+:root{--az-bg:#eaeded;--az-ink:#0f1111;--az-muted:#565959;--az-link:#007185;--az-yellow:#ffd814;--az-yellow-b:#fcd200;--az-orange:#ffa41c;--az-orange-b:#ff8f00;--az-red:#cc0c39;--az-green:#067d62}
+body,.app{background:var(--az-bg);color:var(--az-ink)}
+.topbar{background:linear-gradient(90deg,#82d8e3 0%,#a6e7ce 100%);box-shadow:none}
+.wax{display:none}
+.topbar-in{padding:8px 12px 6px}
+.brand{font-size:16px}
+.brand b{color:#065f46}
+.mode{background:rgba(255,255,255,.55);box-shadow:none}
+.mode button{color:#0f3d3a}
+.mode button[aria-pressed="true"]{background:#fff;color:var(--az-ink);box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.back{background:rgba(255,255,255,.7);box-shadow:none;width:34px;height:34px}
+.az-search{margin:0 12px 8px;display:flex;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.15),inset 0 0 0 1px rgba(0,0,0,.08)}
+.az-search input{flex:1;min-width:0;border:0;outline:none;padding:11px 12px;font-size:16px;background:transparent}
+.az-search button{border:0;background:#febd69;width:48px;display:grid;place-items:center;color:var(--az-ink)}
+.az-search button svg{width:20px;height:20px}
+.az-deliver{background:linear-gradient(90deg,#c9f0ee,#dcf5e7);padding:8px 14px;font-size:13px;display:flex;align-items:center;gap:6px;color:var(--az-ink)}
+.az-deliver svg{width:16px;height:16px}
+.az-deliver b{font-weight:700}
+.az-nav{display:flex;gap:18px;overflow-x:auto;scrollbar-width:none;padding:9px 14px;background:linear-gradient(90deg,#b8ece6,#cdf1dd);font-size:13.5px;white-space:nowrap}
+.az-nav::-webkit-scrollbar{display:none}
+.az-nav button{border:0;background:none;padding:0;font-weight:600;color:var(--az-ink)}
+.az-nav button[aria-current="true"]{text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:2px}
+.main{padding:0 12px 104px;gap:12px}
+.main > *:first-child{margin-top:12px}
+.main > .az-hero:first-child{margin-top:0}
+
+/* Bannière défilante qui se fond dans le fond gris */
+.az-hero{position:relative;margin-inline:-12px}
+.az-slides{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
+.az-slides::-webkit-scrollbar{display:none}
+.az-slide{flex:0 0 100%;scroll-snap-align:start;position:relative;height:300px;padding:18px 18px 0;overflow:hidden;border:0;text-align:left;display:block}
+.az-slide h2{font-size:24px;line-height:1.1;max-width:62%;font-weight:800}
+.az-slide p{margin:6px 0 0;font-size:13px;max-width:58%;color:#334155}
+.az-slide .cta{display:inline-block;margin-top:10px;font-size:12.5px;font-weight:700;background:#fff;border-radius:999px;padding:6px 12px;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.az-slide .imgs{position:absolute;right:-6px;top:26px;width:52%;height:170px}
+.az-slide .imgs img{position:absolute;object-fit:contain;filter:drop-shadow(0 10px 12px rgba(15,23,42,.25))}
+@media (prefers-reduced-motion:no-preference){.az-slide .imgs img{animation:float 5.5s ease-in-out infinite}}
+.az-hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:120px;background:linear-gradient(180deg,rgba(234,237,237,0),var(--az-bg));pointer-events:none}
+.az-dots{position:absolute;left:0;right:0;top:238px;display:flex;justify-content:center;gap:6px;z-index:2}
+.az-dots span{width:7px;height:7px;border-radius:50%;background:rgba(15,17,17,.25)}
+.az-dots span.on{background:var(--az-ink)}
+.az-overlap{margin-top:-58px;position:relative;z-index:3;display:flex;flex-direction:column;gap:12px}
+
+/* Cartes « 4 produits » */
+.az-card{background:#fff;padding:14px 14px 12px;display:flex;flex-direction:column;gap:10px}
+.az-card h2{font-size:18px;font-weight:800;letter-spacing:-.01em}
+.az-quad{display:grid;grid-template-columns:1fr 1fr;gap:12px 10px}
+.az-quad button{border:0;background:none;padding:0;text-align:left;display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--az-ink);line-height:1.25}
+.az-quad .qimg{aspect-ratio:1;max-width:100%;background:#f7f8f8;display:grid;place-items:center;overflow:hidden}
+.az-quad .qimg img{width:86%;height:86%;object-fit:contain}
+.az-quad .qimg img.photo{width:100%;height:100%;object-fit:cover}
+.az-quad .qlbl{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.az-more{border:0;background:none;padding:0;color:var(--az-link);font-size:13.5px;font-weight:600;text-align:left}
+
+/* Rayon horizontal */
+.az-rail{display:grid;grid-auto-flow:column;grid-auto-columns:40%;gap:10px;overflow-x:auto;scrollbar-width:none;margin-inline:-14px;padding:0 14px 4px;scroll-padding-inline:14px;scroll-snap-type:x mandatory}
+.az-rail::-webkit-scrollbar{display:none}
+.az-rail > button{scroll-snap-align:start;border:0;background:none;padding:0;text-align:left;display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--az-ink)}
+
+/* Prix */
+.az-price{display:inline-flex;align-items:flex-start;font-weight:500;color:var(--az-ink);line-height:1;font-variant-numeric:tabular-nums}
+.az-price .d{font-size:26px}
+.az-price .c,.az-price .cur{font-size:13px;margin-top:3px}
+.az-price .cur{margin-left:3px}
+.az-price.sm .d{font-size:19px}
+.az-price.sm .c,.az-price.sm .cur{font-size:11px;margin-top:2px}
+.az-free{font-size:12.5px;color:var(--az-muted)}
+.az-free b{color:var(--az-ink)}
+.az-ok{color:var(--az-green);font-size:13px;font-weight:600}
+.az-deal{display:inline-block;background:var(--az-red);color:#fff;font-size:11.5px;font-weight:700;padding:3px 7px;border-radius:3px}
+.az-new{display:inline-block;background:#007185;color:#fff;font-size:11.5px;font-weight:700;padding:3px 7px;border-radius:3px}
+
+/* Boutons jaune / orange */
+.az-btn{border:0;border-radius:999px;padding:12px 14px;font-weight:500;font-size:14.5px;width:100%;color:var(--az-ink)}
+.az-btn.y{background:var(--az-yellow);box-shadow:inset 0 0 0 1px var(--az-yellow-b)}
+.az-btn.o{background:var(--az-orange);box-shadow:inset 0 0 0 1px var(--az-orange-b)}
+.az-btn.w{background:#fff;box-shadow:inset 0 0 0 1px #d5d9d9,0 2px 5px rgba(213,217,217,.5)}
+.az-btn.sm{padding:8px 12px;font-size:13px}
+.az-btn:active{filter:brightness(.95)}
+.az-btn:disabled{opacity:.5}
+
+/* Résultats de recherche en lignes */
+.az-results-h{background:#fff;margin-inline:-12px;padding:10px 14px;font-size:13.5px;color:var(--az-muted)}
+.az-results-h b{color:#c45500}
+.az-list{display:flex;flex-direction:column;gap:8px;margin-inline:-12px}
+.az-item{background:#fff;display:grid;grid-template-columns:42% 1fr;gap:12px;padding:12px 14px 12px 0}
+.az-item .rimg{background:#f7f8f8;display:grid;place-items:center;min-height:170px;border:0;padding:0;overflow:hidden;position:relative}
+.az-item .rimg img{width:84%;height:84%;object-fit:contain;max-height:180px}
+.az-item .rimg img.photo{width:100%;height:100%;object-fit:cover;max-height:none}
+.az-item .rbody{display:flex;flex-direction:column;gap:6px;min-width:0}
+.az-item .rtitle{border:0;background:none;padding:0;text-align:left;font-size:14.5px;line-height:1.3;color:var(--az-ink);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.az-chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-inline:-12px;padding:2px 12px}
+.az-chips::-webkit-scrollbar{display:none}
+.az-chips button{flex:none;border:1px solid #d5d9d9;background:#fff;border-radius:8px;padding:7px 12px;font-size:13px;color:var(--az-ink)}
+.az-chips button[aria-pressed="true"]{border-color:#007185;background:#edfdff;box-shadow:inset 0 0 0 1px #007185}
+
+/* Fiche produit */
+.az-pd{background:#fff;margin-inline:-12px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.az-bc{font-size:12.5px;color:var(--az-link)}
+.az-pd h1{font-size:17px;font-weight:500;line-height:1.35;letter-spacing:0}
+.az-pd .detail{border:0;border-radius:0;background:#fff;margin-inline:-14px}
+.az-pd hr{border:0;border-top:1px solid #e7e7e7;margin:4px 0;width:100%}
+.az-qty{align-self:flex-start;border:1px solid #d5d9d9;background:#f0f2f2;border-radius:8px;padding:7px 10px;font-size:13.5px;box-shadow:0 2px 5px rgba(15,17,17,.15)}
+.az-about{background:#fff;margin-inline:-12px;padding:14px}
+.az-about h2{font-size:17px;font-weight:700;margin-bottom:8px}
+.az-about ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:14px}
+
+/* Panier */
+.az-cart-top{background:#fff;margin-inline:-12px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.az-cart-top .sub{font-size:18px}
+.az-cart-item{background:#fff;margin-inline:-12px;padding:12px 14px;display:grid;grid-template-columns:96px 1fr;gap:12px}
+.az-cart-item .ci{width:96px;height:96px;background:#f7f8f8;display:grid;place-items:center;overflow:hidden}
+.az-cart-item .ci img{width:86%;height:86%;object-fit:contain}
+.az-cart-item .ci img.photo{width:100%;height:100%;object-fit:cover}
+.az-step{align-self:flex-start;display:inline-flex;align-items:center;border:3px solid var(--az-yellow);border-radius:999px;overflow:hidden}
+.az-step button{border:0;background:#fff;width:34px;height:30px;font-size:17px}
+.az-step span{min-width:26px;text-align:center;font-weight:700}
+.az-bar{height:6px;border-radius:3px;background:#e3e6e6;overflow:hidden}
+.az-bar i{display:block;height:100%;background:#067d62}
+
+/* Onglets du bas façon appli marchande */
+.tabbar{padding:0}
+.tabbar-in{border-radius:0;box-shadow:0 -1px 0 #d5d9d9;padding:0 0 calc(4px + env(safe-area-inset-bottom,0px))}
+.tab{border-radius:0;padding:8px 0 6px;color:var(--az-ink);font-weight:500}
+.tab[aria-current="page"]{background:none;color:#007185;box-shadow:inset 0 3px 0 #007185}
+.badge{background:var(--az-orange);color:var(--az-ink);border-color:#fff}
+.toast{border-radius:10px}
+.card,.oitem{border-radius:10px}
 </style>
 
 <div class="app" id="app">
@@ -672,7 +802,7 @@ const ROOTS = ["home","shop","cart","orders","a-orders","a-list","a-products","a
 function render(){
   unmountStage();
   const isRoot = ROOTS.includes(S.view);
-  const showBrand = S.view==="home"||S.view==="shop"||S.view==="a-orders";
+  const showBrand = S.view==="home"||S.view==="shop"||S.view==="a-orders"||(S.mode==="client"&&["cart","orders"].includes(S.view));
   document.getElementById("topbar").innerHTML = `
     ${isRoot?"":`<button class="back" data-a="back" aria-label="Retour">${ICONS.chevron}</button>`}
     ${showBrand?`<span class="brand">${LOGO}<span>Saveurs <b>d'Afrique</b></span></span>`:`<h1 style="font-size:19px">${esc(TITLES[S.view]||"")}</h1>`}
@@ -682,10 +812,17 @@ function render(){
     </div>`;
   document.getElementById("demoBanner").hidden = S.mode!=="admin";
   let ts = document.getElementById("topSearch");
-  if(!ts){ ts = document.createElement("div"); ts.id = "topSearch"; ts.className = "top-search"; document.getElementById("topbar").after(ts); }
-  ts.hidden = !(S.mode==="client" && S.view==="home");
-  if(!ts.hidden) ts.innerHTML = `<form id="homeSearch" role="search"><input id="hq" type="search" enterkeyhint="search" placeholder="Rechercher gari, attiéké, bissap…" aria-label="Rechercher un produit"><button aria-label="Rechercher">${ICONS.search}</button></form>
-    <div class="deliver">${PIN}Livraison au Québec · gratuite dès ${FREE_OVER/100} $</div>`;
+  if(!ts){ ts = document.createElement("div"); ts.id = "topSearch"; document.getElementById("topbar").after(ts); }
+  const clientBar = S.mode==="client" && !["checkout","request"].includes(S.view);
+  ts.hidden = !clientBar;
+  if(clientBar){
+    const curCat = S.view==="shop" ? (S.params.cat||"") : null;
+    ts.innerHTML = `<form id="homeSearch" class="az-search" role="search"><input id="hq" type="search" enterkeyhint="search" value="${esc(S.view==="shop"?(S.params.q||""):"")}" placeholder="Rechercher sur Saveurs d'Afrique" aria-label="Rechercher un produit"><button aria-label="Rechercher">${ICONS.search}</button></form>`;
+    let extra = document.getElementById("azExtra");
+    if(!extra){ extra = document.createElement("div"); extra.id = "azExtra"; document.querySelector(".topbar").after(extra); }
+    extra.innerHTML = S.view==="home"||S.view==="shop" ? `<div class="az-deliver">${PIN}<span>Livraison au <b>Québec</b> · <b>GRATUITE</b> dès ${FREE_OVER/100} $</span></div>
+      <nav class="az-nav" aria-label="Rayons"><button data-a="shopcat" data-v="" aria-current="${curCat===""}">Tout</button>${CATS.map(c=>`<button data-a="shopcat" data-v="${c.id}" aria-current="${curCat===c.id}">${c.name}</button>`).join("")}<button data-a="newreq">Demande spéciale</button></nav>` : "";
+  } else { const extra = document.getElementById("azExtra"); if(extra) extra.innerHTML = ""; }
   const tabs = S.mode==="client"
     ? [["home","Accueil","home"],["shop","Boutique","shop"],["cart","Panier","cart"],["orders","Commandes","box"]]
     : [["a-orders","Commandes","box"],["a-list","Liste d'achat","list"],["a-requests","Demandes","spark"],["a-products","Produits","tag"]];
@@ -701,6 +838,15 @@ function render(){
   const fn = VIEWS[S.view] || VIEWS.home;
   main.innerHTML = fn(S.params);
   const hero = document.getElementById("heroStage"); if(hero) mountStage(hero, HERO_IDS, false);
+  clearInterval(window.__azTimer);
+  const slidesEl = document.getElementById("azSlides");
+  if(slidesEl){
+    const dots = [...document.querySelectorAll("#azDots span")];
+    const cur = () => Math.round(slidesEl.scrollLeft / slidesEl.clientWidth);
+    slidesEl.addEventListener("scroll", () => dots.forEach((d,i)=>d.classList.toggle("on", i===cur())), {passive:true});
+    if(!REDUCED) window.__azTimer = setInterval(() => { if(!slidesEl.isConnected) return clearInterval(window.__azTimer);
+      slidesEl.scrollTo({left: ((cur()+1)%dots.length)*slidesEl.clientWidth, behavior:"smooth"}); }, 5000);
+  }
   const det = document.getElementById("detailStage");
   if(det){
     const photo = PHOTOS[S.params.id];
@@ -746,16 +892,19 @@ function productCard(p,i){
       <button class="addbar" data-a="add" data-id="${p.id}" aria-label="Ajouter ${esc(p.name)} au panier">Ajouter</button>
     </div></article>`;
 }
-function priceHTML(c){ const [d,cents] = (c/100).toFixed(2).split("."); return `<span class="pprice" aria-label="${money(c)}"><span class="d">${d}</span><span class="c">,${cents}</span><span class="cur">$</span></span>`; }
+function priceHTML(c, small){ const [d,cents] = (c/100).toFixed(2).split("."); return `<span class="az-price${small?" sm":""}" aria-label="${money(c)}"><span class="d">${d}</span><span class="c">,${cents}</span><span class="cur">$</span></span>`; }
+function imgFor(p){ return PHOTOS[p.id] ? `<img class="photo" src="${PHOTOS[p.id]}" alt="">` : GL_OK ? `<img data-snap="${p.id}" alt="">` : `<span style="font-size:40px">${cat(p.cat).emoji}</span>`; }
+function quad(title, list, act, more){
+  return `<section class="az-card"><h2>${esc(title)}</h2>
+    <div class="az-quad">${list.map(p=>`<button data-a="product" data-id="${p.id}"><span class="qimg">${imgFor(p)}</span><span class="qlbl">${esc(p.name)}</span></button>`).join("")}</div>
+    <button class="az-more" ${act}>${more}</button></section>`;
+}
 function reqPill(r){ const [l,c] = REQ_STATUS[r.status]; return `<span class="pill ${c}">${l}</span>`; }
 function requestPromo(q){
-  return `<section class="card" style="background:linear-gradient(135deg,#ecfdf5,#fdf2f8);flex-direction:row;align-items:center;gap:14px">
-    <span style="font-size:34px" aria-hidden="true">✨</span>
-    <div class="grow" style="display:flex;flex-direction:column;gap:6px">
-      <b style="font-family:var(--display);font-size:17px">Vous ne trouvez pas un produit ?</b>
-      <span class="small">Envoyez-nous une demande : on le cherche pour vous dans nos épiceries.</span>
-      <button class="btn btn-primary" style="width:auto;align-self:flex-start;padding:10px 16px" data-a="newreq" data-q="${esc(q)}">Demander un produit</button>
-    </div>
+  return `<section class="az-card" style="background:linear-gradient(135deg,#e3f4ff,#fdeef4);margin-inline:-12px">
+    <h2>Vous ne trouvez pas${q?` « ${esc(q)} »`:" un produit"} ?</h2>
+    <span class="az-free">Envoyez-nous une demande spéciale : nous le cherchons dans nos épiceries partenaires et vous envoyons un prix.</span>
+    <button class="az-btn y" data-a="newreq" data-q="${esc(q)}">Faire une demande spéciale</button>
   </section>`;
 }
 function pill(status){ return `<span class="pill s-${status}">${STATUS[status]}</span>`; }
@@ -763,54 +912,59 @@ function pill(status){ return `<span class="pill s-${status}">${STATUS[status]}<
 const VIEWS = {
   home(){
     const feat = allProducts().filter(p=>p.active&&p.featured);
+    const byCat = id => allProducts().filter(p=>p.active&&p.cat===id);
+    const slides = [
+      {bg:"linear-gradient(160deg,#c9f2ec 0%,#e3f4ff 60%,#eaeded 100%)",t:"Le goût de chez nous, livré à votre porte",d:"Nous achetons vos produits dans nos épiceries partenaires.",cta:"Découvrir",a:'data-a="tab" data-v="shop"',ids:[2,8,12]},
+      {bg:"linear-gradient(160deg,#ffe3ea 0%,#fff1dc 60%,#eaeded 100%)",t:"Livraison GRATUITE dès 150 $",d:"Partout au Québec. Payez seulement ce que nous trouvons.",cta:"Remplir mon panier",a:'data-a="tab" data-v="shop"',ids:[15,7]},
+      {bg:"linear-gradient(160deg,#e7e3ff 0%,#dff3ff 60%,#eaeded 100%)",t:"Introuvable ? On le trouve pour vous",d:"Envoyez une demande spéciale, recevez un prix.",cta:"Faire une demande",a:'data-a="newreq"',ids:[3,9]},
+    ];
+    const pos = [[["62%","8%","0"],["70%","30%","16%"],["58%","56%","6%"]],[["72%","4%","4%"],["62%","46%","14%"]],[["66%","6%","6%"],["60%","48%","18%"]]];
     return `
-      <section class="hero">
-        <div class="hero-copy">
-          <span class="eyebrow">NOUVEAU · ÉPICERIE AFRICAINE EN LIGNE</span>
-          <h1>Le goût de chez nous, <em>livré à votre porte.</em></h1>
-          <p>Nous achetons vos produits dans nos épiceries partenaires, puis nous vous les expédions.</p>
+      <section class="az-hero" id="azHero">
+        <div class="az-slides" id="azSlides">${slides.map((sl,i)=>`
+          <button class="az-slide" style="background:${sl.bg}" ${sl.a}>
+            <h2>${sl.t}</h2><p>${sl.d}</p><span class="cta">${sl.cta} ›</span>
+            <span class="imgs">${sl.ids.map((id,k)=>{ const p=prod(id); const [h,l,t]=pos[i][k]; return `<img ${PHOTOS[id]?`src="${PHOTOS[id]}" class="photo" style="border-radius:10px;border:3px solid #fff;`:`data-snap="${id}" style="`}height:${h};left:${l};top:${t};animation-delay:${-k*1.4}s" alt="${esc(p.name)}">`; }).join("")}</span>
+          </button>`).join("")}
         </div>
-        ${GL_OK?`<div class="stage" id="heroStage"><canvas aria-label="Produits en 3D : poundo yam, huile de palme, beurre de karité, bissap, cubes d'assaisonnement"></canvas><span class="hint">Glissez pour faire tourner</span></div>`:`<div style="height:24px"></div>`}
-        <div class="hero-cta">
-          <button class="btn btn-amber" style="width:auto;padding:13px 20px" data-a="tab" data-v="shop">Découvrir la boutique</button>
-          <span class="chip-soft">Livraison gratuite dès ${money(FREE_OVER)}</span>
-        </div>
+        <div class="az-dots" id="azDots">${slides.map((_,i)=>`<span class="${i?"":"on"}"></span>`).join("")}</div>
       </section>
-      <div class="perks">
-        <div class="perk"><i style="background:#e8f7ee">🚚</i><b>Livraison gratuite</b>dès ${money(FREE_OVER)}</div>
-        <div class="perk"><i style="background:#fef9c3">💳</i><b>Payez le réel</b>introuvable = non facturé</div>
-        <div class="perk"><i style="background:#ffe9f0">✨</i><b>Sur demande</b>on trouve pour vous</div>
-      </div>
-      <section class="section-box">
-        <div class="section-h"><h2>Acheter par catégorie</h2></div>
-        <div class="catrow">${CATS.map(c=>{ const rep = allProducts().find(p=>p.cat===c.id&&p.active); return `<button class="catbub" data-a="shopcat" data-v="${c.id}"><span class="ic" style="--tint:${rep?tint(rep):"#f5f6f8"}">${rep?(PHOTOS[rep.id]?`<img src="${PHOTOS[rep.id]}" alt="" style="width:100%;height:100%;object-fit:cover">`:GL_OK?`<img data-snap="${rep.id}" alt="">`:c.emoji):c.emoji}</span>${c.name}</button>`; }).join("")}</div>
-      </section>
-      <section style="display:flex;flex-direction:column;gap:12px">
-        <div class="section-h"><h2>Les incontournables</h2><button class="link" data-a="tab" data-v="shop">Tout voir ›</button></div>
-        <div class="rail">${feat.map(productCard).join("")}</div>
-      </section>
-      ${CATS.slice(0,2).map(c=>{ const list = allProducts().filter(p=>p.active&&p.cat===c.id).slice(0,4); return list.length?`<section style="display:flex;flex-direction:column;gap:12px">
-        <div class="section-h"><h2>${c.name}</h2><button class="link" data-a="shopcat" data-v="${c.id}">Voir tout ›</button></div>
-        <div class="grid">${list.map(productCard).join("")}</div></section>`:""; }).join("")}
-      ${requestPromo("")}
-      <section style="display:flex;flex-direction:column;gap:12px">
-        <h2 style="font-size:21px">Comment ça marche</h2>
-        <div class="how">
-          ${[["#34d399","Vous commandez","Carte autorisée, pas encore débitée."],["#38bdf8","On fait vos courses","Dans nos épiceries partenaires."],["#facc15","Vous payez le réel","Un article introuvable n'est pas facturé."],["#fb7185","On expédie","Numéro de suivi par courriel."]].map(([c,t,d],i)=>`<div><span class="n" style="background:${c}">${i+1}</span><b>${t}</b><span class="small">${d}</span></div>`).join("")}
-        </div>
-      </section>`;
+      <div class="az-overlap">
+        ${quad("Les incontournables", feat.slice(0,4), 'data-a="tab" data-v="shop"', "Voir toute la boutique")}
+        ${CATS.map(c=>{ const l=byCat(c.id); return l.length?quad(c.name, l.slice(0,4), `data-a="shopcat" data-v="${c.id}"`, "Voir plus"):""; }).slice(0,2).join("")}
+        <section class="az-card">
+          <h2>Meilleures ventes</h2>
+          <div class="az-rail">${feat.map(p=>`<button data-a="product" data-id="${p.id}"><span class="qimg" style="aspect-ratio:1;background:#f7f8f8;display:grid;place-items:center">${imgFor(p)}</span><span class="qlbl" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${esc(p.name)}</span>${priceHTML(p.price,true)}</button>`).join("")}</div>
+        </section>
+        ${CATS.map(c=>{ const l=byCat(c.id); return l.length?quad(c.name, l.slice(0,4), `data-a="shopcat" data-v="${c.id}"`, "Voir plus"):""; }).slice(2).join("")}
+        <section class="az-card" style="background:linear-gradient(135deg,#e3f4ff,#fdeef4)">
+          <h2>Vous ne trouvez pas un produit ?</h2>
+          <span class="az-free">Dites-nous ce que vous cherchez : nous le trouvons dans nos épiceries partenaires et vous envoyons un prix.</span>
+          <button class="az-btn y" data-a="newreq">Faire une demande spéciale</button>
+        </section>
+        <section class="az-card">
+          <h2>Comment ça marche</h2>
+          <div class="az-quad" style="grid-template-columns:1fr 1fr">${[["🛒","Vous commandez","Carte autorisée, pas encore débitée."],["🏪","On achète pour vous","Dans nos épiceries partenaires."],["💳","Vous payez le réel","Introuvable = non facturé."],["📦","On expédie","Numéro de suivi par courriel."]].map(([i,t,d])=>`<div style="display:flex;flex-direction:column;gap:4px;font-size:12.5px"><span style="font-size:24px">${i}</span><b>${t}</b><span class="az-free">${d}</span></div>`).join("")}</div>
+        </section>
+      </div>`;
   },
   shop({cat:c="",q=""}){
     const ql = q.trim().toLowerCase();
-    const list = allProducts().filter(p=>p.active&&(!c||p.cat===c)&&(!ql||(p.name+" "+p.origin).toLowerCase().includes(ql)));
+    const list = allProducts().filter(p=>p.active&&(!c||p.cat===c)&&(!ql||(p.name+" "+p.origin+" "+cat(p.cat).name).toLowerCase().includes(ql)));
     return `
-      <h1 style="font-size:28px">${c?esc(cat(c).name):"Tous les produits"}</h1>
-      <label class="search">${ICONS.search}<input id="q" type="search" placeholder="Gari, attiéké, bissap…" value="${esc(q)}" aria-label="Rechercher"></label>
-      <div class="cats">
-        <button class="cat" data-a="shopcat" data-v="" aria-pressed="${!c}">Tout</button>
-        ${CATS.map(x=>`<button class="cat" data-a="shopcat" data-v="${x.id}" aria-pressed="${c===x.id}"><span>${x.emoji}</span>${x.name}</button>`).join("")}
-      </div>
-      ${list.length?`<div class="grid">${list.map(productCard).join("")}</div>`:`<div class="empty"><span class="big">🔍</span>Aucun produit ne correspond${q?` à « ${esc(q)} »`:""}.</div>`}
+      <div class="az-results-h">${list.length} résultat${list.length>1?"s":""}${q?` pour <b>« ${esc(q)} »</b>`:c?` dans <b>${esc(cat(c).name)}</b>`:""}</div>
+      ${list.length?`<div class="az-list">${list.map(p=>`
+        <article class="az-item">
+          <button class="rimg" data-a="product" data-id="${p.id}" aria-label="${esc(p.name)}">${imgFor(p)}</button>
+          <div class="rbody">
+            ${(S.custom||[]).some(x=>x.id===p.id)?`<span><span class="az-new">Nouveau</span></span>`:p.featured?`<span><span class="az-deal">Populaire</span></span>`:""}
+            <button class="rtitle" data-a="product" data-id="${p.id}">${esc(p.name)}</button>
+            ${priceHTML(p.price)}
+            <span class="az-free">Livraison <b>GRATUITE</b> dès ${FREE_OVER/100} $</span>
+            <span class="az-ok">Acheté pour vous en épicerie</span>
+            <button class="az-btn y sm" data-a="add" data-id="${p.id}">Ajouter au panier</button>
+          </div>
+        </article>`).join("")}</div>`:`<div class="empty"><span class="big">🔍</span>Aucun résultat${q?` pour « ${esc(q)} »`:""}.</div>`}
       ${requestPromo(q)}`;
   },
   product({id}){
@@ -819,40 +973,56 @@ const VIEWS = {
     const vis = PHOTOS[p.id] && !GL_OK
       ? `<div class="detail has-photo">${photoBox(PHOTOS[p.id], p.name)}</div>`
       : !GL_OK
-      ? `<div class="detail" style="--tint:${tint(p)}"><span class="ground"></span><span class="floaty">${visual(p,true)}</span></div>`
-      : `<div class="detail" style="--tint:${tint(p)}"><div class="stage" id="detailStage"><canvas aria-label="${esc(p.name)} en 3D"></canvas><span class="hint">Glissez pour faire tourner</span></div></div>`;
+      ? `<div class="detail" style="--tint:#fff"><span class="ground"></span><span class="floaty">${visual(p,true)}</span></div>`
+      : `<div class="detail" style="--tint:#f7f8f8"><div class="stage" id="detailStage"><canvas aria-label="${esc(p.name)} en 3D"></canvas><span class="hint">Glissez pour faire tourner</span></div></div>`;
     return `
-      ${vis}
-      <div style="display:flex;flex-direction:column;gap:6px">
-        <h1 style="font-size:28px">${esc(p.name)}</h1>
-        <span class="price" style="font-size:24px;color:var(--brand)">${money(p.price)}</span>
-        <p style="margin:0;color:var(--muted)">${esc(p.desc || `${p.name}. Acheté pour vous dans nos épiceries partenaires.`)}</p>
-      </div>
-      <div class="row">
-        <div class="qty"><button data-a="pqty" data-d="-1" aria-label="Moins">−</button><span>${q}</span><button data-a="pqty" data-d="1" aria-label="Plus">+</button></div>
-        <button class="btn btn-amber grow" data-a="addq" data-id="${p.id}">Ajouter · ${money(p.price*q)}</button>
-      </div>
-      <div class="note note-brand"><b>Acheté sur commande.</b> ${SCHEDULE} S'il est introuvable, ce produit ne vous sera pas facturé.</div>`;
+      <section class="az-pd">
+        <button class="az-bc link" data-a="shopcat" data-v="${p.cat}" style="text-align:left;font-weight:500">${esc(cat(p.cat).name)} ›</button>
+        <h1>${esc(p.name)}</h1>
+        ${p.featured?`<span><span class="az-deal">Populaire</span></span>`:""}
+        ${vis}
+        <hr>
+        ${priceHTML(p.price)}
+        <span class="az-free">Livraison <b>${money(SHIP_QC)}</b> au Québec · <b>GRATUITE</b> dès ${FREE_OVER/100} $</span>
+        <span class="az-free">Commandez avant <b>mardi minuit</b> : expédié <b>jeudi</b>.</span>
+        <span class="az-ok" style="font-size:16px">Acheté sur commande</span>
+        <label class="az-qty">Qté : <select id="pqsel" style="border:0;background:none;font:inherit">${Array.from({length:10},(_,i)=>`<option ${i+1===q?"selected":""}>${i+1}</option>`).join("")}</select></label>
+        <button class="az-btn y" data-a="addq" data-id="${p.id}">Ajouter au panier</button>
+        <button class="az-btn o" data-a="buynow" data-id="${p.id}">Acheter maintenant</button>
+        <span class="az-free">🔒 Paiement sécurisé · votre carte est autorisée, puis débitée du montant réel.</span>
+      </section>
+      <section class="az-about">
+        <h2>À propos de cet article</h2>
+        <ul>
+          <li>${esc(p.desc || p.name)}</li>
+          <li>Acheté pour vous dans nos épiceries africaines partenaires, au moment de votre commande.</li>
+          <li>S'il est introuvable en boutique, il est retiré de votre commande et <b>n'est pas facturé</b>.</li>
+          <li>Rayon : ${esc(cat(p.cat).name)}.</li>
+        </ul>
+      </section>`;
   },
   cart(){
     const lines = cartLines();
-    if(!lines.length) return `<div class="empty"><span class="big">🧺</span><h2>Votre panier est vide</h2><button class="btn btn-primary" style="width:auto" data-a="tab" data-v="shop">Découvrir les produits</button></div>`;
-    const sub = cartSub(), missing = MIN_ORDER-sub, toFree = FREE_OVER-sub;
+    if(!lines.length) return `<section class="az-cart-top" style="text-align:center;align-items:center"><span style="font-size:52px">🛒</span><h2 style="font-size:20px">Votre panier est vide</h2><button class="az-btn y" data-a="tab" data-v="shop">Continuer vos achats</button></section>`;
+    const sub = cartSub(), n = cartCount(), missing = MIN_ORDER-sub, toFree = FREE_OVER-sub;
     return `
-      <div class="card">${lines.map(({p,qty})=>`
-        <div class="row">
-          ${thumb(p)}
-          <div class="grow"><div style="font-weight:700;font-size:14px">${esc(p.name)}</div><div class="small">${money(p.price)} · total ${money(p.price*qty)}</div></div>
-          ${p.special?`<button class="toggle off" data-a="cqty" data-key="${p.id}" data-d="-999" aria-label="Retirer">Retirer · ${qty}</button>`:`<div class="qty"><button data-a="cqty" data-key="${p.id}" data-d="-1" aria-label="Retirer un">−</button><span>${qty}</span><button data-a="cqty" data-key="${p.id}" data-d="1" aria-label="Ajouter un">+</button></div>`}
-        </div>`).join("")}
-      </div>
-      <div class="card">
-        <div class="line"><span>Sous-total</span><b>${money(sub)}</b></div>
-        <span class="small">Livraison calculée à l'étape suivante.</span>
-        ${missing>0?`<div class="note note-warn">Commande minimum : ${money(MIN_ORDER)}. Il vous manque ${money(missing)}.</div>`
-          : toFree>0?`<div class="note note-ok">Plus que ${money(toFree)} pour la livraison gratuite.</div>`:`<div class="note note-ok">Livraison gratuite !</div>`}
-        <button class="btn btn-primary" data-a="go" data-v="checkout" ${missing>0?"disabled":""}>Passer la commande</button>
-      </div>`;
+      <section class="az-cart-top">
+        <div class="sub">Sous-total (${n} article${n>1?"s":""}) : ${priceHTML(sub,true)}</div>
+        ${toFree>0?`<div class="az-bar"><i style="width:${Math.min(100,sub/FREE_OVER*100)}%"></i></div><span class="az-free">Ajoutez <b>${money(toFree)}</b> pour la livraison <b>GRATUITE</b>.</span>`:`<span class="az-ok">✓ Votre commande est admissible à la livraison GRATUITE.</span>`}
+        ${missing>0?`<span class="az-free" style="color:#b12704">Commande minimum : ${money(MIN_ORDER)}. Il manque ${money(missing)}.</span>`:""}
+        <button class="az-btn y" data-a="go" data-v="checkout" ${missing>0?"disabled":""}>Passer la commande (${n} article${n>1?"s":""})</button>
+      </section>
+      ${lines.map(({p,qty})=>`
+        <article class="az-cart-item">
+          <span class="ci">${p.special?(p.req.photo?`<img class="photo" src="${p.req.photo}" alt="">`:`<span style="font-size:34px">✨</span>`):imgFor(p)}</span>
+          <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+            <span style="font-size:14px;line-height:1.3">${esc(p.name)}</span>
+            ${priceHTML(p.price,true)}
+            <span class="az-ok" style="font-size:12px">${p.special?"Demande spéciale":"Acheté sur commande"}</span>
+            ${p.special?`<button class="az-btn w sm" style="width:auto;align-self:flex-start" data-a="cqty" data-key="${p.id}" data-d="-999">Supprimer · ${qty}</button>`:
+            `<div class="az-step"><button data-a="cqty" data-key="${p.id}" data-d="-1" aria-label="${qty===1?"Supprimer":"Retirer un"}">${qty===1?"🗑":"−"}</button><span>${qty}</span><button data-a="cqty" data-key="${p.id}" data-d="1" aria-label="Ajouter un">+</button></div>`}
+          </div>
+        </article>`).join("")}`;
   },
   checkout(){
     const lines = cartLines(); if(!lines.length) return VIEWS.cart();
@@ -1181,6 +1351,7 @@ document.addEventListener("click", e=>{
     case "product": go("product",{id,qty:1}); break;
     case "pqty": { S.params.qty=Math.max(1,Math.min(20,(S.params.qty||1)+Number(b.dataset.d))); const btn=document.querySelector('[data-a="addq"]'); b.parentElement.querySelector("span").textContent=S.params.qty; btn.textContent=`Ajouter · ${money(prod(S.params.id).price*S.params.qty)}`; save(); break; }
     case "add": S.cart[id]=(S.cart[id]||0)+1; save(); refreshBadges(); toastCart(id,1); b.animate?.([{transform:"scale(1)"},{transform:"scale(1.25)"},{transform:"scale(1)"}],{duration:280}); break;
+    case "buynow": { const q=S.params.qty||1; S.cart[id]=(S.cart[id]||0)+q; save(); history_.length=0; go("checkout",{},false); break; }
     case "addq": { const q=S.params.qty||1; S.cart[id]=(S.cart[id]||0)+q; save(); back(); toastCart(id,q); break; }
     case "cqty": { const key=b.dataset.key; const n=(S.cart[key]||0)+Number(b.dataset.d);
       if(n<=0){ delete S.cart[key]; const it=itemFor(key); if(it&&it.special){ it.req.status="QUOTED"; } } else S.cart[key]=Math.min(99,n); save(); render(); break; }
@@ -1267,6 +1438,7 @@ document.addEventListener("change", e=>{
     img.onerror = () => { URL.revokeObjectURL(url); toast("Image illisible","Choisissez une photo JPG ou PNG.","📷"); };
     img.src = url; return;
   }
+  if(inp.id==="pqsel"){ S.params.qty = Number(inp.value); save(); return; }
   if(inp.id==="f-province"){ // garde les champs saisis et recalcule la livraison
     const d=Object.fromEntries(new FormData(document.getElementById("checkout")));
     S.lastCustomer={...(S.lastCustomer||{}),...d}; S.params.province=inp.value; save(); render(); }
@@ -1344,7 +1516,7 @@ document.addEventListener("input", e=>{
 });
 document.addEventListener("submit", e=>{
   e.preventDefault();
-  if(e.target.id==="homeSearch"){ const q=document.getElementById("hq").value.trim(); go("shop",{cat:"",q}); }
+  if(e.target.id==="homeSearch"){ const q=document.getElementById("hq").value.trim(); document.getElementById("hq").blur(); go("shop",{cat:"",q}, S.view!=="shop"); }
 });
 
 // Inclinaison 3D des cartes sous le doigt / la souris

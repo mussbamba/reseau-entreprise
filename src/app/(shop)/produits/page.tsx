@@ -25,15 +25,12 @@ export default async function ProductsPage({
 
   return (
     <div>
-      <h1 className="text-3xl font-extrabold">{current ? `${current.emoji} ${current.name}` : "Tous les produits"}</h1>
+      <div className="-mx-4 -mt-6 bg-white px-4 py-2.5 text-sm text-[#565959] shadow-[0_1px_0_#d5d9d9]">
+        {products.length} résultat{products.length > 1 ? "s" : ""}
+        {q ? <> pour <b className="text-[#c45500]">« {q} »</b></> : current ? <> dans <b className="text-[#c45500]">{current.name}</b></> : null}
+      </div>
 
-      <form className="mt-5 flex gap-2" action="/produits">
-        {categorie && <input type="hidden" name="categorie" value={categorie} />}
-        <input name="q" defaultValue={q} placeholder="Rechercher : gari, attiéké, bissap…" className="input" />
-        <button className="btn-primary">Rechercher</button>
-      </form>
-
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="-mx-4 mt-3 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none]">
         <Chip href={q ? `/produits?q=${encodeURIComponent(q)}` : "/produits"} active={!categorie}>Tout</Chip>
         {categories.map((c) => (
           <Chip
@@ -41,15 +38,15 @@ export default async function ProductsPage({
             href={`/produits?categorie=${c.slug}${q ? `&q=${encodeURIComponent(q)}` : ""}`}
             active={c.slug === categorie}
           >
-            {c.emoji} {c.name}
+            {c.name}
           </Chip>
         ))}
       </div>
 
       {products.length === 0 ? (
-        <p className="mt-10 text-center text-slate-600">Aucun produit ne correspond{q ? ` à « ${q} »` : ""}.</p>
+        <p className="mt-6 bg-white p-6 text-center text-[#565959]">Aucun résultat{q ? ` pour « ${q} »` : ""}.</p>
       ) : (
-        <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        <div className="-mx-4 mt-3 grid gap-2 sm:mx-0 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
           {products.map((p) => (
             <ProductCard key={p.id} p={p} />
           ))}
@@ -57,13 +54,13 @@ export default async function ProductsPage({
       )}
 
       <div className="mt-10">
-        <section className="card flex flex-col items-start gap-3 bg-gradient-to-br from-emerald-50 to-sky-50 p-6 sm:flex-row sm:items-center">
+        <section className="flex flex-col items-start gap-3 bg-gradient-to-br from-[#e3f4ff] to-[#fdeef4] p-6 sm:flex-row sm:items-center">
           <span className="text-4xl" aria-hidden>✨</span>
           <div className="flex-1">
             <h2 className="text-xl font-bold">Vous ne trouvez pas un produit ?</h2>
             <p className="text-sm text-slate-600">Envoyez-nous une demande : on le cherche pour vous dans nos épiceries partenaires.</p>
           </div>
-          <Link href={q ? `/demande?produit=${encodeURIComponent(q)}` : "/demande"} className="btn-primary">Demander un produit</Link>
+          <Link href={q ? `/demande?produit=${encodeURIComponent(q)}` : "/demande"} className="az-yellow">Faire une demande spéciale</Link>
         </section>
       </div>
     </div>
@@ -74,8 +71,8 @@ function Chip({ href, active, children }: { href: string; active: boolean; child
   return (
     <Link
       href={href}
-      className={`rounded-full border px-3 py-1.5 text-sm ${
-        active ? "border-terre-500 bg-terre-50 font-semibold text-terre-600" : "border-[#e2e8f0] bg-white hover:border-terre-500"
+      className={`shrink-0 rounded-lg border px-3 py-1.5 text-sm ${
+        active ? "border-[#007185] bg-[#edfdff] shadow-[inset_0_0_0_1px_#007185]" : "border-[#d5d9d9] bg-white hover:bg-[#f7fafa]"
       }`}
     >
       {children}

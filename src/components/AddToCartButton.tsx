@@ -14,7 +14,7 @@ export function AddToCartButton({
   withQuantity?: boolean;
   quantity?: number;
   label?: string;
-  variant?: "primary" | "amber";
+  variant?: "primary" | "amber" | "orange";
 }) {
   const { add } = useCart();
   const [qty, setQty] = useState(quantity);
@@ -31,7 +31,7 @@ export function AddToCartButton({
       {withQuantity && (
         <select
           aria-label="Quantité"
-          className="input w-20!"
+          className="rounded-lg border border-[#d5d9d9] bg-[#f0f2f2] px-2 py-2 text-sm shadow-[0_2px_5px_rgba(15,17,17,.15)]"
           value={qty}
           onChange={(e) => setQty(Number(e.target.value))}
         >
@@ -40,7 +40,7 @@ export function AddToCartButton({
           ))}
         </select>
       )}
-      <button type="button" onClick={onAdd} className={`${variant === "amber" ? "btn-amber" : "btn-primary"} w-full`}>
+      <button type="button" onClick={onAdd} className={`${variant === "amber" ? "az-yellow" : variant === "orange" ? "az-orange" : "btn-primary"} w-full`}>
         {added ? "✓ Ajouté" : label}
       </button>
     </div>

@@ -14,13 +14,13 @@
   --color-foret: #059669;
   --color-ciel: #38bdf8;
   --color-corail: #fb7185;
-  --color-perle: #f6f9fc;
+  --color-perle: #eaeded;
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 body {
   background: var(--color-perle);
-  color: #0f172a;
+  color: #0f1111;
   font-family: var(--font-sans);
 }
 
@@ -59,4 +59,29 @@ body {
 }
 @utility card {
   @apply rounded-2xl border border-[#e2e8f0] bg-white shadow-[0_1px_2px_rgba(16,24,40,.05),0_4px_14px_-4px_rgba(16,24,40,.08)];
+}
+
+/* Boutons marketplace : jaune (ajouter au panier) et orange (acheter maintenant) */
+@utility az-btn {
+  @apply inline-flex items-center justify-center rounded-full px-4 py-2.5 text-sm text-[#0f1111] transition disabled:cursor-not-allowed disabled:opacity-50;
+}
+@utility az-yellow {
+  @apply az-btn bg-[#ffd814] shadow-[inset_0_0_0_1px_#fcd200] hover:bg-[#f7ca00];
+}
+@utility az-orange {
+  @apply az-btn bg-[#ffa41c] shadow-[inset_0_0_0_1px_#ff8f00] hover:bg-[#fa8900];
+}
+@utility az-white {
+  @apply az-btn bg-white shadow-[inset_0_0_0_1px_#d5d9d9,0_2px_5px_rgba(213,217,217,.5)] hover:bg-[#f7fafa];
+}
+@utility az-link {
+  @apply text-[#007185] hover:text-[#c7511f] hover:underline;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(3px); }
+  50% { transform: translateY(-9px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; }
 }

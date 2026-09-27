@@ -13,68 +13,77 @@ export default function CartPage() {
 
   if (lines.length === 0)
     return (
-      <div className="py-16 text-center">
-        <p className="text-5xl">🧺</p>
+      <div className="-mx-4 -mt-6 bg-white px-4 py-12 text-center sm:mx-0 sm:mt-0 sm:rounded-md">
+        <p className="text-5xl">🛒</p>
         <h1 className="mt-4 text-2xl font-bold">Votre panier est vide</h1>
-        <Link href="/produits" className="btn-primary mt-6">Découvrir les produits</Link>
+        <Link href="/produits" className="az-yellow mt-6">Continuer vos achats</Link>
       </div>
     );
 
   const missing = MIN_ORDER_CENTS - subtotalCents;
   const toFree = SHIPPING.freeOverCents - subtotalCents;
+  const count = lines.reduce((n, l) => n + l.quantity, 0);
+  const summary = (
+    <div className="flex flex-col gap-3">
+      <p className="text-lg">
+        Sous-total ({count} article{count > 1 ? "s" : ""}) : <b>{formatMoney(subtotalCents)}</b>
+      </p>
+      {toFree > 0 ? (
+        <>
+          <div className="h-1.5 overflow-hidden rounded bg-[#e3e6e6]">
+            <div className="h-full bg-[#067d62]" style={{ width: `${Math.min(100, (subtotalCents / SHIPPING.freeOverCents) * 100)}%` }} />
+          </div>
+          <p className="text-sm text-[#565959]">
+            Ajoutez <b className="text-[#0f1111]">{formatMoney(toFree)}</b> pour la livraison <b className="text-[#0f1111]">GRATUITE</b>.
+          </p>
+        </>
+      ) : (
+        <p className="text-sm font-semibold text-[#067d62]">✓ Votre commande est admissible à la livraison GRATUITE.</p>
+      )}
+      {missing > 0 && (
+        <p className="text-sm text-[#b12704]">
+          Commande minimum : {formatMoney(MIN_ORDER_CENTS)}. Il manque {formatMoney(missing)}.
+        </p>
+      )}
+      {missing > 0 ? (
+        <button className="az-yellow w-full" disabled>Passer la commande ({count} article{count > 1 ? "s" : ""})</button>
+      ) : (
+        <Link href="/commande" className="az-yellow w-full">Passer la commande ({count} article{count > 1 ? "s" : ""})</Link>
+      )}
+    </div>
+  );
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
-      <div>
-        <h1 className="text-3xl font-extrabold">Mon panier</h1>
-        <ul className="mt-6 divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white">
+    <div className="-mx-4 -mt-6 grid gap-3 sm:mx-0 sm:mt-0 lg:grid-cols-[1fr_300px] lg:gap-6">
+      <section className="bg-white p-4 lg:hidden">{summary}</section>
+      <section className="bg-white p-4 sm:rounded-md">
+        <h1 className="border-b border-[#e7e7e7] pb-3 text-2xl">Panier</h1>
+        <ul className="divide-y divide-[#e7e7e7]">
           {lines.map((l) => (
-            <li key={l.productId} className="flex items-center gap-3 p-3">
-              <ProductImage imageUrl={l.imageUrl} emoji={l.emoji} name={l.name} className="h-16 w-16 shrink-0 overflow-hidden rounded-lg [&>span]:text-2xl" fit="cover" />
-              <div className="min-w-0 flex-1">
-                <Link href={`/produits/${l.slug}`} className="line-clamp-2 text-sm font-semibold hover:underline">
+            <li key={l.productId} className="grid grid-cols-[96px_1fr] gap-3 py-4 sm:grid-cols-[150px_1fr]">
+              <ProductImage imageUrl={l.imageUrl} emoji={l.emoji} name={l.name} className="aspect-square w-full bg-[#f7f8f8] [&>span]:text-3xl" />
+              <div className="flex min-w-0 flex-col gap-1.5">
+                <Link href={`/produits/${l.slug}`} className="line-clamp-2 text-[15px] leading-snug hover:text-[#c7511f]">
                   {l.name}
                 </Link>
-                <p className="text-sm text-slate-500">{formatMoney(l.unitPriceCents)}</p>
+                <p className="font-bold">{formatMoney(l.unitPriceCents)}</p>
+                <p className="text-xs font-semibold text-[#067d62]">Acheté sur commande</p>
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="inline-flex items-center overflow-hidden rounded-full border-[3px] border-[#ffd814]">
+                    <button className="h-7 w-8 bg-white text-lg" onClick={() => setQuantity(l.productId, l.quantity - 1)} aria-label={l.quantity === 1 ? "Supprimer" : "Retirer un"}>
+                      {l.quantity === 1 ? "🗑" : "−"}
+                    </button>
+                    <span className="min-w-7 text-center font-bold">{l.quantity}</span>
+                    <button className="h-7 w-8 bg-white text-lg" onClick={() => setQuantity(l.productId, l.quantity + 1)} aria-label="Ajouter un">+</button>
+                  </div>
+                  <button onClick={() => remove(l.productId)} className="az-link text-xs">Supprimer</button>
+                </div>
               </div>
-              <div className="flex items-center rounded-full border border-slate-300">
-                <button className="px-3 py-1" onClick={() => setQuantity(l.productId, l.quantity - 1)} aria-label="Retirer un">−</button>
-                <span className="w-6 text-center text-sm">{l.quantity}</span>
-                <button className="px-3 py-1" onClick={() => setQuantity(l.productId, l.quantity + 1)} aria-label="Ajouter un">+</button>
-              </div>
-              <p className="hidden w-20 text-right text-sm font-semibold sm:block">
-                {formatMoney(l.unitPriceCents * l.quantity)}
-              </p>
-              <button onClick={() => remove(l.productId)} className="text-slate-400 hover:text-rose-600" aria-label="Supprimer">
-                ✕
-              </button>
             </li>
           ))}
         </ul>
-      </div>
-
-      <aside className="card h-fit space-y-3 p-5">
-        <div className="flex justify-between font-semibold">
-          <span>Sous-total</span>
-          <span>{formatMoney(subtotalCents)}</span>
-        </div>
-        <p className="text-xs text-slate-500">Livraison et taxes calculées à l&apos;étape suivante.</p>
-        {toFree > 0 && missing <= 0 && (
-          <p className="rounded-lg bg-emerald-50 p-2 text-xs text-emerald-800">
-            Plus que {formatMoney(toFree)} pour la livraison gratuite !
-          </p>
-        )}
-        {missing > 0 ? (
-          <p className="rounded-lg bg-sky-50 p-2 text-sm text-sky-900">
-            Commande minimum : {formatMoney(MIN_ORDER_CENTS)}. Il vous manque {formatMoney(missing)}.
-          </p>
-        ) : (
-          <Link href="/commande" className="btn-primary w-full">Passer la commande</Link>
-        )}
-        <Link href="/produits" className="block text-center text-sm text-terre-600 hover:underline">
-          Continuer mes achats
-        </Link>
-      </aside>
+      </section>
+      <aside className="hidden h-fit rounded-md bg-white p-4 lg:block">{summary}</aside>
     </div>
   );
 }

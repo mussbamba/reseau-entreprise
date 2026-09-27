@@ -23,7 +23,7 @@ export function ProductImage({
     return (
       <div
         aria-hidden
-        className={`flex items-center justify-center bg-gradient-to-br from-terre-100 to-sky-50 ${fit === "natural" ? "aspect-square" : ""} ${className}`}
+        className={`flex items-center justify-center bg-[#f7f8f8] ${fit === "natural" ? "aspect-square" : ""} ${className}`}
       >
         <span className="text-5xl">{emoji}</span>
       </div>
