@@ -251,6 +251,7 @@ function fresh(){ return {products:PRODUCTS.map(p=>({id:p.id,active:true})),cart
 let S;
 try { S = JSON.parse(localStorage.getItem(KEY)) || fresh(); } catch { S = fresh(); }
 if(!S.products||!S.orders) S = fresh();
+if(!S.custom){ S.custom=[]; S.nextProdId=100; }
 if(!S.requests){ S.requests=[sampleRequest()]; S.nextReqId=2; }
 let PHOTOS = {};
 try { PHOTOS = JSON.parse(localStorage.getItem(PHOTO_KEY)) || {}; } catch {}
@@ -261,8 +262,17 @@ function money(c){ return fmt.format(c/100); }
 function esc(s){ return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 const cat = id => CATS.find(c=>c.id===id);
 const store = id => STORES.find(s=>s.id===id);
-const prod = id => { const base = PRODUCTS.find(p=>p.id===id); if(!base) return null; const st = S.products.find(p=>p.id===id); return {...base,active:st?st.active:true}; };
-const allProducts = () => PRODUCTS.map(p=>prod(p.id));
+// Produits de base + produits ajoutés par le vendeur ; S.products garde les modifications (prix, visibilité…)
+const prod = id => { const base = PRODUCTS.find(p=>p.id===id) || (S.custom||[]).find(p=>p.id===id); if(!base) return null; const st = S.products.find(p=>p.id===id) || {}; return {...base,...st,v:base.v,active:st.active??true}; };
+const allProducts = () => [...PRODUCTS, ...(S.custom||[])].map(p=>prod(p.id));
+const SHAPES = {sack:"Sac",jar:"Pot",bottle:"Bouteille",box:"Boîte",pouch:"Sachet"};
+const SWATCHES = ["#e4572e","#f6a623","#2f8f5b","#b8325a","#1f5f8b","#8e1537","#5b3a1e","#f2c200"];
+function visualFor(shape, color){
+  return {sack:{shape,body:"#f3ebdd",label:color,accent:"#f6a623"},jar:{shape,content:color,lid:"#2f8f5b",label:"#fffaf0"},
+    bottle:{shape,content:color,cap:"#f6a623",label:"#fff5e6"},box:{shape,body:"#fff3d6",label:color},pouch:{shape,body:color,label:"#fff7ec"}}[shape];
+}
+function colorOf(v){ return v.shape==="jar"||v.shape==="bottle" ? v.content : v.shape==="pouch" ? v.body : v.label; }
+function shortName(name){ const s = name.replace(/\s*\(.*?\)/g,"").replace(/\s+\d[\d,.]*\s*(kg|g|l|ml|cl|x|u)\b.*$/i,"").trim(); return (s||name).slice(0,22); }
 const num = id => "CMD-" + String(id).padStart(5,"0");
 function tint(p){ const c = p.v.shape==="jar"||p.v.shape==="bottle" ? p.v.content : p.v.label; return mix(c,"#ffffff",.82); }
 function mix(a,b,t){ const pa=parseInt(a.slice(1),16), pb=parseInt(b.slice(1),16); const ch=(s)=>Math.round(((pa>>s)&255)*(1-t)+((pb>>s)&255)*t); return `rgb(${ch(16)},${ch(8)},${ch(0)})`; }
@@ -494,7 +504,7 @@ const ICONS = {
 
 // ---------- Rendu ----------
 const main = document.getElementById("main");
-const TITLES = {product:"",cart:"Mon panier",checkout:"Commande",order:"Suivi",orders:"Mes commandes","a-order":"Commande","a-orders":"Commandes","a-list":"Liste d'achat","a-products":"Produits","a-stores":"Boutiques",request:"",requests:"","a-requests":"","a-request":"Demande"};
+const TITLES = {product:"",cart:"Mon panier",checkout:"Commande",order:"Suivi",orders:"Mes commandes","a-order":"Commande","a-orders":"Commandes","a-list":"Liste d'achat","a-products":"","a-product":"","a-stores":"Boutiques",request:"",requests:"","a-requests":"","a-request":"Demande"};
 const ROOTS = ["home","shop","cart","orders","a-orders","a-list","a-products","a-requests"];
 
 function render(){
@@ -512,7 +522,7 @@ function render(){
   const tabs = S.mode==="client"
     ? [["home","Accueil","home"],["shop","Boutique","shop"],["cart","Panier","cart"],["orders","Commandes","box"]]
     : [["a-orders","Commandes","box"],["a-list","Liste d'achat","list"],["a-requests","Demandes","spark"],["a-products","Produits","tag"]];
-  const active = {product:"shop",checkout:"cart",order:"orders",request:"orders",requests:"orders","a-order":"a-orders","a-request":"a-requests","a-stores":"a-products"}[S.view] || S.view;
+  const active = {product:"shop",checkout:"cart",order:"orders",request:"orders",requests:"orders","a-order":"a-orders","a-request":"a-requests","a-stores":"a-products","a-product":"a-products"}[S.view] || S.view;
   const newReqs = S.requests.filter(r=>r.status==="PENDING").length;
   const quoted = S.requests.filter(r=>r.mine&&r.status==="QUOTED").length;
   const toHandle = S.orders.filter(o=>["NEW","SHOPPING","PURCHASED"].includes(o.status)).length;
@@ -526,6 +536,8 @@ function render(){
   const hero = document.getElementById("heroStage"); if(hero) mountStage(hero, HERO_IDS, false);
   const det = document.getElementById("detailStage"); if(det) mountStage(det, [S.params.id], true);
   fillSnaps();
+  const pv = document.querySelector("img[data-preview]");
+  if(pv && GL_OK){ try { const data = JSON.parse(pv.dataset.preview); delete SNAP.preview; pv.src = snapshot(data); delete SNAP.preview; } catch(e){ console.warn(e); } }
 }
 
 function visual(p, big){
@@ -579,6 +591,7 @@ const VIEWS = {
           <span class="chip-soft">Livraison gratuite dès ${money(FREE_OVER)}</span>
         </div>
       </section>
+      <form id="homeSearch" class="search" role="search">${ICONS.search}<input id="hq" type="search" enterkeyhint="search" placeholder="Rechercher : gari, attiéké, Ghana…" aria-label="Rechercher un produit"><button class="link" style="padding:10px 4px">Chercher</button></form>
       <section style="display:flex;flex-direction:column;gap:8px">
         <div class="section-h"><h2>Catégories</h2></div>
         <div class="cats">${CATS.map(c=>`<button class="cat" data-a="shopcat" data-v="${c.id}"><span>${c.emoji}</span>${c.name}</button>`).join("")}</div>
@@ -620,7 +633,7 @@ const VIEWS = {
         <span class="origin">Origine : ${esc(p.origin)}</span>
         <h1 style="font-size:28px">${esc(p.name)}</h1>
         <span class="price" style="font-size:24px;color:var(--brand)">${money(p.price)}</span>
-        <p style="margin:0;color:var(--muted)">${esc(p.name)}, importé de ${esc(p.origin)}. Acheté pour vous dans nos épiceries partenaires.</p>
+        <p style="margin:0;color:var(--muted)">${esc(p.desc || `${p.name}${p.origin?`, importé de ${p.origin}`:""}. Acheté pour vous dans nos épiceries partenaires.`)}</p>
       </div>
       <div class="row">
         <div class="qty"><button data-a="pqty" data-d="-1" aria-label="Moins">−</button><span>${q}</span><button data-a="pqty" data-d="1" aria-label="Plus">+</button></div>
@@ -852,19 +865,66 @@ const VIEWS = {
             </div>`).join("")}</div>
         </section>`;}).join(""):`<div class="empty"><span class="big">🎉</span>Rien à acheter pour le moment.</div>`}`;
   },
-  "a-products"(){
-    return `<div class="line"><h1 style="font-size:26px">Produits</h1><button class="link" data-a="go" data-v="a-stores">Boutiques</button></div><span class="small" style="margin-top:-14px">Ajoutez vos vraies photos : elles remplacent le rendu 3D partout dans l'app.</span>
-      <div class="card">${allProducts().map((p,k)=>`
+  "a-products"({q=""}){
+    const ql = q.trim().toLowerCase();
+    const list = allProducts().filter(p=>!ql||(p.name+" "+p.origin+" "+cat(p.cat).name+" "+store(p.store).name).toLowerCase().includes(ql));
+    return `<div class="line"><h1 style="font-size:26px">Produits</h1><button class="link" data-a="go" data-v="a-stores">Boutiques</button></div>
+      <button class="btn btn-primary" data-a="editprod">+ Nouveau produit</button>
+      <label class="search">${ICONS.search}<input id="aq" type="search" placeholder="Rechercher par nom, pays, catégorie, boutique…" value="${esc(q)}" aria-label="Rechercher un produit"></label>
+      <span class="small" style="margin-top:-12px">${list.length} produit(s)${ql?` pour « ${esc(q)} »`:""}. Touchez un produit pour le modifier.</span>
+      ${list.length?"":`<div class="empty"><span class="big">🔍</span>Aucun produit trouvé.<button class="btn btn-primary" style="width:auto" data-a="editprod" data-q="${esc(q)}">Créer « ${esc(q)} »</button></div>`}
+      ${list.length?`<div class="card">${list.map((p,k)=>`
         <div style="display:flex;flex-direction:column;gap:8px;padding-block:8px;border-top:${k?"1px solid var(--line)":"0"};${p.active?"":"opacity:.55"}">
-          <div class="row">${thumb(p)}
-            <div class="grow"><div style="font-weight:700;font-size:14px">${esc(p.name)}</div>
-              <div class="small">${money(p.price)} · coût ${money(p.cost)} · marge ${Math.round((p.price-p.cost)/p.price*100)} %</div></div></div>
+          <button class="row" data-a="editprod" data-id="${p.id}" style="border:0;background:none;padding:0;text-align:left;width:100%">${thumb(p)}
+            <div class="grow"><div style="font-weight:700;font-size:14px">${esc(p.name)}${p.featured?` <span style="color:var(--mango)">★</span>`:""}</div>
+              <div class="small">${money(p.price)} · coût ${money(p.cost)} · marge ${Math.round((p.price-p.cost)/p.price*100)} %</div>
+              <div class="small">${esc(cat(p.cat).name)} · ${esc(store(p.store).name)}</div></div><span aria-hidden="true" style="color:var(--muted)">›</span></button>
           <div class="seg">
             <label class="photo-btn">${PHOTOS[p.id]?"Changer la photo":"Ajouter une photo"}<input type="file" accept="image/*" data-photo="${p.id}"></label>
             ${PHOTOS[p.id]?`<button data-a="rmphoto" data-id="${p.id}">Revenir au 3D</button>`:""}
             <button class="toggle ${p.active?"on":"off"}" data-a="toggle" data-id="${p.id}">${p.active?"Visible":"Masqué"}</button>
           </div>
-        </div>`).join("")}</div>`;
+        </div>`).join("")}</div>`:""}`;
+  },
+  "a-product"({id,draft}){
+    const p = id ? prod(id) : null;
+    const d = draft || (p ? {name:p.name,price:(p.price/100).toFixed(2),cost:(p.cost/100).toFixed(2),cat:p.cat,store:p.store,origin:p.origin,desc:p.desc||"",featured:p.featured,shape:p.v.shape,color:colorOf(p.v)}
+      : {name:S.params.prefill||"",price:"",cost:"",cat:CATS[0].id,store:STORES[0].id,origin:"",desc:"",featured:false,shape:"sack",color:SWATCHES[0]});
+    const custom = !p || (S.custom||[]).some(x=>x.id===p.id);
+    const preview = {id:"preview",name:d.name||"Nouveau produit",short:shortName(d.name||"Nouveau"),origin:d.origin||"",cat:d.cat,v:visualFor(d.shape,d.color)};
+    return `
+      <div><h1 style="font-size:26px">${p?"Modifier le produit":"Nouveau produit"}</h1><span class="small">Il apparaît tout de suite dans la boutique client.</span></div>
+      <form id="prodForm" class="card" novalidate>
+        <div class="field"><label for="p-name">Nom du produit</label><input id="p-name" name="name" value="${esc(d.name)}" placeholder="Ex. : Gari jaune 1 kg" required></div>
+        <div class="two">
+          <div class="field"><label for="p-price">Prix de vente ($)</label><input id="p-price" name="price" inputmode="decimal" value="${esc(d.price)}" placeholder="7,99"></div>
+          <div class="field"><label for="p-cost">Coût en boutique ($)</label><input id="p-cost" name="cost" inputmode="decimal" value="${esc(d.cost)}" placeholder="4,50"></div>
+        </div>
+        <div class="two">
+          <div class="field"><label for="p-cat">Catégorie</label><select id="p-cat" name="cat">${CATS.map(c=>`<option value="${c.id}" ${c.id===d.cat?"selected":""}>${c.name}</option>`).join("")}</select></div>
+          <div class="field"><label for="p-store">Boutique</label><select id="p-store" name="store">${STORES.map(x=>`<option value="${x.id}" ${x.id===d.store?"selected":""}>${esc(x.name)}</option>`).join("")}</select></div>
+        </div>
+        <div class="field"><label for="p-origin">Pays d'origine</label><input id="p-origin" name="origin" value="${esc(d.origin)}" placeholder="Ex. : Ghana"></div>
+        <div class="field"><label for="p-desc">Description (facultatif)</label><input id="p-desc" name="desc" value="${esc(d.desc)}" placeholder="Ex. : semoule de manioc fermentée, grain fin"></div>
+        <label class="row" style="gap:8px;font-weight:600"><input type="checkbox" name="featured" ${d.featured?"checked":""}> Mettre en avant sur l'accueil</label>
+        ${custom?`
+        <b style="margin-top:6px">Apparence 3D (si pas de photo)</b>
+        <div class="row" style="align-items:flex-start">
+          <div class="thumb" style="width:92px;height:92px;--tint:${mix(d.color,"#ffffff",.82)}">${GL_OK?`<img data-preview="${esc(JSON.stringify(preview))}" alt="Aperçu 3D">`:"✨"}</div>
+          <div class="grow" style="display:flex;flex-direction:column;gap:8px">
+            <div class="seg" role="group" aria-label="Emballage">${Object.entries(SHAPES).map(([k,l])=>`<button type="button" data-a="pshape" data-v="${k}" aria-pressed="${d.shape===k}" style="${d.shape===k?"background:var(--ink);color:#fff;border-color:var(--ink)":""}">${l}</button>`).join("")}</div>
+            <div class="seg" role="group" aria-label="Couleur">${SWATCHES.map(c=>`<button type="button" data-a="pcolor" data-v="${c}" aria-label="Couleur ${c}" aria-pressed="${d.color===c}" style="width:30px;height:30px;padding:0;border-radius:50%;background:${c};border:3px solid ${d.color===c?"var(--ink)":"#fff"};box-shadow:0 0 0 1px var(--line)"></button>`).join("")}</div>
+          </div>
+        </div>`:""}
+        <div class="field"><label>Photo réelle</label>
+          <div class="row">${p&&PHOTOS[p.id]?`<div class="thumb"><img class="photo" src="${PHOTOS[p.id]}" alt=""></div>`:S.params.newPhoto?`<div class="thumb"><img class="photo" src="${S.params.newPhoto}" alt=""></div>`:""}
+            <label class="photo-btn">${(p&&PHOTOS[p.id])||S.params.newPhoto?"Changer la photo":"Ajouter une photo"}<input type="file" accept="image/*" data-photo="${p?p.id:"new"}"></label></div>
+        </div>
+        <p id="prodErr" class="note note-warn" hidden></p>
+        <button class="btn btn-primary" data-a="saveprod" data-id="${p?p.id:""}">${p?"Enregistrer":"Ajouter le produit"}</button>
+        ${p&&custom?`<button class="btn btn-bad" data-a="delprod" data-id="${p.id}">${S.params.confirmDel?"Confirmer la suppression":"Supprimer ce produit"}</button>`:""}
+      </form>
+`;
   },
   "a-requests"(){
     const order = {PENDING:0,QUOTED:1,ACCEPTED:2,ORDERED:3,DECLINED:4,UNAVAILABLE:5};
@@ -952,6 +1012,13 @@ document.addEventListener("click", e=>{
       if(!S.params.confirmCancel){ S.params.confirmCancel=true; render(); break; }
       cancelOrder(O(),"annulée par le vendeur"); break; }
     case "toggle": { const st=S.products.find(p=>p.id===id); if(st) st.active=!st.active; else S.products.push({id,active:false}); save(); render(); break; }
+    case "editprod": go("a-product",{id:id||null,prefill:b.dataset.q||""}); break;
+    case "pshape": case "pcolor": { const d = readProdForm(); d[a==="pshape"?"shape":"color"] = v; S.params.draft = d; render(); break; }
+    case "saveprod": { e.preventDefault(); saveProduct(id||null); break; }
+    case "delprod": {
+      if(!S.params.confirmDel){ S.params.confirmDel=true; S.params.draft=readProdForm(); render(); break; }
+      S.custom = S.custom.filter(x=>x.id!==id); S.products = S.products.filter(x=>x.id!==id); delete S.cart[id]; delete PHOTOS[id]; savePhotos();
+      history_.length=0; go("a-products",{},false); toast("Produit supprimé","","🗑️"); break; }
     case "rmphoto": delete PHOTOS[id]; savePhotos(); render(); break;
     case "newreq": go("request",{prefill:b.dataset.q||""}); break;
     case "sendreq": { e.preventDefault(); sendRequest(); break; }
@@ -984,7 +1051,17 @@ document.addEventListener("change", e=>{
     img.onerror = () => { URL.revokeObjectURL(url); toast("Image illisible","Choisissez une photo JPG ou PNG.","📷"); };
     img.src = url; return;
   }
+  if(inp.dataset && inp.dataset.photo==="new"){
+    const f = inp.files && inp.files[0]; if(!f) return;
+    S.params.draft = readProdForm();
+    const url = URL.createObjectURL(f), img = new Image();
+    img.onload = () => { const k=Math.min(1,700/Math.max(img.width,img.height)), c=document.createElement("canvas"); c.width=Math.round(img.width*k); c.height=Math.round(img.height*k);
+      c.getContext("2d").drawImage(img,0,0,c.width,c.height); URL.revokeObjectURL(url); S.params.newPhoto=c.toDataURL("image/jpeg",.82); render(); };
+    img.onerror = () => { URL.revokeObjectURL(url); toast("Image illisible","Choisissez une photo JPG ou PNG.","📷"); };
+    img.src = url; return;
+  }
   if(inp.dataset && inp.dataset.photo){
+    if(document.getElementById("prodForm")) S.params.draft = readProdForm();
     const f = inp.files && inp.files[0]; if(!f) return;
     const id = Number(inp.dataset.photo), url = URL.createObjectURL(f), img = new Image();
     img.onload = () => {
@@ -1024,6 +1101,33 @@ function sendQuote(id){
   r.status = "QUOTED"; save(); render();
   toast(`Courriel envoyé à ${r.customer.email}`, `Prix proposé : ${money(price)} / unité (simulé)`);
 }
+function readProdForm(){
+  const f = document.getElementById("prodForm"); const d = Object.fromEntries(new FormData(f));
+  const prev = S.params.draft || {}; const p = S.params.id ? prod(S.params.id) : null;
+  d.featured = !!f.querySelector('[name="featured"]').checked;
+  d.shape = prev.shape || (p ? p.v.shape : "sack"); d.color = prev.color || (p ? colorOf(p.v) : SWATCHES[0]);
+  return d;
+}
+function saveProduct(id){
+  const d = readProdForm(), err = document.getElementById("prodErr");
+  const price = parseCents(d.price), cost = parseCents(d.cost);
+  const problem = d.name.trim().length<2?"Indiquez le nom du produit.":price<=0?"Indiquez le prix de vente (ex. 7,99).":"";
+  if(problem){ err.textContent=problem; err.hidden=false; S.params.draft=d; return; }
+  const fields = {name:d.name.trim(),short:shortName(d.name.trim()),price,cost,cat:d.cat,store:d.store,origin:d.origin.trim(),desc:d.desc.trim(),featured:d.featured};
+  if(id){
+    const c = S.custom.find(x=>x.id===id);
+    if(c){ Object.assign(c, fields, {v:visualFor(d.shape,d.color)}); }
+    let st = S.products.find(x=>x.id===id); if(!st){ st={id,active:true}; S.products.push(st); } Object.assign(st, fields);
+    delete SNAP[id];
+  } else {
+    id = S.nextProdId++;
+    S.custom.push({id,...fields,active:true,v:visualFor(d.shape,d.color)});
+    S.products.push({id,active:true});
+    if(S.params.newPhoto){ PHOTOS[id]=S.params.newPhoto; savePhotos(); }
+  }
+  save(); history_.length=0; go("a-products",{},false);
+  toast(`${fields.name} enregistré`, "Visible dans la boutique client", "✅");
+}
 function placeOrder(){
   const f = document.getElementById("checkout"); const d = Object.fromEntries(new FormData(f));
   const err = document.getElementById("formErr");
@@ -1043,10 +1147,13 @@ function placeOrder(){
 }
 
 document.addEventListener("input", e=>{
-  if(e.target.id==="q"){ S.params.q=e.target.value; save();
-    const pos=e.target.selectionStart; render(); const q=document.getElementById("q"); q.focus(); try{q.setSelectionRange(pos,pos);}catch{} }
+  if(e.target.id==="q"||e.target.id==="aq"){ const fid=e.target.id; S.params.q=e.target.value; save();
+    const pos=e.target.selectionStart; render(); const q=document.getElementById(fid); q.focus(); try{q.setSelectionRange(pos,pos);}catch{} }
 });
-document.addEventListener("submit", e=>e.preventDefault());
+document.addEventListener("submit", e=>{
+  e.preventDefault();
+  if(e.target.id==="homeSearch"){ const q=document.getElementById("hq").value.trim(); go("shop",{cat:"",q}); }
+});
 
 // Inclinaison 3D des cartes sous le doigt / la souris
 if(!REDUCED){
