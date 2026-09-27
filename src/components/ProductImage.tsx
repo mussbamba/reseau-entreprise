@@ -23,7 +23,7 @@ export function ProductImage({
     return (
       <div
         aria-hidden
-        className={`flex items-center justify-center bg-gradient-to-br from-terre-100 to-amber-50 ${fit === "natural" ? "aspect-square" : ""} ${className}`}
+        className={`flex items-center justify-center bg-gradient-to-br from-terre-100 to-sky-50 ${fit === "natural" ? "aspect-square" : ""} ${className}`}
       >
         <span className="text-5xl">{emoji}</span>
       </div>
@@ -33,7 +33,7 @@ export function ProductImage({
     return <img src={imageUrl} alt={name} className={`object-cover ${className}`} loading="lazy" />;
 
   return (
-    <div className={`relative overflow-hidden bg-stone-100 ${className}`}>
+    <div className={`relative overflow-hidden bg-slate-100 ${className}`}>
       <img
         src={imageUrl}
         alt=""

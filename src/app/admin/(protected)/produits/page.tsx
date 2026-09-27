@@ -17,7 +17,7 @@ export default async function AdminProductsPage() {
       </div>
       <div className="card overflow-x-auto">
         <table className="w-full text-left text-sm">
-          <thead className="border-b border-stone-200 text-xs uppercase text-stone-500">
+          <thead className="border-b border-slate-200 text-xs uppercase text-slate-500">
             <tr>
               <th className="p-3">Produit</th>
               <th className="p-3">Boutique</th>
@@ -27,7 +27,7 @@ export default async function AdminProductsPage() {
               <th className="p-3">Visible</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-stone-100">
+          <tbody className="divide-y divide-slate-100">
             {products.map((p) => {
               const margin = p.priceCents - p.costCents;
               return (
@@ -38,9 +38,9 @@ export default async function AdminProductsPage() {
                     </Link>
                     {p.featured && <span className="ml-2 text-xs text-ocre">★ vedette</span>}
                   </td>
-                  <td className="p-3 text-stone-600">{p.store?.name ?? "—"}</td>
+                  <td className="p-3 text-slate-600">{p.store?.name ?? "—"}</td>
                   <td className="p-3 text-right">{formatMoney(p.priceCents)}</td>
-                  <td className="p-3 text-right text-stone-600">{formatMoney(p.costCents)}</td>
+                  <td className="p-3 text-right text-slate-600">{formatMoney(p.costCents)}</td>
                   <td className={`p-3 text-right ${margin < 0 ? "text-rose-600" : "text-emerald-700"}`}>
                     {p.costCents ? `${Math.round((margin / p.priceCents) * 100)} %` : "—"}
                   </td>

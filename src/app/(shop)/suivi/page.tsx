@@ -8,7 +8,7 @@ export default function TrackingPage() {
   return (
     <div className="mx-auto max-w-md">
       <h1 className="text-3xl font-extrabold">Suivre ma commande</h1>
-      <p className="mt-2 text-sm text-stone-600">
+      <p className="mt-2 text-sm text-slate-600">
         Entrez le numéro reçu par courriel (ex. CMD-00012) et votre adresse courriel.
       </p>
       <form action={action} className="card mt-6 space-y-4 p-5">

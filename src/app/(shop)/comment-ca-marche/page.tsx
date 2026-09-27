@@ -40,7 +40,7 @@ export default function HowItWorksPage() {
             <span className="text-3xl">{icon}</span>
             <div>
               <p className="font-bold">{title}</p>
-              <p className="text-sm text-stone-600">{text}</p>
+              <p className="text-sm text-slate-600">{text}</p>
             </div>
           </li>
         ))}
@@ -51,7 +51,7 @@ export default function HowItWorksPage() {
         {faq.map(([q, a]) => (
           <details key={q} className="card p-4">
             <summary className="cursor-pointer font-semibold">{q}</summary>
-            <p className="mt-2 text-sm text-stone-700">{a}</p>
+            <p className="mt-2 text-sm text-slate-700">{a}</p>
           </details>
         ))}
       </div>

@@ -44,7 +44,7 @@ export default async function ShoppingListPage() {
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
         <h1 className="text-2xl font-extrabold">Liste d&apos;achat</h1>
-        <p className="text-sm text-stone-600">
+        <p className="text-sm text-slate-600">
           Tous les articles à acheter pour les {orders.length} commande(s) en attente, regroupés par boutique. Cochez en
           magasin depuis votre téléphone.
         </p>
@@ -63,31 +63,31 @@ export default async function ShoppingListPage() {
         </div>
       )}
 
-      {stores.size === 0 && <p className="py-10 text-center text-stone-500">Rien à acheter pour le moment 🎉</p>}
+      {stores.size === 0 && <p className="py-10 text-center text-slate-500">Rien à acheter pour le moment 🎉</p>}
 
       {[...stores.entries()].map(([store, groups]) => {
         const info = storeInfo.get(store);
         const total = [...groups.values()].reduce((s, g) => s + g.costCents, 0);
         return (
           <section key={store} className="card overflow-hidden">
-            <div className="border-b border-stone-200 bg-terre-50 p-4">
+            <div className="border-b border-slate-200 bg-terre-50 p-4">
               <h2 className="text-lg font-bold">🏪 {store}</h2>
               {info && (
-                <p className="text-xs text-stone-600">
+                <p className="text-xs text-slate-600">
                   {info.address} {info.hours && `· ${info.hours}`}
                 </p>
               )}
-              <p className="text-xs text-stone-600">Budget estimé : {formatMoney(total)}</p>
+              <p className="text-xs text-slate-600">Budget estimé : {formatMoney(total)}</p>
             </div>
-            <ul className="divide-y divide-stone-100">
+            <ul className="divide-y divide-slate-100">
               {[...groups.values()].map((g) => (
                 <li key={g.key} className="flex flex-wrap items-center gap-3 p-4">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-ocre text-lg font-bold text-terre-900">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sky-100 text-lg font-bold text-sky-800">
                     {g.quantity}
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="font-semibold">{g.name}</p>
-                    <p className="text-xs text-stone-500">
+                    <p className="text-xs text-slate-500">
                       {[...g.orders].map((id) => orderNumber(id)).join(", ")}
                     </p>
                   </div>

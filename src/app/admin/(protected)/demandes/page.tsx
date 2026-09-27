@@ -14,26 +14,26 @@ export default async function AdminRequestsPage() {
     <div className="mx-auto max-w-3xl space-y-4">
       <div>
         <h1 className="text-2xl font-extrabold">Demandes spéciales</h1>
-        <p className="text-sm text-stone-600">
+        <p className="text-sm text-slate-600">
           Produits hors catalogue demandés par vos clients ({pending} en attente de prix). Trouvez-les en boutique,
           puis envoyez un prix : le client pourra l&apos;ajouter à son panier.
         </p>
       </div>
       {requests.length === 0 ? (
-        <p className="py-10 text-center text-stone-500">Aucune demande pour le moment.</p>
+        <p className="py-10 text-center text-slate-500">Aucune demande pour le moment.</p>
       ) : (
-        <ul className="card divide-y divide-stone-100">
+        <ul className="card divide-y divide-slate-100">
           {requests.map((r) => (
             <li key={r.id}>
               <Link href={`/admin/demandes/${r.id}`} className="flex items-center gap-3 p-4 hover:bg-terre-50">
                 {r.photo ? (
                   <img src={r.photo} alt="" className="h-12 w-12 shrink-0 rounded-lg object-cover" />
                 ) : (
-                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-amber-50 text-2xl">✨</span>
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-sky-50 text-2xl">✨</span>
                 )}
                 <div className="min-w-0 flex-1">
                   <p className="font-semibold">{r.quantity} × {r.name}</p>
-                  <p className="text-xs text-stone-500">
+                  <p className="text-xs text-slate-500">
                     {r.customerName} · {r.createdAt.toLocaleString("fr-CA")}
                   </p>
                 </div>

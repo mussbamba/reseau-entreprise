@@ -47,7 +47,7 @@ export default async function ProductsPage({
       </div>
 
       {products.length === 0 ? (
-        <p className="mt-10 text-center text-stone-600">Aucun produit ne correspond{q ? ` à « ${q} »` : ""}.</p>
+        <p className="mt-10 text-center text-slate-600">Aucun produit ne correspond{q ? ` à « ${q} »` : ""}.</p>
       ) : (
         <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {products.map((p) => (
@@ -57,11 +57,11 @@ export default async function ProductsPage({
       )}
 
       <div className="mt-10">
-        <section className="card flex flex-col items-start gap-3 bg-gradient-to-br from-amber-50 to-rose-50 p-6 sm:flex-row sm:items-center">
+        <section className="card flex flex-col items-start gap-3 bg-gradient-to-br from-emerald-50 to-sky-50 p-6 sm:flex-row sm:items-center">
           <span className="text-4xl" aria-hidden>✨</span>
           <div className="flex-1">
             <h2 className="text-xl font-bold">Vous ne trouvez pas un produit ?</h2>
-            <p className="text-sm text-stone-600">Envoyez-nous une demande : on le cherche pour vous dans nos épiceries partenaires.</p>
+            <p className="text-sm text-slate-600">Envoyez-nous une demande : on le cherche pour vous dans nos épiceries partenaires.</p>
           </div>
           <Link href={q ? `/demande?produit=${encodeURIComponent(q)}` : "/demande"} className="btn-primary">Demander un produit</Link>
         </section>
@@ -75,7 +75,7 @@ function Chip({ href, active, children }: { href: string; active: boolean; child
     <Link
       href={href}
       className={`rounded-full border px-3 py-1.5 text-sm ${
-        active ? "border-terre-500 bg-terre-50 font-semibold text-terre-600" : "border-[#e4e7ec] bg-white hover:border-terre-500"
+        active ? "border-terre-500 bg-terre-50 font-semibold text-terre-600" : "border-[#e2e8f0] bg-white hover:border-terre-500"
       }`}
     >
       {children}

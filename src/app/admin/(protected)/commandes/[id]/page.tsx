@@ -35,11 +35,11 @@ export default async function AdminOrderPage({
 
   return (
     <div className="space-y-6">
-      <Link href="/admin" className="text-sm text-stone-500 hover:underline">← Commandes</Link>
+      <Link href="/admin" className="text-sm text-slate-500 hover:underline">← Commandes</Link>
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="text-2xl font-extrabold">{orderNumber(order.id)}</h1>
         <StatusBadge status={order.status} />
-        <span className="text-sm text-stone-500">Paiement : {PAYMENT_LABELS[order.paymentStatus]}</span>
+        <span className="text-sm text-slate-500">Paiement : {PAYMENT_LABELS[order.paymentStatus]}</span>
       </div>
       {erreur && <p className="rounded-lg bg-rose-50 p-3 text-sm text-rose-700">{erreur}</p>}
 
@@ -47,7 +47,7 @@ export default async function AdminOrderPage({
         <div className="space-y-6">
           {/* Articles */}
           <section className="card overflow-hidden">
-            <div className="flex items-center justify-between border-b border-stone-200 p-4">
+            <div className="flex items-center justify-between border-b border-slate-200 p-4">
               <h2 className="font-bold">Articles</h2>
               {editable && pendingItems > 0 && (
                 <form action={markAll}>
@@ -56,14 +56,14 @@ export default async function AdminOrderPage({
                 </form>
               )}
             </div>
-            <ul className="divide-y divide-stone-100">
+            <ul className="divide-y divide-slate-100">
               {order.items.map((it) => (
                 <li key={it.id} className="flex flex-wrap items-center gap-3 p-4 text-sm">
                   <div className="min-w-0 flex-1">
-                    <p className={`font-medium ${it.status === "UNAVAILABLE" ? "text-stone-400 line-through" : ""}`}>
+                    <p className={`font-medium ${it.status === "UNAVAILABLE" ? "text-slate-400 line-through" : ""}`}>
                       {it.quantity} × {it.name}
                     </p>
-                    <p className="text-xs text-stone-500">
+                    <p className="text-xs text-slate-500">
                       {it.storeName || "Boutique non définie"} · {formatMoney(it.unitPriceCents)} / u · coût estimé{" "}
                       {formatMoney(it.unitCostCents)}
                     </p>
@@ -83,8 +83,8 @@ export default async function AdminOrderPage({
                                   ? "border-emerald-600 bg-emerald-600 text-white"
                                   : s === "UNAVAILABLE"
                                     ? "border-rose-600 bg-rose-600 text-white"
-                                    : "border-stone-500 bg-stone-500 text-white"
-                                : "border-stone-300 bg-white hover:border-stone-500"
+                                    : "border-slate-500 bg-slate-500 text-white"
+                                : "border-slate-300 bg-white hover:border-slate-500"
                             }`}
                           >
                             {s === "BOUGHT" ? "✓ Acheté" : s === "UNAVAILABLE" ? "✗ Introuvable" : "↺"}
@@ -93,7 +93,7 @@ export default async function AdminOrderPage({
                       ))}
                     </div>
                   ) : (
-                    <span className="text-xs text-stone-500">{ITEM_STATUS_LABELS[it.status]}</span>
+                    <span className="text-xs text-slate-500">{ITEM_STATUS_LABELS[it.status]}</span>
                   )}
                 </li>
               ))}
@@ -111,7 +111,7 @@ export default async function AdminOrderPage({
           {editable && (
             <section className="card space-y-3 p-4">
               <h2 className="font-bold">Encaisser le montant réel</h2>
-              <p className="text-sm text-stone-600">
+              <p className="text-sm text-slate-600">
                 Montant final : <strong>{formatMoney(final.totalCents)}</strong> sur {formatMoney(order.totalCents)}{" "}
                 autorisés. Le client recevra un courriel avec le détail.
               </p>
@@ -121,7 +121,7 @@ export default async function AdminOrderPage({
                   💳 Encaisser {formatMoney(final.totalCents)}
                 </button>
                 {pendingItems > 0 && (
-                  <p className="mt-2 text-xs text-stone-500">
+                  <p className="mt-2 text-xs text-slate-500">
                     Encore {pendingItems} article(s) à marquer « acheté » ou « introuvable ».
                   </p>
                 )}
@@ -173,7 +173,7 @@ export default async function AdminOrderPage({
             <p>{order.name}</p>
             <p><a className="text-terre-600 underline" href={`mailto:${order.email}`}>{order.email}</a></p>
             {order.phone && <p><a className="text-terre-600 underline" href={`tel:${order.phone}`}>{order.phone}</a></p>}
-            <p className="pt-2 text-stone-700">
+            <p className="pt-2 text-slate-700">
               {order.address1}
               {order.address2 && `, ${order.address2}`}
               <br />
@@ -202,7 +202,7 @@ export default async function AdminOrderPage({
               {order.events.map((e) => (
                 <li key={e.id}>
                   <p>{e.message}</p>
-                  <p className="text-xs text-stone-500">{e.createdAt.toLocaleString("fr-CA")}</p>
+                  <p className="text-xs text-slate-500">{e.createdAt.toLocaleString("fr-CA")}</p>
                 </li>
               ))}
             </ul>
@@ -216,7 +216,7 @@ export default async function AdminOrderPage({
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between">
-      <span className="text-stone-600">{label}</span>
+      <span className="text-slate-600">{label}</span>
       <span className="font-medium">{value}</span>
     </div>
   );

@@ -51,13 +51,13 @@ export default async function OrderPage({
 
       <div className="flex flex-wrap items-end justify-between gap-2">
         <h1 className="text-3xl font-extrabold">Commande {orderNumber(order.id)}</h1>
-        <p className="text-sm text-stone-500">
+        <p className="text-sm text-slate-500">
           Passée le {order.createdAt.toLocaleDateString("fr-CA", { dateStyle: "long" })}
         </p>
       </div>
 
       {pending && (
-        <p className="rounded-xl bg-amber-50 p-4 text-sm text-amber-900">
+        <p className="rounded-xl bg-sky-50 p-4 text-sm text-sky-900">
           Paiement non confirmé. Si vous venez de payer, rafraîchissez la page dans quelques secondes.{" "}
           <Link href="/panier" className="underline">Retour au panier</Link>
         </p>
@@ -77,14 +77,14 @@ export default async function OrderPage({
               <li key={s.status} className="flex gap-3 sm:flex-col sm:items-center sm:text-center">
                 <span
                   className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-                    done ? "bg-foret text-white" : "bg-stone-200 text-stone-500"
+                    done ? "bg-foret text-white" : "bg-slate-200 text-slate-500"
                   }`}
                 >
                   {done ? "✓" : i + 1}
                 </span>
                 <div>
-                  <p className={`text-sm font-semibold ${done ? "" : "text-stone-400"}`}>{s.label}</p>
-                  {i === stepIndex && <p className="text-xs text-stone-500">{s.hint}</p>}
+                  <p className={`text-sm font-semibold ${done ? "" : "text-slate-400"}`}>{s.label}</p>
+                  {i === stepIndex && <p className="text-xs text-slate-500">{s.hint}</p>}
                 </div>
               </li>
             );
@@ -102,11 +102,11 @@ export default async function OrderPage({
       )}
 
       <div className="card overflow-hidden">
-        <ul className="divide-y divide-stone-200">
+        <ul className="divide-y divide-slate-200">
           {order.items.map((it) => (
             <li key={it.id} className="flex items-center justify-between gap-3 p-4 text-sm">
               <div>
-                <p className={it.status === "UNAVAILABLE" ? "text-stone-400 line-through" : "font-medium"}>
+                <p className={it.status === "UNAVAILABLE" ? "text-slate-400 line-through" : "font-medium"}>
                   {it.quantity} × {it.name}
                 </p>
                 {it.status !== "PENDING" && (
@@ -119,7 +119,7 @@ export default async function OrderPage({
             </li>
           ))}
         </ul>
-        <div className="space-y-1 border-t border-stone-200 bg-stone-50 p-4 text-sm">
+        <div className="space-y-1 border-t border-slate-200 bg-slate-50 p-4 text-sm">
           <Line label="Sous-total" value={formatMoney(order.subtotalCents)} />
           <Line label="Livraison" value={order.shippingCents ? formatMoney(order.shippingCents) : "Gratuite"} />
           {order.taxCents > 0 && <Line label="Taxes" value={formatMoney(order.taxCents)} />}
@@ -130,7 +130,7 @@ export default async function OrderPage({
 
       <div className="card p-5 text-sm">
         <p className="font-bold">Livraison</p>
-        <p className="mt-1 text-stone-700">
+        <p className="mt-1 text-slate-700">
           {order.name}
           <br />
           {order.address1}
@@ -140,7 +140,7 @@ export default async function OrderPage({
         </p>
       </div>
 
-      <p className="text-center text-sm text-stone-500">
+      <p className="text-center text-sm text-slate-500">
         Une question ? Écrivez-nous à{" "}
         <a className="underline" href={`mailto:${SHOP.contactEmail}`}>{SHOP.contactEmail}</a> en indiquant{" "}
         {orderNumber(order.id)}.

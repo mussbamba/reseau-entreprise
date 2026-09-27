@@ -44,7 +44,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
   return (
     <div className="space-y-6">
       {pendingRequests > 0 && (
-        <Link href="/admin/demandes" className="block rounded-xl bg-amber-50 p-3 text-sm font-semibold text-amber-900 hover:underline">
+        <Link href="/admin/demandes" className="block rounded-xl bg-sky-50 p-3 text-sm font-semibold text-sky-900 hover:underline">
           ✨ {pendingRequests} demande(s) spéciale(s) en attente de prix →
         </Link>
       )}
@@ -65,7 +65,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
             key={t}
             href={`/admin?statut=${t}`}
             className={`rounded-full border px-3 py-1 text-sm ${
-              t === statut ? "border-terre-500 bg-terre-500 text-white" : "border-stone-300 bg-white"
+              t === statut ? "border-terre-500 bg-terre-500 text-white" : "border-slate-300 bg-white"
             }`}
           >
             {TAB_LABELS[t]} ({count(t)})
@@ -74,11 +74,11 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
       </div>
 
       {orders.length === 0 ? (
-        <p className="py-10 text-center text-stone-500">Aucune commande ici.</p>
+        <p className="py-10 text-center text-slate-500">Aucune commande ici.</p>
       ) : (
         <div className="card overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-stone-200 text-xs uppercase text-stone-500">
+            <thead className="border-b border-slate-200 text-xs uppercase text-slate-500">
               <tr>
                 <th className="p-3">Commande</th>
                 <th className="p-3">Client</th>
@@ -87,7 +87,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
                 <th className="p-3">Statut</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-stone-100">
+            <tbody className="divide-y divide-slate-100">
               {orders.map((o) => {
                 const ageDays = (Date.now() - o.createdAt.getTime()) / 86_400_000;
                 const expiring = o.paymentStatus === "AUTHORIZED" && ageDays > AUTH_WARNING_DAYS;
@@ -97,11 +97,11 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
                       <Link href={`/admin/commandes/${o.id}`} className="font-semibold text-terre-700 hover:underline">
                         {orderNumber(o.id)}
                       </Link>
-                      <p className="text-xs text-stone-500">{o.createdAt.toLocaleString("fr-CA")}</p>
+                      <p className="text-xs text-slate-500">{o.createdAt.toLocaleString("fr-CA")}</p>
                     </td>
                     <td className="p-3">
                       {o.name}
-                      <p className="text-xs text-stone-500">{o.city}, {o.province}</p>
+                      <p className="text-xs text-slate-500">{o.city}, {o.province}</p>
                     </td>
                     <td className="p-3">{o.items.reduce((s, i) => s + i.quantity, 0)}</td>
                     <td className="p-3">{formatMoney(o.finalCents ?? o.totalCents)}</td>
@@ -125,9 +125,9 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
 function Stat({ label, value, hint }: { label: string; value: string | number; hint?: string }) {
   return (
     <div className="card p-4">
-      <p className="text-xs uppercase text-stone-500">{label}</p>
+      <p className="text-xs uppercase text-slate-500">{label}</p>
       <p className="mt-1 text-2xl font-bold">{value}</p>
-      {hint && <p className="mt-1 text-xs text-stone-500">{hint}</p>}
+      {hint && <p className="mt-1 text-xs text-slate-500">{hint}</p>}
     </div>
   );
 }

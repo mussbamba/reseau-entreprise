@@ -4,11 +4,11 @@ import { Logo } from "./Logo";
 
 export function Footer() {
   return (
-    <footer className="mt-16 border-t border-[#e4e7ec] bg-white text-stone-600">
+    <footer className="mt-16 border-t border-[#e2e8f0] bg-white text-slate-600">
       <div className="bande-wax" />
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 text-sm sm:grid-cols-3">
         <div>
-          <p className="flex items-center gap-2 text-base font-extrabold text-stone-900">
+          <p className="flex items-center gap-2 text-base font-extrabold text-slate-900">
             <Logo className="h-7 w-7" /> {SHOP.name}
           </p>
           <p className="mt-2">{SHOP.tagline}</p>
@@ -25,7 +25,7 @@ export function Footer() {
           <a href={`mailto:${SHOP.contactEmail}`} className="hover:text-terre-600">{SHOP.contactEmail}</a>
         </div>
       </div>
-      <p className="border-t border-[#e4e7ec] py-4 text-center text-xs">
+      <p className="border-t border-[#e2e8f0] py-4 text-center text-xs">
         © {new Date().getFullYear()} {SHOP.name}. Tous droits réservés.
       </p>
     </footer>

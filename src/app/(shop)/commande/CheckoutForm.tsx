@@ -75,18 +75,18 @@ export function CheckoutForm({ taxesEnabled, demoMode }: { taxesEnabled: boolean
         <ul className="space-y-1 text-sm">
           {lines.map((l) => (
             <li key={l.productId} className="flex justify-between gap-2">
-              <span className="text-stone-600">{l.quantity} × {l.name}</span>
+              <span className="text-slate-600">{l.quantity} × {l.name}</span>
               <span>{formatMoney(l.quantity * l.unitPriceCents)}</span>
             </li>
           ))}
         </ul>
-        <hr className="border-stone-200" />
+        <hr className="border-slate-200" />
         <Row label="Sous-total" cents={totals.subtotalCents} />
         <Row label="Livraison" cents={totals.shippingCents} free={totals.shippingCents === 0} />
         {totals.taxes.map((t) => (
           <Row key={t.label} label={t.label} cents={t.cents} />
         ))}
-        <div className="flex justify-between border-t border-stone-200 pt-3 text-lg font-bold">
+        <div className="flex justify-between border-t border-slate-200 pt-3 text-lg font-bold">
           <span>Total maximum</span>
           <span>{formatMoney(totals.totalCents)}</span>
         </div>
@@ -96,7 +96,7 @@ export function CheckoutForm({ taxesEnabled, demoMode }: { taxesEnabled: boolean
           réellement trouvés en boutique. {SHOP.purchaseSchedule}
         </p>
 
-        <label className="flex items-start gap-2 text-xs text-stone-600">
+        <label className="flex items-start gap-2 text-xs text-slate-600">
           <input type="checkbox" name="consent" required className="mt-0.5" />
           <span>
             J&apos;accepte les <Link href="/conditions" target="_blank" className="underline">conditions de vente</Link> et
@@ -110,7 +110,7 @@ export function CheckoutForm({ taxesEnabled, demoMode }: { taxesEnabled: boolean
           {pending ? "Un instant…" : demoMode ? "Commander (mode démo)" : "Payer en toute sécurité"}
         </button>
         {demoMode && (
-          <p className="text-center text-xs text-stone-500">
+          <p className="text-center text-xs text-slate-500">
             Mode démo : aucun paiement réel (clé Stripe non configurée).
           </p>
         )}
@@ -136,7 +136,7 @@ function Field({
 function Row({ label, cents, free }: { label: string; cents: number; free?: boolean }) {
   return (
     <div className="flex justify-between text-sm">
-      <span className="text-stone-600">{label}</span>
+      <span className="text-slate-600">{label}</span>
       <span>{free ? "Gratuite" : formatMoney(cents)}</span>
     </div>
   );

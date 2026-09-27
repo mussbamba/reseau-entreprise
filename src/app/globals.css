@@ -1,24 +1,26 @@
 @import "tailwindcss";
 
 @theme {
-  /* Identité claire : orange vif, ambre, vert feuille, fond gris perle */
-  --color-terre-50: #fff6ee;
-  --color-terre-100: #ffe9d6;
-  --color-terre-200: #ffd0a8;
-  --color-terre-500: #f26b1d;
-  --color-terre-600: #d95a10;
-  --color-terre-700: #b4470a;
-  --color-terre-900: #1b1f24;
-  --color-ocre: #ffb300;
-  --color-ambre: #ffc43d;
-  --color-foret: #12a150;
-  --color-perle: #f2f4f7;
+  /* Palette fraîche : vert menthe (principal), bleu ciel, rose corail, fond blanc */
+  --color-terre-50: #ecfdf5;
+  --color-terre-100: #d1fae5;
+  --color-terre-200: #a7f3d0;
+  --color-terre-500: #10b981;
+  --color-terre-600: #059669;
+  --color-terre-700: #047857;
+  --color-terre-900: #0f172a;
+  --color-ocre: #10b981;
+  --color-ambre: #34d399;
+  --color-foret: #059669;
+  --color-ciel: #38bdf8;
+  --color-corail: #fb7185;
+  --color-perle: #f6f9fc;
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 body {
   background: var(--color-perle);
-  color: #1b1f24;
+  color: #0f172a;
   font-family: var(--font-sans);
 }
 
@@ -27,10 +29,10 @@ body {
   height: 3px;
   background: repeating-linear-gradient(
     90deg,
-    var(--color-terre-500) 0 24px,
-    var(--color-ocre) 24px 36px,
-    var(--color-foret) 36px 60px,
-    #d6336c 60px 66px
+    #34d399 0 24px,
+    #38bdf8 24px 36px,
+    #fb7185 36px 52px,
+    #facc15 52px 62px
   );
 }
 
@@ -38,10 +40,10 @@ body {
   @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50;
 }
 @utility btn-primary {
-  @apply btn bg-gradient-to-br from-[#ff8a3d] to-terre-500 text-white shadow-[0_8px_18px_-8px_rgba(242,107,29,.6)] hover:to-terre-600;
+  @apply btn bg-gradient-to-br from-ambre to-terre-500 text-white shadow-[0_8px_18px_-8px_rgba(16,185,129,.6)] hover:to-terre-600;
 }
 @utility btn-amber {
-  @apply btn bg-gradient-to-b from-ambre to-ocre font-extrabold text-[#3b2600] shadow-[0_6px_14px_-8px_rgba(255,179,0,.9)] hover:brightness-105;
+  @apply btn bg-gradient-to-b from-ambre to-ocre font-extrabold text-white shadow-[0_6px_14px_-8px_rgba(16,185,129,.8)] hover:brightness-105;
 }
 @utility btn-secondary {
   @apply btn border border-terre-200 bg-white text-terre-700 hover:bg-terre-50;
@@ -50,11 +52,11 @@ body {
   @apply btn border border-rose-200 bg-white text-rose-700 hover:bg-rose-50;
 }
 @utility input {
-  @apply w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm outline-none focus:border-terre-500 focus:ring-2 focus:ring-terre-100;
+  @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-terre-500 focus:ring-2 focus:ring-terre-100;
 }
 @utility label {
-  @apply mb-1 block text-sm font-medium text-stone-700;
+  @apply mb-1 block text-sm font-medium text-slate-700;
 }
 @utility card {
-  @apply rounded-2xl border border-[#e4e7ec] bg-white shadow-[0_1px_2px_rgba(16,24,40,.05),0_4px_14px_-4px_rgba(16,24,40,.08)];
+  @apply rounded-2xl border border-[#e2e8f0] bg-white shadow-[0_1px_2px_rgba(16,24,40,.05),0_4px_14px_-4px_rgba(16,24,40,.08)];
 }

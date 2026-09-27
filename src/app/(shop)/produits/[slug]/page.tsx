@@ -15,7 +15,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
   return (
     <div>
-      <nav className="text-sm text-stone-500">
+      <nav className="text-sm text-slate-500">
         <Link href="/produits" className="hover:underline">Boutique</Link> /{" "}
         <Link href={`/produits?categorie=${p.category.slug}`} className="hover:underline">{p.category.name}</Link>
       </nav>
@@ -30,7 +30,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         <div className="space-y-4">
           <h1 className="text-3xl font-extrabold">{p.name}</h1>
           <p className="text-2xl font-bold text-terre-700">{formatMoney(p.priceCents)}</p>
-          {p.description && <p className="whitespace-pre-line text-stone-700">{p.description}</p>}
+          {p.description && <p className="whitespace-pre-line text-slate-700">{p.description}</p>}
           <AddToCartButton
             variant="amber"
             withQuantity

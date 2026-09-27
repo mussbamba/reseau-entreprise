@@ -90,7 +90,7 @@ export function RequestForm({ prefill }: { prefill: string }) {
         <button className="btn-primary w-full sm:w-auto" disabled={pending}>
           {pending ? "Envoi…" : "Envoyer ma demande"}
         </button>
-        <p className="mt-2 text-xs text-stone-500">Gratuit et sans engagement. Réponse habituelle sous 24 à 48 h.</p>
+        <p className="mt-2 text-xs text-slate-500">Gratuit et sans engagement. Réponse habituelle sous 24 à 48 h.</p>
       </div>
     </form>
   );

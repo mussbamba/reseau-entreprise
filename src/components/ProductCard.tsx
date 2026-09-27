@@ -30,7 +30,7 @@ export function ProductCard({ p }: { p: ProductCardData }) {
     <div className="card group flex flex-col overflow-hidden transition hover:-translate-y-0.5 hover:shadow-[0_12px_32px_-10px_rgba(16,24,40,.22)]">
       <Link href={`/produits/${p.slug}`} className="relative block bg-[radial-gradient(90%_80%_at_50%_35%,#fff,#f5f6f8)]">
         {p.featured && (
-          <span className="absolute left-2.5 top-2.5 z-10 rounded-lg bg-terre-500 px-2 py-1 text-[11px] font-bold text-white">Populaire</span>
+          <span className="absolute left-2.5 top-2.5 z-10 rounded-lg bg-corail px-2 py-1 text-[11px] font-bold text-white">Populaire</span>
         )}
         <ProductImage imageUrl={p.imageUrl} emoji={p.category.emoji} name={p.name} className="aspect-square w-full transition group-hover:scale-[1.02]" />
       </Link>

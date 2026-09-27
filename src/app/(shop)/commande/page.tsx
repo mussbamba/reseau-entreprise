@@ -10,7 +10,7 @@ export default async function CheckoutPage({ searchParams }: { searchParams: Pro
     <div>
       <h1 className="text-3xl font-extrabold">Finaliser la commande</h1>
       {annule && (
-        <p className="mt-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
+        <p className="mt-4 rounded-lg bg-sky-50 p-3 text-sm text-sky-900">
           Le paiement a été annulé. Votre panier est toujours là, vous pouvez réessayer.
         </p>
       )}

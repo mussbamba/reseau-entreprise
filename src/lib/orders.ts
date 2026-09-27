@@ -20,9 +20,9 @@ export const STATUS_LABELS: Record<string, string> = {
 };
 
 export const STATUS_COLORS: Record<string, string> = {
-  PENDING_PAYMENT: "bg-stone-100 text-stone-700",
+  PENDING_PAYMENT: "bg-slate-100 text-slate-700",
   NEW: "bg-sky-100 text-sky-800",
-  SHOPPING: "bg-amber-100 text-amber-800",
+  SHOPPING: "bg-violet-100 text-violet-700",
   PURCHASED: "bg-violet-100 text-violet-800",
   SHIPPED: "bg-emerald-100 text-emerald-800",
   DELIVERED: "bg-green-200 text-green-900",

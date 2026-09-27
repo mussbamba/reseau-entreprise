@@ -13,9 +13,11 @@
 /* Thème clair assumé (demande : lumineux, pas sombre) */
 :root{
   color-scheme:light;
-  --bg:#f2f4f7; --surface:#ffffff; --surface-2:#f5f6f8; --ink:#1b1f24; --muted:#667085; --line:#e4e7ec;
-  --brand:#f26b1d; --brand-ink:#ffffff; --brand-soft:#fff1e6; --mango:#ffb300; --leaf:#12a150; --hibiscus:#d6336c;
-  --amber:#ffc43d; --amber-2:#ffb300; --amber-ink:#3b2600;
+  /* Palette fraîche : vert menthe, bleu ciel, rose corail, fond blanc */
+  --bg:#f6f9fc; --surface:#ffffff; --surface-2:#f1f5f9; --ink:#0f172a; --muted:#64748b; --line:#e2e8f0;
+  --brand:#10b981; --brand-ink:#ffffff; --brand-soft:#ecfdf5; --mango:#facc15; --leaf:#10b981; --hibiscus:#fb7185;
+  --sky:#38bdf8; --coral:#fb7185;
+  --amber:#34d399; --amber-2:#10b981; --amber-ink:#ffffff;
   --ok:#23845a; --ok-soft:#dff4e8; --warn:#9a6200; --warn-soft:#fff1d6; --bad:#c0392b; --bad-soft:#fde6e3; --info:#1f6fa8; --info-soft:#e2f0fb;
   --shadow:0 1px 2px rgba(16,24,40,.05),0 4px 14px -4px rgba(16,24,40,.08);
   --shadow-lg:0 12px 32px -10px rgba(16,24,40,.18);
@@ -42,7 +44,7 @@ h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;letter-spacing:-.
 .back{border:0;background:var(--surface);box-shadow:var(--shadow);width:38px;height:38px;border-radius:50%;display:grid;place-items:center;flex:none}
 .main{flex:1;padding:4px 16px 112px;display:flex;flex-direction:column;gap:22px}
 .tabbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;z-index:30;padding:0 12px calc(10px + env(safe-area-inset-bottom,0px))}
-.tabbar-in{background:rgba(255,255,255,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:24px;box-shadow:0 10px 30px -6px rgba(120,70,30,.25),0 0 0 1px var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:6px}
+.tabbar-in{background:rgba(255,255,255,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:24px;box-shadow:0 10px 30px -6px rgba(15,23,42,.25),0 0 0 1px var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:6px}
 .tab{border:0;background:transparent;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 0;font-size:11.5px;font-weight:700;color:var(--muted);position:relative;border-radius:18px}
 .tab svg{width:23px;height:23px}
 .tab[aria-current="page"]{color:var(--brand);background:var(--brand-soft)}
@@ -79,10 +81,10 @@ h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;letter-spacing:-.
 .pcard{background:var(--surface);border-radius:24px;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow);transform:perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .25s ease-out}
 .pvis{position:relative;aspect-ratio:1/1.02;max-width:100%;border:0;width:100%;padding:0;display:block;background:radial-gradient(90% 80% at 50% 35%,#fff 0,var(--tint) 70%)}
 .floaty{position:absolute;inset:8% 10% 16%;display:grid;place-items:center}
-.floaty img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 8px 10px rgba(80,40,10,.18))}
-.floaty img.photo{object-fit:cover;border-radius:18px;box-shadow:0 14px 24px -10px rgba(80,40,10,.45)}
+.floaty img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 8px 10px rgba(15,23,42,.18))}
+.floaty img.photo{object-fit:cover;border-radius:18px;box-shadow:0 14px 24px -10px rgba(15,23,42,.45)}
 .floaty .ph{font-size:46px}
-.ground{position:absolute;left:50%;bottom:9%;width:48%;height:10px;transform:translateX(-50%);border-radius:50%;background:radial-gradient(closest-side,rgba(90,45,15,.28),rgba(90,45,15,0))}
+.ground{position:absolute;left:50%;bottom:9%;width:48%;height:10px;transform:translateX(-50%);border-radius:50%;background:radial-gradient(closest-side,rgba(15,23,42,.22),rgba(15,23,42,0))}
 @media (prefers-reduced-motion:no-preference){
   .floaty{animation:float 5.5s ease-in-out infinite}
   .ground{animation:ground 5.5s ease-in-out infinite}
@@ -183,7 +185,7 @@ h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;letter-spacing:-.
 .pvis{overflow:hidden}
 .pvis .pbg-soft{pointer-events:none;position:absolute;inset:-12%;width:124%;height:124%;max-width:none;object-fit:cover;filter:blur(26px) saturate(1.2);opacity:.35}
 .floaty .photo3d{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;min-width:0;min-height:0;border:4px solid #fff;border-radius:14px;background:#fff;
-  box-shadow:0 22px 30px -14px rgba(80,40,10,.55),0 2px 6px rgba(80,40,10,.15);transform:perspective(650px) rotateY(-14deg) rotateX(7deg)}
+  box-shadow:0 22px 30px -14px rgba(15,23,42,.55),0 2px 6px rgba(15,23,42,.15);transform:perspective(650px) rotateY(-14deg) rotateX(7deg)}
 .pvis .floaty{perspective:650px;display:flex;align-items:center;justify-content:center;inset:12% 14% 18%}
 @media (prefers-reduced-motion:no-preference){
   .floaty .photo3d{animation:sway 7s ease-in-out infinite}
@@ -284,6 +286,42 @@ h1,h2,h3{letter-spacing:-.02em;font-weight:800}
 .card,.oitem,.stat{box-shadow:var(--shadow);border:1px solid var(--line)}
 .detail{background:radial-gradient(90% 80% at 50% 35%,#fff 0,var(--tint) 95%);border:1px solid var(--line)}
 .note-brand{background:#fff4ea;color:#8a3b0a}
+
+/* ================= Palette fraîche (remplace les tons orangés) ================= */
+.wax{background:repeating-linear-gradient(90deg,#34d399 0 22px,#38bdf8 22px 34px,#fb7185 34px 48px,#facc15 48px 58px)}
+.topbar{background:linear-gradient(180deg,#ecfdf5 0%,#ffffff 100%)}
+.brand b{color:var(--brand)}
+.mode{box-shadow:inset 0 0 0 1px rgba(16,185,129,.2)}
+.mode button[aria-pressed="true"]{background:var(--brand);box-shadow:0 2px 8px rgba(16,185,129,.35)}
+.top-search form{box-shadow:0 0 0 2px rgba(16,185,129,.28),0 6px 16px -6px rgba(16,185,129,.3)}
+.top-search button{background:linear-gradient(135deg,#34d399,#10b981);color:#fff}
+.deliver{color:#0f766e}
+.hero{background:linear-gradient(135deg,#ecfdf5 0%,#e0f2fe 55%,#fdf2f8 100%);box-shadow:0 14px 34px -14px rgba(14,165,233,.35)}
+.hero::after{background:radial-gradient(circle,rgba(56,189,248,.35),rgba(56,189,248,0) 70%)}
+.hero .eyebrow{color:#059669}
+.hero h1 em{background-image:linear-gradient(90deg,#10b981,#0ea5e9);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:#475569}
+.btn-primary{background:linear-gradient(135deg,#34d399,#10b981);color:#fff;box-shadow:0 8px 18px -8px rgba(16,185,129,.6)}
+.btn-amber{background:linear-gradient(135deg,#34d399,#10b981);color:#fff;box-shadow:0 8px 18px -8px rgba(16,185,129,.6)}
+.addbar{background:linear-gradient(180deg,#34d399,#10b981);color:#fff}
+.add{background:var(--brand);color:#fff}
+.tag.pop{background:#fb7185}
+.tag.new{background:#0ea5e9}
+.tab[aria-current="page"]{color:#059669;background:#ecfdf5}
+.badge{background:#fb7185}
+.cat[aria-pressed="true"]{background:#ecfdf5;color:#047857;box-shadow:0 0 0 1.5px #10b981}
+.link{color:#059669}
+.pmeta b{color:#059669}
+.qbig{background:#bae6fd;color:#075985}
+.store-h{background:linear-gradient(135deg,#ecfdf5,#e0f2fe)}
+.note-brand{background:#ecfdf5;color:#047857}
+.s-PURCHASED{background:#e0f2fe;color:#0369a1}
+.eyebrow{color:#059669}
+.photo-btn{background:#ecfdf5;color:#047857}
+.dot{background:#f1f5f9}
+.step.done .dot,.step.done:not(:last-child)::before{background:#10b981}
+.how div span.n{filter:saturate(.9)}
+:focus-visible{outline-color:#10b981}
 </style>
 
 <div class="app" id="app">
@@ -319,16 +357,16 @@ const STORES = [
 // v : apparence du rendu 3D (forme de l'emballage et couleurs)
 const P = (id,name,short,cat,store,price,cost,origin,featured,v) => ({id,name,short,cat,store,price,cost,origin,featured,active:true,v});
 const PRODUCTS = [
-  P(1,"Gari blanc 1 kg","Gari blanc","farines","A",799,450,"Ghana",true,{shape:"sack",body:"#efe3cc",label:"#2f8f5b",accent:"#f6a623"}),
-  P(2,"Farine d'igname (poundo) 1,8 kg","Poundo yam","farines","A",1499,950,"Nigeria",true,{shape:"sack",body:"#fbf7f0",label:"#b8325a",accent:"#f6a623"}),
-  P(3,"Attiéké déshydraté 1 kg","Attiéké","farines","B",949,575,"Côte d'Ivoire",true,{shape:"sack",body:"#f6efe1",label:"#f08a24",accent:"#2f8f5b"}),
-  P(4,"Farine de manioc (foufou) 1,5 kg","Foufou","farines","B",1199,725,"Cameroun",false,{shape:"sack",body:"#e9dcc2",label:"#3a7d44",accent:"#e4572e"}),
+  P(1,"Gari blanc 1 kg","Gari blanc","farines","A",799,450,"Ghana",true,{shape:"sack",body:"#ffffff",label:"#2f8f5b",accent:"#f6a623"}),
+  P(2,"Farine d'igname (poundo) 1,8 kg","Poundo yam","farines","A",1499,950,"Nigeria",true,{shape:"sack",body:"#ffffff",label:"#b8325a",accent:"#f6a623"}),
+  P(3,"Attiéké déshydraté 1 kg","Attiéké","farines","B",949,575,"Côte d'Ivoire",true,{shape:"sack",body:"#ffffff",label:"#f08a24",accent:"#2f8f5b"}),
+  P(4,"Farine de manioc (foufou) 1,5 kg","Foufou","farines","B",1199,725,"Cameroun",false,{shape:"sack",body:"#ffffff",label:"#3a7d44",accent:"#e4572e"}),
   P(5,"Soumbala 100 g","Soumbala","epices","B",599,325,"Burkina Faso",false,{shape:"jar",content:"#5b3a1e",lid:"#2f8f5b",label:"#fff3dc"}),
   P(6,"Piment de Cayenne moulu 200 g","Piment","epices","A",499,275,"Nigeria",false,{shape:"jar",content:"#c62b1c",lid:"#f6a623",label:"#fffaf0"}),
   P(7,"Cubes Maggi (x100)","Cubes","epices","A",699,400,"Côte d'Ivoire",true,{shape:"box",body:"#f2c200",label:"#d7261e"}),
   P(8,"Huile de palme rouge 1 L","Huile de palme","huiles","A",1299,800,"Ghana",true,{shape:"bottle",content:"#d9480f",cap:"#f6a623",label:"#fff5e6"}),
   P(9,"Pâte d'arachide 500 g","Arachide","huiles","B",749,450,"Sénégal",false,{shape:"jar",content:"#b7773a",lid:"#b8325a",label:"#fff3e6"}),
-  P(10,"Poisson fumé (machoiron) 250 g","Poisson fumé","poissons","B",1699,1100,"Côte d'Ivoire",false,{shape:"pouch",body:"#e9d8b8",label:"#1f5f8b"}),
+  P(10,"Poisson fumé (machoiron) 250 g","Poisson fumé","poissons","B",1699,1100,"Côte d'Ivoire",false,{shape:"pouch",body:"#e0f2fe",label:"#1f5f8b"}),
   P(11,"Crevettes séchées moulues 100 g","Crevettes","poissons","A",899,550,"Cameroun",false,{shape:"jar",content:"#e07a3f",lid:"#1f5f8b",label:"#f4fbff"}),
   P(12,"Bissap (fleurs d'hibiscus) 250 g","Bissap","boissons","B",649,350,"Sénégal",true,{shape:"pouch",body:"#8e1537",label:"#ffd3dd"}),
   P(13,"Chips de plantain 85 g","Plantain","boissons","A",249,125,"Ghana",false,{shape:"pouch",body:"#f4c430",label:"#2f8f5b"}),
@@ -371,10 +409,10 @@ const store = id => STORES.find(s=>s.id===id);
 const prod = id => { const base = PRODUCTS.find(p=>p.id===id) || (S.custom||[]).find(p=>p.id===id); if(!base) return null; const st = S.products.find(p=>p.id===id) || {}; return {...base,...st,v:base.v,active:st.active??true}; };
 const allProducts = () => [...PRODUCTS, ...(S.custom||[])].map(p=>prod(p.id));
 const SHAPES = {sack:"Sac",jar:"Pot",bottle:"Bouteille",box:"Boîte",pouch:"Sachet"};
-const SWATCHES = ["#e4572e","#f6a623","#2f8f5b","#b8325a","#1f5f8b","#8e1537","#5b3a1e","#f2c200"];
+const SWATCHES = ["#10b981","#38bdf8","#fb7185","#facc15","#a78bfa","#fb923c","#22c55e","#0ea5e9"];
 function visualFor(shape, color){
-  return {sack:{shape,body:"#f3ebdd",label:color,accent:"#f6a623"},jar:{shape,content:color,lid:"#2f8f5b",label:"#fffaf0"},
-    bottle:{shape,content:color,cap:"#f6a623",label:"#fff5e6"},box:{shape,body:"#fff3d6",label:color},pouch:{shape,body:color,label:"#fff7ec"}}[shape];
+  return {sack:{shape,body:"#ffffff",label:color,accent:"#f6a623"},jar:{shape,content:color,lid:"#2f8f5b",label:"#fffaf0"},
+    bottle:{shape,content:color,cap:"#f6a623",label:"#fff5e6"},box:{shape,body:"#ffffff",label:color},pouch:{shape,body:color,label:"#fff7ec"}}[shape];
 }
 function colorOf(v){ return v.shape==="jar"||v.shape==="bottle" ? v.content : v.shape==="pouch" ? v.body : v.label; }
 function shortName(name){ const s = name.replace(/\s*\(.*?\)/g,"").replace(/\s+\d[\d,.]*\s*(kg|g|l|ml|cl|x|u)\b.*$/i,"").trim(); return (s||name).slice(0,22); }
@@ -430,8 +468,8 @@ function labelTexture(p, W, H, bg, panel){
   const col = panel || p.v.label;
   g.fillStyle = col; if(panel){ g.beginPath(); g.roundRect ? g.roundRect(px,py,pw,ph,W*.06) : g.rect(px,py,pw,ph); g.fill(); } else g.fillRect(0,0,W,H);
   const band = Math.max(10,H*.06);
-  waxBand(g, px, py, pw, band, ["#e4572e","#f6a623","#2f8f5b","#b8325a"]);
-  waxBand(g, px, py+ph-band, pw, band, ["#2f8f5b","#b8325a","#e4572e","#f6a623"]);
+  waxBand(g, px, py, pw, band, ["#34d399","#38bdf8","#fb7185","#facc15"]);
+  waxBand(g, px, py+ph-band, pw, band, ["#38bdf8","#fb7185","#facc15","#34d399"]);
   const ink = isLight(col) ? "#2b1e16" : "#ffffff";
   g.fillStyle = ink; g.textAlign = "center"; g.textBaseline = "middle";
   const u = Math.min(pw, ph*1.3);
@@ -513,7 +551,7 @@ function buildPhotoModel(img){
   const pivot = new T.Group(); pivot.add(grp); pivot.userData.sway = true; pivot.userData.dragY = 0; return pivot;
 }
 function lights(scene){
-  scene.add(new T.HemisphereLight(0xffffff, 0xf3dcc4, .95));
+  scene.add(new T.HemisphereLight(0xffffff, 0xe6f0f5, .95));
   const key = new T.DirectionalLight(0xffffff, 1.35); key.position.set(3,5,5); scene.add(key);
   const fill = new T.DirectionalLight(0xffe0c2, .55); fill.position.set(-5,2,3); scene.add(fill);
   const rim = new T.DirectionalLight(0xffffff, .8); rim.position.set(0,3,-6); scene.add(rim);
@@ -567,7 +605,7 @@ function mountStage(el, ids, detail, photoImg){
   }
   cam.lookAt(0,0,0);
   // ombres douces au sol
-  const shadowTex = (()=>{ const c=document.createElement("canvas"); c.width=c.height=128; const g=c.getContext("2d"); const gr=g.createRadialGradient(64,64,0,64,64,64); gr.addColorStop(0,"rgba(90,45,15,.35)"); gr.addColorStop(1,"rgba(90,45,15,0)"); g.fillStyle=gr; g.fillRect(0,0,128,128); return new T.CanvasTexture(c); })();
+  const shadowTex = (()=>{ const c=document.createElement("canvas"); c.width=c.height=128; const g=c.getContext("2d"); const gr=g.createRadialGradient(64,64,0,64,64,64); gr.addColorStop(0,"rgba(15,23,42,.28)"); gr.addColorStop(1,"rgba(15,23,42,0)"); g.fillStyle=gr; g.fillRect(0,0,128,128); return new T.CanvasTexture(c); })();
   const shadows = objs.map(m=>{ const s = new T.Mesh(new T.PlaneGeometry(1.8,.7), new T.MeshBasicMaterial({map:shadowTex, transparent:true, depthWrite:false})); s.rotation.x = -Math.PI/2; scene.add(s); return s; });
   let drag = null, spin = 0, px = 0, py = 0;
   const canvas = renderer.domElement;
@@ -611,7 +649,7 @@ function go(view, params={}, push=true){
 }
 function back(){ const h = history_.pop(); if(h){ S.view=h.view; S.params=h.params; } else { S.view = S.mode==="client"?"home":"a-orders"; S.params={}; } save(); render(); }
 
-const LOGO = '<svg viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffb300"/><stop offset="1" stop-color="#f26b1d"/></linearGradient></defs><rect width="32" height="32" rx="9" fill="url(#lg)"/><circle cx="16" cy="14" r="6" fill="#fff"/><path d="M8 24c3-3 13-3 16 0" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M19 8c3-3 6-2 6-2s0 4-4 5" fill="#12a150"/></svg>';
+const LOGO = '<svg viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#34d399"/><stop offset="1" stop-color="#0ea5e9"/></linearGradient></defs><rect width="32" height="32" rx="9" fill="url(#lg)"/><circle cx="16" cy="14" r="6" fill="#fff"/><path d="M8 24c3-3 13-3 16 0" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M19 8c3-3 6-2 6-2s0 4-4 5" fill="#facc15"/></svg>';
 const PIN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>';
 const ICONS = {
   home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>',
@@ -690,7 +728,7 @@ function visual(p, big){
 }
 function thumb(p){
   if(!p) return "";
-  if(p.special) return `<div class="thumb" style="--tint:#fff0cf">${p.req.photo?`<img class="photo" src="${p.req.photo}" alt="">`:`<span style="font-size:26px">✨</span>`}</div>`;
+  if(p.special) return `<div class="thumb" style="--tint:#e0f2fe">${p.req.photo?`<img class="photo" src="${p.req.photo}" alt="">`:`<span style="font-size:26px">✨</span>`}</div>`;
   return `<div class="thumb" style="--tint:${tint(p)}">${PHOTOS[p.id]?`<img class="photo" src="${PHOTOS[p.id]}" alt="">`:GL_OK?`<img data-snap="${p.id}" alt="">`:cat(p.cat).emoji}</div>`;
 }
 function productCard(p,i){
@@ -711,7 +749,7 @@ function productCard(p,i){
 function priceHTML(c){ const [d,cents] = (c/100).toFixed(2).split("."); return `<span class="pprice" aria-label="${money(c)}"><span class="d">${d}</span><span class="c">,${cents}</span><span class="cur">$</span></span>`; }
 function reqPill(r){ const [l,c] = REQ_STATUS[r.status]; return `<span class="pill ${c}">${l}</span>`; }
 function requestPromo(q){
-  return `<section class="card" style="background:linear-gradient(135deg,#fff4dc,#ffe6ef);flex-direction:row;align-items:center;gap:14px">
+  return `<section class="card" style="background:linear-gradient(135deg,#ecfdf5,#fdf2f8);flex-direction:row;align-items:center;gap:14px">
     <span style="font-size:34px" aria-hidden="true">✨</span>
     <div class="grow" style="display:flex;flex-direction:column;gap:6px">
       <b style="font-family:var(--display);font-size:17px">Vous ne trouvez pas un produit ?</b>
@@ -740,7 +778,7 @@ const VIEWS = {
       </section>
       <div class="perks">
         <div class="perk"><i style="background:#e8f7ee">🚚</i><b>Livraison gratuite</b>dès ${money(FREE_OVER)}</div>
-        <div class="perk"><i style="background:#fff4df">💳</i><b>Payez le réel</b>introuvable = non facturé</div>
+        <div class="perk"><i style="background:#fef9c3">💳</i><b>Payez le réel</b>introuvable = non facturé</div>
         <div class="perk"><i style="background:#ffe9f0">✨</i><b>Sur demande</b>on trouve pour vous</div>
       </div>
       <section class="section-box">
@@ -758,7 +796,7 @@ const VIEWS = {
       <section style="display:flex;flex-direction:column;gap:12px">
         <h2 style="font-size:21px">Comment ça marche</h2>
         <div class="how">
-          ${[["#e4572e","Vous commandez","Carte autorisée, pas encore débitée."],["#f6a623","On fait vos courses","Dans nos épiceries partenaires."],["#2f8f5b","Vous payez le réel","Un article introuvable n'est pas facturé."],["#b8325a","On expédie","Numéro de suivi par courriel."]].map(([c,t,d],i)=>`<div><span class="n" style="background:${c}">${i+1}</span><b>${t}</b><span class="small">${d}</span></div>`).join("")}
+          ${[["#34d399","Vous commandez","Carte autorisée, pas encore débitée."],["#38bdf8","On fait vos courses","Dans nos épiceries partenaires."],["#facc15","Vous payez le réel","Un article introuvable n'est pas facturé."],["#fb7185","On expédie","Numéro de suivi par courriel."]].map(([c,t,d],i)=>`<div><span class="n" style="background:${c}">${i+1}</span><b>${t}</b><span class="small">${d}</span></div>`).join("")}
         </div>
       </section>`;
   },
@@ -1094,7 +1132,7 @@ const VIEWS = {
     const open = r.status==="PENDING"||r.status==="QUOTED";
     return `
       <div class="line"><h1 style="font-size:24px">${esc(r.name)}</h1>${reqPill(r)}</div>
-      ${r.photo?`<div class="detail" style="--tint:#fff0cf;aspect-ratio:4/3"><img src="${r.photo}" alt="Photo envoyée par le client" style="width:100%;height:100%;object-fit:cover"></div>`:""}
+      ${r.photo?`<div class="detail" style="--tint:#e0f2fe;aspect-ratio:4/3"><img src="${r.photo}" alt="Photo envoyée par le client" style="width:100%;height:100%;object-fit:cover"></div>`:""}
       <div class="card">
         <div class="line"><span>Quantité</span><b>${r.qty}</b></div>
         ${r.details?`<div class="line"><span>Détails</span><span style="text-align:right">${esc(r.details)}</span></div>`:""}

@@ -27,7 +27,7 @@ export default async function AdminRequestPage({
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <Link href="/admin/demandes" className="text-sm text-stone-500 hover:underline">← Demandes</Link>
+      <Link href="/admin/demandes" className="text-sm text-slate-500 hover:underline">← Demandes</Link>
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="text-2xl font-extrabold">{r.quantity} × {r.name}</h1>
         <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${status.color}`}>{status.label}</span>
@@ -81,7 +81,7 @@ export default async function AdminRequestPage({
           </div>
         </form>
       ) : (
-        <p className="rounded-xl bg-stone-100 p-4 text-sm">
+        <p className="rounded-xl bg-slate-100 p-4 text-sm">
           {r.status === "ORDERED" && "Le client a commandé ce produit : il apparaît dans la liste d'achat avec sa commande."}
           {r.status === "DECLINED" && "Le client a refusé le prix."}
           {r.status === "UNAVAILABLE" && "Marqué introuvable. Le client a été prévenu par courriel."}
@@ -94,7 +94,7 @@ export default async function AdminRequestPage({
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between gap-4">
-      <span className="text-stone-600">{label}</span>
+      <span className="text-slate-600">{label}</span>
       <span className="text-right font-medium">{value}</span>
     </div>
   );

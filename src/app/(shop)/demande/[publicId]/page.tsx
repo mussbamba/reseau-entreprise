@@ -37,12 +37,12 @@ export default async function RequestStatusPage({
         {r.photo ? (
           <img src={r.photo} alt="" className="h-20 w-20 shrink-0 rounded-xl object-cover" />
         ) : (
-          <span className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-4xl">✨</span>
+          <span className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-4xl">✨</span>
         )}
         <div className="min-w-0 flex-1">
           <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${status.color}`}>{status.label}</span>
           <h1 className="mt-1 text-2xl font-extrabold">{r.quantity} × {r.name}</h1>
-          {r.details && <p className="text-sm text-stone-600">{r.details}</p>}
+          {r.details && <p className="text-sm text-slate-600">{r.details}</p>}
         </div>
       </div>
 
@@ -77,12 +77,12 @@ export default async function RequestStatusPage({
               <button className="btn-secondary w-full">Non merci</button>
             </form>
           </div>
-          <p className="text-xs text-stone-500">Comme pour le reste de votre commande, votre carte est seulement autorisée : le montant est débité après l&apos;achat en boutique.</p>
+          <p className="text-xs text-slate-500">Comme pour le reste de votre commande, votre carte est seulement autorisée : le montant est débité après l&apos;achat en boutique.</p>
         </div>
       )}
 
       {r.status === "ORDERED" && <p className="rounded-xl bg-emerald-50 p-4 text-sm text-emerald-900">Ce produit fait partie d&apos;une de vos commandes.</p>}
-      {r.status === "DECLINED" && <p className="rounded-xl bg-stone-100 p-4 text-sm">Vous avez refusé ce prix. Vous pouvez faire une nouvelle demande à tout moment.</p>}
+      {r.status === "DECLINED" && <p className="rounded-xl bg-slate-100 p-4 text-sm">Vous avez refusé ce prix. Vous pouvez faire une nouvelle demande à tout moment.</p>}
       {r.status === "UNAVAILABLE" && (
         <p className="rounded-xl bg-rose-50 p-4 text-sm text-rose-800">
           Désolé, nous n&apos;avons pas trouvé ce produit pour le moment.{r.vendorNote && ` ${r.vendorNote}`}
