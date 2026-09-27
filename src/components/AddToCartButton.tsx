@@ -8,11 +8,13 @@ export function AddToCartButton({
   withQuantity = false,
   quantity = 1,
   label = "Ajouter au panier",
+  variant = "primary",
 }: {
   product: Omit<CartLine, "quantity">;
   withQuantity?: boolean;
   quantity?: number;
   label?: string;
+  variant?: "primary" | "amber";
 }) {
   const { add } = useCart();
   const [qty, setQty] = useState(quantity);
@@ -38,7 +40,7 @@ export function AddToCartButton({
           ))}
         </select>
       )}
-      <button type="button" onClick={onAdd} className="btn-primary w-full">
+      <button type="button" onClick={onAdd} className={`${variant === "amber" ? "btn-amber" : "btn-primary"} w-full`}>
         {added ? "✓ Ajouté" : label}
       </button>
     </div>

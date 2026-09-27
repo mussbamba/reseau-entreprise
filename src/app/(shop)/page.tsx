@@ -19,33 +19,51 @@ export default async function HomePage() {
 
   return (
     <div className="space-y-14">
-      <section className="overflow-hidden rounded-3xl bg-terre-900 px-6 py-12 text-white sm:px-12 sm:py-16">
-        <p className="text-sm font-semibold uppercase tracking-widest text-ocre">Livraison au Québec et au Canada</p>
-        <h1 className="mt-3 max-w-2xl text-3xl font-extrabold leading-tight sm:text-5xl">
-          Le goût de chez nous, livré à votre porte.
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#fff3e2] via-[#ffe4ec] to-[#e2f1ff] px-6 py-10 shadow-[0_12px_32px_-10px_rgba(16,24,40,.18)] sm:px-12 sm:py-14">
+        <div aria-hidden className="pointer-events-none absolute -bottom-16 -right-10 h-64 w-64 rounded-full bg-[radial-gradient(circle,rgba(255,196,61,.45),rgba(255,196,61,0)_70%)]" />
+        <p className="inline-flex rounded-full bg-white px-3 py-1 text-xs font-bold uppercase tracking-wider text-terre-500 shadow-sm">
+          Nouveau · épicerie africaine en ligne
+        </p>
+        <h1 className="mt-4 max-w-2xl text-3xl font-extrabold leading-tight tracking-tight sm:text-5xl">
+          Le goût de chez nous,{" "}
+          <span className="bg-gradient-to-r from-terre-500 to-[#d6336c] bg-clip-text text-transparent">livré à votre porte.</span>
         </h1>
-        <p className="mt-4 max-w-xl text-terre-100">{SHOP.tagline}.</p>
+        <p className="mt-4 max-w-xl text-stone-600">{SHOP.tagline}.</p>
         <div className="mt-8 flex flex-wrap gap-3">
-          <Link href="/produits" className="btn-primary">Voir les produits</Link>
-          <Link href="/comment-ca-marche" className="btn border border-white/30 text-white hover:bg-white/10">
-            Comment ça marche
-          </Link>
+          <Link href="/produits" className="btn-amber">Découvrir la boutique</Link>
+          <Link href="/comment-ca-marche" className="btn bg-white shadow-sm hover:bg-terre-50">Comment ça marche</Link>
         </div>
-        <p className="mt-6 text-sm text-terre-200">
+        <p className="mt-6 text-sm font-medium text-stone-600">
           Livraison gratuite dès {formatMoney(SHIPPING.freeOverCents)} · Commande minimum {formatMoney(MIN_ORDER_CENTS)}
         </p>
       </section>
 
+      <div className="grid gap-3 sm:grid-cols-3">
+        {[
+          ["🚚", "bg-emerald-50", "Livraison gratuite", `dès ${formatMoney(SHIPPING.freeOverCents)}`],
+          ["💳", "bg-amber-50", "Payez le montant réel", "un article introuvable n'est pas facturé"],
+          ["✨", "bg-pink-50", "Produit introuvable ?", "on le cherche pour vous"],
+        ].map(([icon, bg, title, text]) => (
+          <div key={title} className="card flex items-center gap-3 p-4">
+            <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl text-xl ${bg}`}>{icon}</span>
+            <div className="text-sm">
+              <p className="font-bold">{title}</p>
+              <p className="text-stone-500">{text}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
       <section>
-        <h2 className="text-2xl font-bold">Catégories</h2>
+        <h2 className="text-2xl font-bold">Acheter par catégorie</h2>
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {categories.map((c) => (
             <Link
               key={c.id}
               href={`/produits?categorie=${c.slug}`}
-              className="card flex flex-col items-center gap-2 p-4 text-center text-sm font-semibold hover:border-terre-500"
+              className="card flex flex-col items-center gap-2 p-4 text-center text-sm font-semibold transition hover:-translate-y-0.5 hover:border-terre-500"
             >
-              <span className="text-3xl">{c.emoji}</span>
+              <span className="grid h-16 w-16 place-items-center rounded-full bg-[radial-gradient(circle_at_35%_30%,#fff,#ffe9d6)] text-3xl shadow-sm">{c.emoji}</span>
               {c.name}
             </Link>
           ))}
@@ -80,7 +98,7 @@ export default async function HomePage() {
           ["3", "Nous expédions", "Vous payez le montant réel et recevez votre colis avec un numéro de suivi."],
         ].map(([n, t, d]) => (
           <div key={n} className="card p-5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-ocre font-bold text-terre-900">{n}</span>
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-b from-ambre to-ocre font-bold text-[#3b2600]">{n}</span>
             <h3 className="mt-3 font-bold">{t}</h3>
             <p className="mt-1 text-sm text-stone-600">{d}</p>
           </div>

@@ -32,6 +32,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           <p className="text-2xl font-bold text-terre-700">{formatMoney(p.priceCents)}</p>
           {p.description && <p className="whitespace-pre-line text-stone-700">{p.description}</p>}
           <AddToCartButton
+            variant="amber"
             withQuantity
             product={{
               productId: p.id,

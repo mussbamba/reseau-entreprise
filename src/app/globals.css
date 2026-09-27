@@ -1,32 +1,36 @@
 @import "tailwindcss";
 
 @theme {
-  --color-terre-50: #fdf6f0;
-  --color-terre-100: #f9e6d6;
-  --color-terre-200: #f1c7a5;
-  --color-terre-500: #c2562b;
-  --color-terre-600: #a8441f;
-  --color-terre-700: #86351a;
-  --color-terre-900: #3d1a0e;
-  --color-ocre: #e0a526;
-  --color-foret: #1f6b4a;
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* Identité claire : orange vif, ambre, vert feuille, fond gris perle */
+  --color-terre-50: #fff6ee;
+  --color-terre-100: #ffe9d6;
+  --color-terre-200: #ffd0a8;
+  --color-terre-500: #f26b1d;
+  --color-terre-600: #d95a10;
+  --color-terre-700: #b4470a;
+  --color-terre-900: #1b1f24;
+  --color-ocre: #ffb300;
+  --color-ambre: #ffc43d;
+  --color-foret: #12a150;
+  --color-perle: #f2f4f7;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 body {
-  background: #fffaf5;
-  color: #2a1a12;
+  background: var(--color-perle);
+  color: #1b1f24;
+  font-family: var(--font-sans);
 }
 
 /* Bande décorative inspirée des tissus wax/kente */
 .bande-wax {
-  height: 6px;
+  height: 3px;
   background: repeating-linear-gradient(
     90deg,
     var(--color-terre-500) 0 24px,
     var(--color-ocre) 24px 36px,
     var(--color-foret) 36px 60px,
-    #2a1a12 60px 66px
+    #d6336c 60px 66px
   );
 }
 
@@ -34,7 +38,10 @@ body {
   @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50;
 }
 @utility btn-primary {
-  @apply btn bg-terre-500 text-white hover:bg-terre-600;
+  @apply btn bg-gradient-to-br from-[#ff8a3d] to-terre-500 text-white shadow-[0_8px_18px_-8px_rgba(242,107,29,.6)] hover:to-terre-600;
+}
+@utility btn-amber {
+  @apply btn bg-gradient-to-b from-ambre to-ocre font-extrabold text-[#3b2600] shadow-[0_6px_14px_-8px_rgba(255,179,0,.9)] hover:brightness-105;
 }
 @utility btn-secondary {
   @apply btn border border-terre-200 bg-white text-terre-700 hover:bg-terre-50;
@@ -49,5 +56,5 @@ body {
   @apply mb-1 block text-sm font-medium text-stone-700;
 }
 @utility card {
-  @apply rounded-2xl border border-stone-200 bg-white;
+  @apply rounded-2xl border border-[#e4e7ec] bg-white shadow-[0_1px_2px_rgba(16,24,40,.05),0_4px_14px_-4px_rgba(16,24,40,.08)];
 }
