@@ -1,0 +1,111 @@
+// SQLite en développement. Pour la production, passer à PostgreSQL :
+// provider = "postgresql" et DATABASE_URL="postgresql://..."
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Boutique physique où l'on va acheter les produits (fournisseur)
+model Store {
+  id        Int       @id @default(autoincrement())
+  name      String
+  address   String    @default("")
+  hours     String    @default("")
+  notes     String    @default("")
+  products  Product[]
+  createdAt DateTime  @default(now())
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String
+  slug     String    @unique
+  emoji    String    @default("🛍️")
+  position Int       @default(0)
+  products Product[]
+}
+
+model Product {
+  id          Int         @id @default(autoincrement())
+  name        String
+  slug        String      @unique
+  description String      @default("")
+  origin      String      @default("") // pays d'origine
+  priceCents  Int // prix de vente
+  costCents   Int         @default(0) // prix d'achat estimé en boutique
+  weightGrams Int         @default(500)
+  imageUrl    String      @default("")
+  active      Boolean     @default(true)
+  featured    Boolean     @default(false)
+  categoryId  Int
+  category    Category    @relation(fields: [categoryId], references: [id])
+  storeId     Int?
+  store       Store?      @relation(fields: [storeId], references: [id], onDelete: SetNull)
+  orderItems  OrderItem[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+// status : PENDING_PAYMENT | NEW | SHOPPING | PURCHASED | SHIPPED | DELIVERED | CANCELLED
+// paymentStatus : PENDING | AUTHORIZED | CAPTURED | CANCELED | SIMULATED_AUTHORIZED | SIMULATED_CAPTURED
+model Order {
+  id            Int         @id @default(autoincrement())
+  publicId      String      @unique @default(cuid())
+  status        String      @default("PENDING_PAYMENT")
+  paymentStatus String      @default("PENDING")
+
+  email         String
+  name          String
+  phone         String      @default("")
+  address1      String
+  address2      String      @default("")
+  city          String
+  province      String
+  postalCode    String
+  notes         String      @default("")
+
+  subtotalCents Int
+  shippingCents Int
+  taxCents      Int
+  totalCents    Int // montant autorisé sur la carte
+  finalCents    Int? // montant réellement encaissé
+
+  stripeSessionId       String?
+  stripePaymentIntentId String?
+
+  carrier        String @default("")
+  trackingNumber String @default("")
+
+  items     OrderItem[]
+  events    OrderEvent[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+// status : PENDING | BOUGHT | UNAVAILABLE
+model OrderItem {
+  id             Int      @id @default(autoincrement())
+  orderId        Int
+  order          Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId      Int?
+  product        Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  name           String
+  storeName      String   @default("")
+  unitPriceCents Int
+  unitCostCents  Int      @default(0)
+  quantity       Int
+  status         String   @default("PENDING")
+}
+
+// Historique visible dans l'admin (et partiellement par le client)
+model OrderEvent {
+  id        Int      @id @default(autoincrement())
+  orderId   Int
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  message   String
+  createdAt DateTime @default(now())
+}
