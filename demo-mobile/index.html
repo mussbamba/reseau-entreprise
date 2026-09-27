@@ -373,8 +373,7 @@ body,.app{background:var(--az-bg);color:var(--az-ink)}
 .az-quad{display:grid;grid-template-columns:1fr 1fr;gap:12px 10px}
 .az-quad button{border:0;background:none;padding:0;text-align:left;display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--az-ink);line-height:1.25}
 .az-quad .qimg{aspect-ratio:1;max-width:100%;background:#f7f8f8;display:grid;place-items:center;overflow:hidden}
-.az-quad .qimg img{width:86%;height:86%;object-fit:contain}
-.az-quad .qimg img.photo{width:100%;height:100%;object-fit:cover}
+
 .az-quad .qlbl{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .az-more{border:0;background:none;padding:0;color:var(--az-link);font-size:13.5px;font-weight:600;text-align:left}
 
@@ -411,8 +410,7 @@ body,.app{background:var(--az-bg);color:var(--az-ink)}
 .az-list{display:flex;flex-direction:column;gap:8px;margin-inline:-12px}
 .az-item{background:#fff;display:grid;grid-template-columns:42% 1fr;gap:12px;padding:12px 14px 12px 0}
 .az-item .rimg{background:#f7f8f8;display:grid;place-items:center;min-height:170px;border:0;padding:0;overflow:hidden;position:relative}
-.az-item .rimg img{width:84%;height:84%;object-fit:contain;max-height:180px}
-.az-item .rimg img.photo{width:100%;height:100%;object-fit:cover;max-height:none}
+
 .az-item .rbody{display:flex;flex-direction:column;gap:6px;min-width:0}
 .az-item .rtitle{border:0;background:none;padding:0;text-align:left;font-size:14.5px;line-height:1.3;color:var(--az-ink);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .az-chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-inline:-12px;padding:2px 12px}
@@ -436,8 +434,7 @@ body,.app{background:var(--az-bg);color:var(--az-ink)}
 .az-cart-top .sub{font-size:18px}
 .az-cart-item{background:#fff;margin-inline:-12px;padding:12px 14px;display:grid;grid-template-columns:96px 1fr;gap:12px}
 .az-cart-item .ci{width:96px;height:96px;background:#f7f8f8;display:grid;place-items:center;overflow:hidden}
-.az-cart-item .ci img{width:86%;height:86%;object-fit:contain}
-.az-cart-item .ci img.photo{width:100%;height:100%;object-fit:cover}
+
 .az-step{align-self:flex-start;display:inline-flex;align-items:center;border:3px solid var(--az-yellow);border-radius:999px;overflow:hidden}
 .az-step button{border:0;background:#fff;width:34px;height:30px;font-size:17px}
 .az-step span{min-width:26px;text-align:center;font-weight:700}
@@ -452,6 +449,22 @@ body,.app{background:var(--az-bg);color:var(--az-ink)}
 .badge{background:var(--az-orange);color:var(--az-ink);border-color:#fff}
 .toast{border-radius:10px}
 .card,.oitem{border-radius:10px}
+
+/* ===== Images produits flottantes, qui remplissent toute leur case ===== */
+.az-quad .qimg,.az-rail .qimg,.az-item .rimg,.az-cart-item .ci{position:relative;display:block;overflow:hidden;background:radial-gradient(90% 80% at 50% 40%,#fff 0,#f1f3f3 100%)}
+.az-rail .qimg{aspect-ratio:1;max-width:100%}
+.az-item .rimg{min-height:0;aspect-ratio:1;align-self:start;width:100%}
+.flo{position:absolute;inset:5% 5% 11%;display:block;will-change:transform}
+.flo img{display:block;width:100%;height:100%;max-height:none;object-fit:contain;filter:drop-shadow(0 10px 10px rgba(15,23,42,.22))}
+.flo img.photo{object-fit:cover;border-radius:10px;filter:none;box-shadow:0 14px 20px -12px rgba(15,23,42,.55),0 1px 3px rgba(15,23,42,.12)}
+.flo .emo{display:grid;place-items:center;width:100%;height:100%;font-size:44px}
+.flo-sh{position:absolute;left:22%;right:22%;bottom:3.5%;height:7%;border-radius:50%;background:radial-gradient(closest-side,rgba(15,23,42,.28),rgba(15,23,42,0))}
+@media (prefers-reduced-motion:no-preference){
+  .flo{animation:flo 5.5s ease-in-out infinite}
+  .flo-sh{animation:flosh 5.5s ease-in-out infinite}
+  @keyframes flo{0%,100%{transform:translateY(2%) rotate(-.8deg)}50%{transform:translateY(-4%) rotate(.8deg)}}
+  @keyframes flosh{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.8);opacity:.6}}
+}
 </style>
 
 <div class="app" id="app">
@@ -700,7 +713,7 @@ function snapshot(p){
   if(!snapRenderer){ snapRenderer = makeRenderer(null); snapRenderer.setPixelRatio(1); snapRenderer.setSize(420,420,false); }
   const scene = new T.Scene(); lights(scene);
   const m = buildModel(p); m.rotation.set(.1,-.5,0); if(p.v.shape==="soap") m.rotation.set(.45,-.6,0); scene.add(m);
-  const cam = new T.PerspectiveCamera(28,1,.1,50); cam.position.set(0,.55,5.4); cam.lookAt(0,0,0);
+  const cam = new T.PerspectiveCamera(28,1,.1,50); cam.position.set(0,.45,4.5); cam.lookAt(0,0,0);
   snapRenderer.render(scene,cam); const url = snapRenderer.domElement.toDataURL("image/png");
   disposeTree(scene); SNAP[p.id] = url; return url;
 }
@@ -893,7 +906,11 @@ function productCard(p,i){
     </div></article>`;
 }
 function priceHTML(c, small){ const [d,cents] = (c/100).toFixed(2).split("."); return `<span class="az-price${small?" sm":""}" aria-label="${money(c)}"><span class="d">${d}</span><span class="c">,${cents}</span><span class="cur">$</span></span>`; }
-function imgFor(p){ return PHOTOS[p.id] ? `<img class="photo" src="${PHOTOS[p.id]}" alt="">` : GL_OK ? `<img data-snap="${p.id}" alt="">` : `<span style="font-size:40px">${cat(p.cat).emoji}</span>`; }
+function imgFor(p){
+  const d = `animation-delay:${-((p.id*37)%55)/10}s`;
+  const inner = PHOTOS[p.id] ? `<img class="photo" src="${PHOTOS[p.id]}" alt="">` : GL_OK ? `<img data-snap="${p.id}" alt="">` : `<span class="emo">${cat(p.cat).emoji}</span>`;
+  return `<span class="flo" style="${d}">${inner}</span><span class="flo-sh" style="${d}"></span>`;
+}
 function quad(title, list, act, more){
   return `<section class="az-card"><h2>${esc(title)}</h2>
     <div class="az-quad">${list.map(p=>`<button data-a="product" data-id="${p.id}"><span class="qimg">${imgFor(p)}</span><span class="qlbl">${esc(p.name)}</span></button>`).join("")}</div>
@@ -934,7 +951,7 @@ const VIEWS = {
         ${CATS.map(c=>{ const l=byCat(c.id); return l.length?quad(c.name, l.slice(0,4), `data-a="shopcat" data-v="${c.id}"`, "Voir plus"):""; }).slice(0,2).join("")}
         <section class="az-card">
           <h2>Meilleures ventes</h2>
-          <div class="az-rail">${feat.map(p=>`<button data-a="product" data-id="${p.id}"><span class="qimg" style="aspect-ratio:1;background:#f7f8f8;display:grid;place-items:center">${imgFor(p)}</span><span class="qlbl" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${esc(p.name)}</span>${priceHTML(p.price,true)}</button>`).join("")}</div>
+          <div class="az-rail">${feat.map(p=>`<button data-a="product" data-id="${p.id}"><span class="qimg">${imgFor(p)}</span><span class="qlbl" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${esc(p.name)}</span>${priceHTML(p.price,true)}</button>`).join("")}</div>
         </section>
         ${CATS.map(c=>{ const l=byCat(c.id); return l.length?quad(c.name, l.slice(0,4), `data-a="shopcat" data-v="${c.id}"`, "Voir plus"):""; }).slice(2).join("")}
         <section class="az-card" style="background:linear-gradient(135deg,#e3f4ff,#fdeef4)">
@@ -1014,7 +1031,7 @@ const VIEWS = {
       </section>
       ${lines.map(({p,qty})=>`
         <article class="az-cart-item">
-          <span class="ci">${p.special?(p.req.photo?`<img class="photo" src="${p.req.photo}" alt="">`:`<span style="font-size:34px">✨</span>`):imgFor(p)}</span>
+          <span class="ci">${p.special?`<span class="flo">${p.req.photo?`<img class="photo" src="${p.req.photo}" alt="">`:`<span class="emo">✨</span>`}</span><span class="flo-sh"></span>`:imgFor(p)}</span>
           <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
             <span style="font-size:14px;line-height:1.3">${esc(p.name)}</span>
             ${priceHTML(p.price,true)}

@@ -82,6 +82,17 @@ body {
   0%, 100% { transform: translateY(3px); }
   50% { transform: translateY(-9px); }
 }
+/* Photos produits flottantes */
+.product-float { animation: product-float 5.5s ease-in-out infinite; will-change: transform; }
+.product-float-shadow { animation: product-float-shadow 5.5s ease-in-out infinite; }
+@keyframes product-float {
+  0%, 100% { transform: translateY(2%) rotate(-0.8deg); }
+  50% { transform: translateY(-4%) rotate(0.8deg); }
+}
+@keyframes product-float-shadow {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(0.8); opacity: 0.6; }
+}
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; }
 }
