@@ -24,7 +24,8 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           imageUrl={p.imageUrl}
           emoji={p.category.emoji}
           name={p.name}
-          className="card aspect-square w-full overflow-hidden"
+          className="card w-full self-start overflow-hidden"
+          fit="natural"
         />
         <div className="space-y-4">
           <h1 className="text-3xl font-extrabold">{p.name}</h1>

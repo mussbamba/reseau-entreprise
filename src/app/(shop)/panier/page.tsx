@@ -30,7 +30,7 @@ export default function CartPage() {
         <ul className="mt-6 divide-y divide-stone-200 rounded-2xl border border-stone-200 bg-white">
           {lines.map((l) => (
             <li key={l.productId} className="flex items-center gap-3 p-3">
-              <ProductImage imageUrl={l.imageUrl} emoji={l.emoji} name={l.name} className="h-16 w-16 shrink-0 overflow-hidden rounded-lg [&>span]:text-2xl" />
+              <ProductImage imageUrl={l.imageUrl} emoji={l.emoji} name={l.name} className="h-16 w-16 shrink-0 overflow-hidden rounded-lg [&>span]:text-2xl" fit="cover" />
               <div className="min-w-0 flex-1">
                 <Link href={`/produits/${l.slug}`} className="line-clamp-2 text-sm font-semibold hover:underline">
                   {l.name}

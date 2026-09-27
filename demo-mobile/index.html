@@ -172,6 +172,14 @@ h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;letter-spacing:-.
 .detail{position:relative;border-radius:30px;overflow:hidden;aspect-ratio:1;max-width:100%;background:radial-gradient(90% 80% at 50% 35%,#fff 0,var(--tint) 75%)}
 .detail .stage{height:100%;margin:0}
 .detail .floaty{inset:10%}
+/* Photos réelles : affichées en entier (jamais coupées), fond flouté de la même photo pour remplir le cadre */
+.pbox{position:absolute;inset:0;overflow:hidden;display:block;background:var(--tint,#f7efe4)}
+.pbox .pbg{position:absolute;inset:-12%;width:124%;height:124%;max-width:none;object-fit:cover;filter:blur(24px) saturate(1.15);opacity:.6;transform:scale(1.05)}
+.pbox .pfit{position:relative;display:block;width:100%;height:100%;object-fit:contain}
+.pvis .pbox .pfit{padding:6px}
+.detail.has-photo{aspect-ratio:auto;background:#f7efe4}
+.detail.has-photo .pbox{position:relative;inset:auto;aspect-ratio:var(--ratio,1)}
+.detail.has-photo .pfit{max-height:70vh}
 .demo-banner{background:var(--warn-soft);color:var(--warn);font-size:12px;text-align:center;padding:6px 16px;font-weight:700}
 .toggle{border:0;border-radius:999px;padding:6px 12px;font-size:12.5px;font-weight:800}
 .toggle.on{background:var(--ok-soft);color:var(--ok)}
@@ -535,10 +543,19 @@ function render(){
   const hero = document.getElementById("heroStage"); if(hero) mountStage(hero, HERO_IDS, false);
   const det = document.getElementById("detailStage"); if(det) mountStage(det, [S.params.id], true);
   fillSnaps();
+  adaptPhotos();
   const pv = document.querySelector("img[data-preview]");
   if(pv && GL_OK){ try { const data = JSON.parse(pv.dataset.preview); delete SNAP.preview; pv.src = snapshot(data); delete SNAP.preview; } catch(e){ console.warn(e); } }
 }
 
+function photoBox(src, alt){ return `<span class="pbox"><img class="pbg" src="${src}" alt="" aria-hidden="true"><img class="pfit" src="${src}" alt="${esc(alt)}" data-adapt></span>`; }
+// Le cadre de la fiche produit prend la forme de la photo (entre portrait 3:4 et paysage 4:3)
+function adaptPhotos(){
+  document.querySelectorAll(".detail.has-photo img[data-adapt]").forEach(img=>{
+    const fit = () => { if(!img.naturalWidth) return; const r = Math.min(4/3, Math.max(3/4, img.naturalWidth/img.naturalHeight)); img.closest(".pbox").style.setProperty("--ratio", r.toFixed(3)); };
+    if(img.complete) fit(); else img.addEventListener("load", fit, {once:true});
+  });
+}
 function visual(p, big){
   if(PHOTOS[p.id]) return `<img class="photo" src="${PHOTOS[p.id]}" alt="${esc(p.name)}">`;
   if(GL_OK) return `<img data-snap="${p.id}" alt="${esc(p.name)}">`;
@@ -552,8 +569,8 @@ function thumb(p){
 function productCard(p,i){
   return `<article class="pcard" data-tilt>
     <button class="pvis" style="--tint:${tint(p)}" data-a="product" data-id="${p.id}" aria-label="${esc(p.name)}">
-      <span class="ground" style="animation-delay:${-i*.9}s"></span>
-      <span class="floaty" style="animation-delay:${-i*.9}s">${visual(p)}</span>
+      ${PHOTOS[p.id] ? photoBox(PHOTOS[p.id], p.name) : `<span class="ground" style="animation-delay:${-i*.9}s"></span>
+      <span class="floaty" style="animation-delay:${-i*.9}s">${visual(p)}</span>`}
     </button>
     <div class="pbody">
       <button class="pname" data-a="product" data-id="${p.id}">${esc(p.name)}</button>
@@ -622,7 +639,9 @@ const VIEWS = {
   product({id}){
     const p = prod(id); if(!p) return VIEWS.shop({});
     const q = S.params.qty || 1;
-    const vis = PHOTOS[p.id] || !GL_OK
+    const vis = PHOTOS[p.id]
+      ? `<div class="detail has-photo">${photoBox(PHOTOS[p.id], p.name)}</div>`
+      : !GL_OK
       ? `<div class="detail" style="--tint:${tint(p)}"><span class="ground"></span><span class="floaty">${visual(p,true)}</span></div>`
       : `<div class="detail" style="--tint:${tint(p)}"><div class="stage" id="detailStage"><canvas aria-label="${esc(p.name)} en 3D"></canvas><span class="hint">Glissez pour faire tourner</span></div></div>`;
     return `
