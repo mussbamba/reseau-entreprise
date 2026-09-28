@@ -57,7 +57,12 @@ export async function getCurrentUser() {
   const [id, expires, sig] = raw.split(".");
   if (!id || !expires || !sig || !safeEqual(sig, sign(`${id}.${expires}`))) return null;
   if (Number(expires) < Date.now()) return null;
-  return db.user.findUnique({ where: { id: Number(id) }, select: { id: true, email: true, name: true, phone: true } });
+  const user = await db.user.findUnique({
+    where: { id: Number(id) },
+    select: { id: true, email: true, name: true, phone: true, disabled: true },
+  });
+  // Un compte bloqué perd immédiatement sa session
+  return user && !user.disabled ? user : null;
 }
 
 export async function requireUser(next: string) {

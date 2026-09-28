@@ -20,6 +20,8 @@ export async function login(_prev: AuthState, formData: FormData): Promise<AuthS
   // Même message dans tous les cas : on ne révèle pas si le courriel existe
   if (!user || !verifyPassword(password, user.passwordHash))
     return { error: "Courriel ou mot de passe incorrect.", values: { email } };
+  if (user.disabled)
+    return { error: "Ce compte est désactivé. Écrivez-nous pour le réactiver.", values: { email } };
   await startCustomerSession(user.id);
   redirect(safeNext(formData.get("suite")));
 }

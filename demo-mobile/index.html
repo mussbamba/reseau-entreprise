@@ -538,10 +538,14 @@ let S;
 try { S = JSON.parse(localStorage.getItem(KEY)) || fresh(); } catch { S = fresh(); }
 if(!S.products||!S.orders) S = fresh();
 if(!S.users){ S.users=[]; S.user=null; }
+if(!S.usersSeeded){ S.usersSeeded = true;
+  S.users.push({name:"Fatou N. (exemple)",email:"fatou@exemple.ca",hash:"-",createdAt:Date.now()-864e5*12,example:true},
+               {name:"Moussa K. (exemple)",email:"moussa@exemple.ca",hash:"-",createdAt:Date.now()-864e5*3,example:true}); }
 // Lien direct vers l'espace vendeur : …#vendeur (et #client pour la boutique)
 try {
   const h = location.hash.replace("#","");
   if(h==="vendeur" && S.mode!=="admin"){ S.mode="admin"; S.view="a-orders"; S.params={}; }
+  if(h==="clients"){ S.mode="admin"; S.view="a-clients"; S.params={}; }
   if(h==="client" && S.mode!=="client"){ S.mode="client"; S.view="home"; S.params={}; }
 } catch {}
 if(!S.custom){ S.custom=[]; S.nextProdId=100; }
@@ -817,8 +821,8 @@ const ICONS = {
 
 // ---------- Rendu ----------
 const main = document.getElementById("main");
-const TITLES = {product:"",cart:"Mon panier",checkout:"Commande",order:"Suivi",orders:"Mes commandes","a-order":"Commande","a-orders":"Commandes","a-list":"Liste d'achat","a-products":"","a-product":"","a-stores":"Boutiques",request:"",requests:"",account:"",register:"","a-requests":"","a-request":"Demande"};
-const ROOTS = ["home","shop","cart","account","a-orders","a-list","a-products","a-requests"];
+const TITLES = {product:"",cart:"Mon panier",checkout:"Commande",order:"Suivi",orders:"Mes commandes","a-order":"Commande","a-orders":"Commandes","a-list":"Liste d'achat","a-products":"","a-product":"","a-stores":"Boutiques",request:"",requests:"",account:"",register:"","a-clients":"","a-client":"Client","a-requests":"","a-request":"Demande"};
+const ROOTS = ["a-clients","home","shop","cart","account","a-orders","a-list","a-products","a-requests"];
 
 function render(){
   unmountStage();
@@ -846,12 +850,13 @@ function render(){
   } else { const extra = document.getElementById("azExtra"); if(extra) extra.innerHTML = ""; }
   const tabs = S.mode==="client"
     ? [["home","Accueil","home"],["shop","Boutique","shop"],["cart","Panier","cart"],["account",S.user?S.user.name.split(" ")[0]:"Vous","user"]]
-    : [["a-orders","Commandes","box"],["a-list","Liste d'achat","list"],["a-requests","Demandes","spark"],["a-products","Produits","tag"]];
-  const active = {product:"shop",checkout:"cart",order:"account",orders:"account",request:"account",requests:"account",register:"account","a-order":"a-orders","a-request":"a-requests","a-stores":"a-products","a-product":"a-products"}[S.view] || S.view;
+    : [["a-orders","Commandes","box"],["a-list","Achats","list"],["a-requests","Demandes","spark"],["a-products","Produits","tag"],["a-clients","Clients","user"]];
+  const active = {product:"shop",checkout:"cart",order:"account",orders:"account",request:"account",requests:"account",register:"account","a-order":"a-orders","a-request":"a-requests","a-stores":"a-products","a-product":"a-products","a-client":"a-clients"}[S.view] || S.view;
   const newReqs = S.requests.filter(r=>r.status==="PENDING").length;
   const quoted = S.requests.filter(r=>isMine(r)&&r.status==="QUOTED").length;
   const toHandle = S.orders.filter(o=>["NEW","SHOPPING","PURCHASED"].includes(o.status)).length;
   const toBuy = new Set(S.orders.filter(o=>["NEW","SHOPPING"].includes(o.status)).flatMap(o=>o.items.filter(i=>i.status==="PENDING").map(i=>i.pid))).size;
+  document.getElementById("tabbar").style.gridTemplateColumns = `repeat(${tabs.length},1fr)`;
   document.getElementById("tabbar").innerHTML = tabs.map(([v,l,ic])=>{
     const n = v==="cart"?cartCount():v==="a-orders"?toHandle:v==="a-list"?toBuy:v==="a-requests"?newReqs:v==="account"?quoted:0;
     return `<button class="tab" data-a="tab" data-v="${v}" ${active===v?'aria-current="page"':""}>${ICONS[ic]}${l}${n?`<span class="badge">${n}</span>`:""}</button>`;
@@ -949,13 +954,14 @@ async function submitAuth(form){
   if(kind==="login"){
     const u = S.users.find(x=>x.email===email);
     if(!u || u.hash!==hash) return fail("Courriel ou mot de passe incorrect.");
+    if(u.disabled) return fail("Ce compte est désactivé. Écrivez-nous pour le réactiver.");
     S.user = {name:u.name, email:u.email};
   } else {
     if(String(d.name||"").trim().length<2) return fail("Indiquez votre nom.");
     if(String(d.password||"").length<8) return fail("Le mot de passe doit contenir au moins 8 caractères.");
     if(d.password!==d.confirm) return fail("Les deux mots de passe ne correspondent pas.");
     if(S.users.some(x=>x.email===email)) return fail("Un compte existe déjà avec ce courriel. Identifiez-vous.");
-    S.users.push({name:String(d.name).trim(), email, hash});
+    S.users.push({name:String(d.name).trim(), email, hash, createdAt:Date.now()});
     S.user = {name:String(d.name).trim(), email};
   }
   history_.length = 0; save(); go("account",{},false);
@@ -1418,6 +1424,52 @@ const VIEWS = {
         <button class="btn btn-bad" data-a="unavailreq" data-id="${r.id}">Introuvable</button>
       </form>`:`<div class="note ${r.status==="ORDERED"?"note-ok":"note-brand"}">${{ACCEPTED:"Le client a accepté : l'article est dans son panier.",ORDERED:"Commandé : l'article apparaît dans la liste d'achat avec la commande.",DECLINED:"Le client a refusé le prix.",UNAVAILABLE:"Marqué introuvable. Le client a été prévenu."}[r.status]}</div>`}`;
   },
+  "a-clients"({q=""}){
+    const ql = q.trim().toLowerCase();
+    const list = S.users.filter(u=>!ql||(u.name+" "+u.email).toLowerCase().includes(ql)).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+    const ordersOf = u => S.orders.filter(o=>o.owner===u.email);
+    return `<div><h1 style="font-size:26px">Clients (${S.users.length})</h1><span class="small">Touchez un client pour modifier sa fiche, bloquer son compte ou réinitialiser son mot de passe.</span></div>
+      <label class="search">${ICONS.search}<input id="cq" type="search" placeholder="Nom ou courriel" value="${esc(q)}" aria-label="Rechercher un client"></label>
+      ${list.length?`<div class="olist">${list.map(u=>{ const os = ordersOf(u); const spent = os.reduce((s,o)=>s+(o.final??0),0); return `
+        <button class="oitem" data-a="aclient" data-v="${esc(u.email)}">
+          <div class="line"><b>${esc(u.name)}</b>${u.disabled?`<span class="pill s-CANCELLED">Bloqué</span>`:`<span class="pill s-SHIPPED">Actif</span>`}</div>
+          <span class="small">${esc(u.email)}</span>
+          <span class="small">${os.length} commande(s) · ${money(spent)} encaissé · inscrit le ${new Date(u.createdAt||Date.now()).toLocaleDateString("fr-CA")}</span>
+        </button>`; }).join("")}</div>`:`<div class="empty"><span class="big">👤</span>${q?"Aucun client ne correspond.":"Aucun compte client pour le moment."}</div>`}`;
+  },
+  "a-client"({email}){
+    const u = S.users.find(x=>x.email===email); if(!u) return VIEWS["a-clients"]({});
+    const os = S.orders.filter(o=>o.owner===u.email).sort((a,b)=>b.createdAt-a.createdAt);
+    const rs = S.requests.filter(r=>r.owner===u.email);
+    const spent = os.reduce((s,o)=>s+(o.final??0),0);
+    return `
+      <div class="line"><h1 style="font-size:24px">${esc(u.name)}</h1>${u.disabled?`<span class="pill s-CANCELLED">Bloqué</span>`:`<span class="pill s-SHIPPED">Actif</span>`}</div>
+      ${S.params.msg?`<div class="note note-brand">${esc(S.params.msg)}</div>`:""}
+      <div class="stat-row">
+        <div class="stat"><b>${os.length}</b><span>Commandes</span></div>
+        <div class="stat"><b style="font-size:17px;line-height:1.75">${money(spent)}</b><span>Encaissé</span></div>
+        <div class="stat"><b>${rs.length}</b><span>Demandes</span></div>
+      </div>
+      <form id="clientForm" class="card" novalidate>
+        <b>Fiche</b>
+        <div class="field"><label for="c-name">Nom</label><input id="c-name" name="name" value="${esc(u.name)}"></div>
+        <div class="field"><label for="c-email">Courriel</label><input id="c-email" value="${esc(u.email)}" readonly style="color:var(--muted)"></div>
+        <div class="field"><label for="c-phone">Téléphone</label><input id="c-phone" name="phone" value="${esc(u.phone||"")}" placeholder="Facultatif"></div>
+        <button class="btn btn-primary" data-a="saveclient" data-v="${esc(u.email)}">Enregistrer</button>
+      </form>
+      <div class="card">
+        <b>Commandes</b>
+        ${os.length?os.map(o=>`<button class="oitem" data-a="aorder" data-id="${o.id}" style="box-shadow:none"><div class="line"><b>${num(o.id)}</b>${pill(o.status)}</div><span class="small">${new Date(o.createdAt).toLocaleDateString("fr-CA")} · ${money(o.final??o.total)}</span></button>`).join(""):`<span class="small">Aucune commande.</span>`}
+      </div>
+      <div class="card">
+        <b>Accès</b>
+        <button class="btn ${u.disabled?"btn-primary":"btn-bad"}" data-a="blockclient" data-v="${esc(u.email)}">${u.disabled?"Débloquer le compte":"🚫 Bloquer le compte"}</button>
+        <button class="btn btn-ghost" data-a="resetclient" data-v="${esc(u.email)}">🔑 Réinitialiser le mot de passe</button>
+        ${S.params.tmp?`<div class="note note-warn">Mot de passe temporaire : <b style="font-family:monospace;user-select:all">${esc(S.params.tmp)}</b><br><span class="small">Transmettez-le au client. Il ne sera plus affiché.</span></div>`:""}
+      </div>
+      <button class="btn btn-bad" data-a="delclient" data-v="${esc(u.email)}">${S.params.confirmDel?"Confirmer : supprimer définitivement":"Supprimer le compte"}</button>
+      ${u.example?`<span class="small" style="text-align:center">Client d'exemple de la démo.</span>`:""}`;
+  },
   "a-stores"(){
     return `<div><h1 style="font-size:26px">Boutiques fournisseurs</h1><span class="small">Les épiceries où vous achetez. La liste d'achat est regroupée par boutique.</span></div>
       ${STORES.map(s=>{ const n=PRODUCTS.filter(p=>p.store===s.id).length; return `<div class="card"><b>${esc(s.name)}</b><span>${esc(s.address)}</span><span class="small">${esc(s.hours)} · ${n} produits</span></div>`;}).join("")}
@@ -1486,6 +1538,20 @@ document.addEventListener("click", e=>{
     case "areq": go("a-request",{id}); break;
     case "sendquote": { e.preventDefault(); sendQuote(id); break; }
     case "unavailreq": { e.preventDefault(); const r=S.requests.find(x=>x.id===id); r.status="UNAVAILABLE"; r.quote={...(r.quote||{}),note:document.getElementById("q-note").value.trim()}; save(); render(); toast(`Courriel envoyé à ${r.customer.email}`,"Produit introuvable pour le moment (simulé)"); break; }
+    case "aclient": go("a-client",{email:v}); break;
+    case "saveclient": { e.preventDefault(); const u=S.users.find(x=>x.email===v); const d=Object.fromEntries(new FormData(document.getElementById("clientForm")));
+      if(String(d.name||"").trim().length<2){ S.params.msg="Le nom doit contenir au moins 2 caractères."; render(); break; }
+      u.name=String(d.name).trim(); u.phone=String(d.phone||"").trim(); if(S.user&&S.user.email===u.email) S.user.name=u.name;
+      S.params={email:v,msg:"Fiche enregistrée."}; save(); render(); break; }
+    case "blockclient": { const u=S.users.find(x=>x.email===v); u.disabled=!u.disabled; if(u.disabled&&S.user&&S.user.email===u.email) S.user=null;
+      S.params={email:v,msg:u.disabled?"Compte bloqué : le client ne peut plus se connecter.":"Compte débloqué."}; save(); render(); break; }
+    case "resetclient": { const u=S.users.find(x=>x.email===v); const chars="abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789";
+      const a=new Uint32Array(12); try{crypto.getRandomValues(a);}catch{for(let i=0;i<12;i++)a[i]=Math.random()*1e9;}
+      const tmp=[...a].map(n=>chars[n%chars.length]).join(""); hashPw(u.email,tmp).then(h=>{ u.hash=h; save(); S.params={email:v,tmp}; render(); }); break; }
+    case "delclient": {
+      if(!S.params.confirmDel){ S.params.confirmDel=true; render(); break; }
+      S.users=S.users.filter(x=>x.email!==v); if(S.user&&S.user.email===v) S.user=null;
+      history_.length=0; save(); go("a-clients",{},false); toast("Compte supprimé","Ses commandes sont conservées.","🗑️"); break; }
     case "logout": { S.user = null; history_.length=0; save(); go("home",{},false); toast("Vous êtes déconnecté","",""); break; }
     case "reset": { if(b.dataset.sure){ S=fresh(); PHOTOS={}; savePhotos(); history_.length=0; save(); render(); toast("Démo réinitialisée","",""); } else { b.dataset.sure="1"; b.textContent="Touchez encore pour tout effacer"; } break; }
   }
@@ -1608,7 +1674,7 @@ function placeOrder(){
 }
 
 document.addEventListener("input", e=>{
-  if(e.target.id==="q"||e.target.id==="aq"){ const fid=e.target.id; S.params.q=e.target.value; save();
+  if(e.target.id==="q"||e.target.id==="aq"||e.target.id==="cq"){ const fid=e.target.id; S.params.q=e.target.value; save();
     const pos=e.target.selectionStart; render(); const q=document.getElementById(fid); q.focus(); try{q.setSelectionRange(pos,pos);}catch{} }
 });
 document.addEventListener("submit", e=>{

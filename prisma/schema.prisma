@@ -147,6 +147,7 @@ model User {
   name         String
   phone        String   @default("")
   passwordHash String
+  disabled     Boolean  @default(false) // compte bloqué par l'administrateur
   orders       Order[]
   requests     ProductRequest[]
   createdAt    DateTime @default(now())

@@ -82,7 +82,10 @@ Si le produit est introuvable, le bouton « Introuvable » prévient le client p
 - Commander sans compte reste possible. Une commande ou une demande passée en étant connecté est
   rattachée au compte ; pour la sécurité, rien n'est rattaché par simple correspondance de courriel
   (le courriel n'est pas vérifié).
-- Voir les clients : **Admin → 👤 Clients** (`/admin/clients`), ou toute la base de données avec
+- Gérer les clients : **Admin → 👤 Clients** (`/admin/clients`). La fiche d'un client permet de
+  modifier son nom et son téléphone, de **bloquer / débloquer** son compte (la session est coupée
+  aussitôt), de **réinitialiser son mot de passe** (mot de passe temporaire affiché une seule fois)
+  et de **supprimer** le compte (les commandes sont conservées). Toute la base de données avec
   `npm run db:studio` (ouvre Prisma Studio sur http://localhost:5555, table `User`).
 - À prévoir avant la production : vérification du courriel, mot de passe oublié, limite de
   tentatives de connexion.

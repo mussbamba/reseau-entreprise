@@ -3,8 +3,8 @@ import { db } from "@/lib/db";
 import { formatMoney } from "@/lib/money";
 import { orderNumber } from "@/lib/orders";
 
-export default async function AdminClientsPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
-  const { q = "" } = await searchParams;
+export default async function AdminClientsPage({ searchParams }: { searchParams: Promise<{ q?: string; supprime?: string }> }) {
+  const { q = "", supprime } = await searchParams;
   const users = await db.user.findMany({
     // Le mot de passe haché n'est jamais lu ici
     select: {
@@ -12,6 +12,7 @@ export default async function AdminClientsPage({ searchParams }: { searchParams:
       name: true,
       email: true,
       phone: true,
+      disabled: true,
       createdAt: true,
       orders: {
         where: { status: { not: "PENDING_PAYMENT" } },
@@ -31,7 +32,7 @@ export default async function AdminClientsPage({ searchParams }: { searchParams:
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-extrabold">Clients ({total})</h1>
-          <p className="text-sm text-slate-600">Comptes créés sur le site. Les mots de passe sont chiffrés et ne sont jamais affichés.</p>
+          <p className="text-sm text-slate-600">Cliquez sur un client pour modifier sa fiche, bloquer son compte ou réinitialiser son mot de passe.</p>
         </div>
         <form className="flex gap-2">
           <input name="q" defaultValue={q} placeholder="Nom ou courriel" className="input" />
@@ -39,6 +40,7 @@ export default async function AdminClientsPage({ searchParams }: { searchParams:
         </form>
       </div>
 
+      {supprime && <p className="rounded-lg bg-sky-50 p-3 text-sm text-sky-900">Compte supprimé.</p>}
       {users.length === 0 ? (
         <p className="py-10 text-center text-slate-500">{q ? "Aucun client ne correspond." : "Aucun compte client pour le moment."}</p>
       ) : (
@@ -59,7 +61,8 @@ export default async function AdminClientsPage({ searchParams }: { searchParams:
                 return (
                   <tr key={u.id} className="align-top">
                     <td className="p-3">
-                      <p className="font-semibold">{u.name}</p>
+                      <Link href={`/admin/clients/${u.id}`} className="font-semibold text-terre-700 hover:underline">{u.name}</Link>
+                      {u.disabled && <span className="ml-2 rounded-full bg-rose-100 px-2 py-0.5 text-xs font-semibold text-rose-800">Bloqué</span>}
                       <p className="text-slate-500">{u.email}</p>
                       {u.phone && <p className="text-slate-500">{u.phone}</p>}
                       {u._count.requests > 0 && <p className="text-xs text-slate-500">{u._count.requests} demande(s) spéciale(s)</p>}
