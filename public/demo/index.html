@@ -465,6 +465,9 @@ body,.app{background:var(--az-bg);color:var(--az-ink)}
   @keyframes flo{0%,100%{transform:translateY(2%) rotate(-.8deg)}50%{transform:translateY(-4%) rotate(.8deg)}}
   @keyframes flosh{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.8);opacity:.6}}
 }
+@keyframes asstPulse{50%{transform:scale(1.15) rotate(-6deg)}}
+.asst-pulse{display:inline-block;animation:asstPulse 1.2s ease-in-out infinite}
+@media (prefers-reduced-motion: reduce){.asst-pulse{animation:none}}
 </style>
 
 <div class="app" id="app">
@@ -524,6 +527,114 @@ const PRODUCTS = [
   P(15,"Beurre de karité brut 250 g","Karité","beaute","B",1299,700,"Burkina Faso",true,{shape:"jar",content:"#f4e7c5",lid:"#c98b52",label:"#2f8f5b",wide:true}),
   P(16,"Savon noir africain 200 g","Savon noir","beaute","B",799,400,"Ghana",false,{shape:"soap",body:"#3a2a1e",label:"#eadfc8"})];
 const HERO_IDS = [2,8,15,12,7];
+
+// ---------- Recherche « comme je parle » ----------
+const ALIASES = {1:"garri, gali, eba, cassava flakes",2:"pounded yam, iyan, igname pilée, foutou",3:"acheke, atcheke, garba",4:"fufu, cassava flour, kpokpo",
+  5:"sumbala, dawadawa, iru, nététou, moutarde africaine",6:"pili pili, pepper, chili",7:"bouillon, jumbo, cube, assaisonnement",8:"huile rouge, palm oil, zomi",
+  9:"beurre d'arachide, peanut butter, groundnut paste, tigadèguè",10:"smoked fish, poisson séché, kobo",11:"crayfish, njanga, écrevisses",
+  12:"zobo, sobolo, oseille, karkadé, foléré",13:"plantain chips, kelewele",14:"maltina, malt",15:"shea butter, ori",16:"black soap, alata, ose dudu"};
+const LOCAL_NAMES = [
+  ["attieke","acheke","atcheke","attiake","garba"],["gari","garri","gali","eba"],["foufou","fufu","foofoo","farine de manioc","cassava flour"],
+  ["poundo","pounded yam","igname pilee","iyan","foutou"],["huile de palme","huile rouge","palm oil","zomi","red oil"],
+  ["pate d arachide","beurre d arachide","peanut butter","groundnut paste","tigadegue","mafe"],["bissap","hibiscus","oseille","zobo","sobolo","karkade","folere"],
+  ["soumbala","sumbala","dawadawa","iru","netetou"],["piment","pili pili","pilipili","pepper","chili","cayenne"],["maggi","cube","cubes","bouillon","jumbo","knorr"],
+  ["poisson fume","poisson seche","machoiron","smoked fish","kobo","bonga"],["crevettes sechees","crevette","crayfish","njanga"],
+  ["plantain","alloco","aloko","dodo","kelewele"],["karite","shea","shea butter"],["savon noir","black soap","alata"],["malta","malt","maltina"],
+  ["feuilles de manioc","pondu","saka saka","mpondu","cassava leaves"],["egusi","egousi","agushi","graines de courge"],["ndole","feuilles ameres","bitter leaf"]];
+const STOPW = new Set("de du des la le les l d un une et en au aux pour avec sans sur a je veux il me faut kg g ml svp the of and".split(" "));
+const norm = s => String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g," ").trim();
+function lev(a,b){ if(Math.abs(a.length-b.length)>2) return 3; const r=[...Array(b.length+1).keys()]; for(let i=1;i<=a.length;i++){ let d=r[0]; r[0]=i; for(let j=1;j<=b.length;j++){ const t=r[j]; r[j]=Math.min(r[j]+1,r[j-1]+1,d+(a[i-1]===b[j-1]?0:1)); d=t; } } return r[b.length]; }
+const aliasesOf = p => p.aliases ?? ALIASES[p.id] ?? "";
+function scoreP(q,p){
+  const text = norm(p.name+" "+aliasesOf(p).replace(/,/g," ")), words = text.split(" "), nq = norm(q), has = (t,ph)=>` ${t} `.includes(` ${ph} `);
+  let score = 0; const cov = new Set();
+  for(const g of LOCAL_NAMES){ const inQ = g.filter(n=>has(nq,n)); if(inQ.length && g.some(n=>has(text,n))){ score+=6; inQ.forEach(n=>n.split(" ").forEach(w=>cov.add(w))); } }
+  const toks = nq.split(" ").filter(t=>t.length>=2&&!STOPW.has(t)&&!/^\d+(kg|g|ml|l|x)?$/.test(t)); let m = 0;
+  for(const t of toks){ if(cov.has(t)){ m++; continue; } let b=0;
+    for(const w of words){ if(w===t) b=Math.max(b,4); else if(t.length>=3&&(w.startsWith(t)||(t.length>=5&&w.length>=4&&t.startsWith(w)))) b=Math.max(b,3); else if(t.length>=4&&lev(t,w)<=(t.length>=7?2:1)) b=Math.max(b,2); }
+    if(!b && t.length>=4 && norm(cat(p.cat).name).split(" ").some(w=>w.startsWith(t))) b=1;
+    if(b) m++; score+=b; }
+  return {score, exact: toks.length>0 && m===toks.length};
+}
+function rankP(q,list){
+  const sc = list.map(p=>({p,...scoreP(q,p)})).filter(x=>x.score>0).sort((a,b)=>b.exact-a.exact||b.score-a.score);
+  const exact = sc.some(x=>x.exact), kept = exact?sc.filter(x=>x.exact):sc.slice(0,8), top = kept[0]?.score||0;
+  return {list: kept.filter(x=>x.score>=top/2).map(x=>x.p), exact};
+}
+const bestP = (q,list) => { const r = rankP(q,list); return r.exact ? r.list[0]||null : null; };
+
+// ---------- Assistant cuisine (recettes intégrées ; IA si disponible) ----------
+// [nom, mots-clés, pour N personnes, [[recherche, libellé, qté, fixe?]...], à prévoir]
+const RECIPES = [
+  ["Poulet yassa",["yassa"],4,[["maggi","Cubes d'assaisonnement",1,1],["piment","Piment",1,1]],["1,5 kg de poulet","6 oignons","4 citrons","Moutarde de Dijon","Riz blanc"]],
+  ["Mafé",["mafe","tigadegue","sauce arachide"],4,[["pate d arachide","Pâte d'arachide",1],["maggi","Cubes d'assaisonnement",1,1],["piment","Piment",1,1]],["1 kg de bœuf ou de poulet","3 tomates","2 oignons","Carottes, patate douce","Riz blanc"]],
+  ["Attiéké poisson",["attieke poisson","attieke","garba","acheke"],4,[["attieke","Attiéké",1],["piment","Piment",1,1],["maggi","Cubes d'assaisonnement",1,1]],["4 poissons (tilapia) ou du thon","2 oignons","3 tomates","Huile de friture"]],
+  ["Soupe egusi et eba",["egusi","egousi","eba"],4,[["gari","Gari",1],["egusi","Graines d'egusi moulues",1],["huile de palme","Huile de palme rouge",1],["crevettes sechees","Crevettes séchées",1,1],["poisson fume","Poisson fumé",1],["maggi","Cubes d'assaisonnement",1,1]],["500 g de viande","Épinards","1 oignon"]],
+  ["Ndolé",["ndole"],6,[["ndole","Feuilles de ndolé",1],["pate d arachide","Pâte d'arachide",1],["crevettes sechees","Crevettes séchées",1,1],["poisson fume","Poisson fumé",1],["maggi","Cubes d'assaisonnement",1,1]],["500 g de bœuf","Crevettes fraîches","2 oignons","Plantains ou bâtons de manioc"]],
+  ["Foufou et sauce arachide",["foufou","fufu"],4,[["foufou","Farine de manioc (foufou)",1],["pate d arachide","Pâte d'arachide",1],["maggi","Cubes d'assaisonnement",1,1]],["1 kg de poulet","2 tomates","1 oignon"]],
+  ["Igname pilée et sauce graine",["poundo","pounded yam","igname pilee","sauce graine","foutou"],4,[["poundo","Farine d'igname (poundo)",1],["huile de palme","Huile de palme rouge",1],["poisson fume","Poisson fumé",1]],["Viande ou poisson frais","1 oignon","2 tomates"]],
+  ["Thiéboudienne",["thieboudienne","thieb","ceebu jen"],6,[["riz brise","Riz brisé",1],["poisson fume","Poisson séché (guedj)",1],["maggi","Cubes d'assaisonnement",1,1],["piment","Piment",1,1]],["1,5 kg de poisson","Chou, carottes, manioc","Concentré de tomate","Persil, ail, oignons"]],
+  ["Riz jollof",["jollof","riz au gras"],6,[["maggi","Cubes d'assaisonnement",1,1],["piment","Piment",1,1],["crevettes sechees","Crevettes séchées",1,1]],["Riz étuvé","Tomates, poivrons, oignons","Concentré de tomate","Poulet"]],
+  ["Alloco",["alloco","aloko","dodo","plantain frit"],4,[["plantain frais","Bananes plantains mûres",1],["piment","Piment",1,1]],["Huile de friture","Sel"]],
+  ["Jus de bissap",["bissap","zobo","sobolo","folere"],8,[["bissap","Fleurs d'hibiscus (bissap)",1]],["Sucre","Menthe fraîche","Eau"]]];
+const SPLIT = /[,;\n+]|\s(?:et|and)\s/i;
+const NUMW = {un:1,une:1,deux:2,trois:3,quatre:4,cinq:5,six:6,sept:7,huit:8,neuf:9,dix:10};
+function localPlan(text){
+  const cata = allProducts().filter(p=>p.active), pieces = text.split(SPLIT).map(x=>x.trim()).filter(Boolean);
+  const nt = ` ${norm(text)} `; let rec = null, len = 0;
+  if(pieces.length<2) for(const r of RECIPES) for(const k of r[1]) if(nt.includes(` ${k} `) && k.length>len){ rec=r; len=k.length; }
+  const items = [], missing = [];
+  const push = (p,q,note) => { const e = items.find(i=>i.id===p.id); if(e) e.qty=Math.max(e.qty,q); else items.push({id:p.id,qty:Math.min(10,Math.max(1,q)),note}); };
+  if(rec){
+    const m = text.match(/(\d{1,2})\s*(?:personnes?|pers|invit|convives|people)/i) || text.match(/pour\s+(\d{1,2})\b/i);
+    const n = m ? Math.min(50,Math.max(1,+m[1])) : rec[2], f = n/rec[2];
+    for(const [q,label,qty,fixed] of rec[3]){ const p = bestP(q,cata); if(p) push(p, fixed?qty:Math.ceil(qty*f), label); else missing.push({name:label,note:"Pas encore au catalogue : nous pouvons le chercher pour vous."}); }
+    return {title:`${rec[0]} pour ${n} personne${n>1?"s":""}`, intro:"Les produits africains de la recette sont prêts à ajouter au panier.", ai:false, items, missing, pantry:rec[4]};
+  }
+  const known = x => LOCAL_NAMES.some(g=>g.some(n=>` ${norm(x)} `.includes(` ${n} `)));
+  const good = pieces.length>=2 || pieces.some(x=>bestP(x,cata)||known(x));
+  if(good) for(const piece of pieces){
+    let n = norm(piece), q = 1; const d = n.match(/\b(\d{1,2})\b/); if(d) q=+d[1]; else { const w=n.split(" ").find(x=>NUMW[x]); if(w) q=NUMW[w]; }
+    n = n.replace(/\b\d{1,2}\b/g," ").replace(/\b(il me faut|j ai besoin d[e]?|je veux|je voudrais|svp|merci|aussi|sacs?|paquets?|bouteilles?|boites?|pots?|kilos?|kg|litres?|de la|de l|du|des|de|d|l|un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix)\b/g," ").replace(/\s+/g," ").trim();
+    if(n.length<2) continue; const p = bestP(n,cata);
+    if(p) push(p,q,""); else missing.push({name:piece.replace(/^\s*\d+\s*/,"").slice(0,80),note:"Pas encore au catalogue."});
+  }
+  return items.length||missing.length
+    ? {title:"Votre liste de courses", intro:"Voici ce que j'ai trouvé. Ajustez les quantités puis ajoutez tout au panier.", ai:false, items, missing, pantry:[]}
+    : {title:"Je n'ai pas bien compris", intro:"Écrivez un plat (ex. « mafé pour 6 ») ou une liste de produits séparés par des virgules.", ai:false, items, missing, pantry:[]};
+}
+// IA : Claude via le compte de la personne qui regarde la page (si elle l'autorise)
+let SAMPLE = null, ASST_RUNNING = false;
+(async()=>{ try{ SAMPLE = (await window.claude?.use?.("sample")) || null; }catch{ SAMPLE = null; } if(SAMPLE && S.view==="assistant") render(); })();
+async function aiPlan(text){
+  const cata = allProducts().filter(p=>p.active);
+  const prompt = `Tu es l'assistant cuisine de Saveurs d'Afrique, boutique en ligne québécoise de produits africains.
+Le client écrit un plat, un repas, une occasion ou une liste de courses, parfois avec des noms locaux (wolof, lingala, yoruba, dioula, anglais…) ou des fautes.
+Règles : réponds en français ; "items" utilise UNIQUEMENT des id du CATALOGUE ; quantités en unités du catalogue (1 à 10) adaptées au nombre de personnes (4 par défaut) ; "missing" = produits africains nécessaires mais absents du catalogue ; "pantry" = ingrédients courants que le client achète lui-même, avec quantités ; ne nomme jamais de magasin ni d'épicerie ; pas de prix. Si la demande n'a rien à voir avec la cuisine, listes vides et explique dans "intro".
+Réponds avec UNIQUEMENT ce JSON : {"title":"Poulet yassa pour 6 personnes","intro":"…","items":[{"id":7,"qty":1,"note":"pour la marinade"}],"missing":[{"name":"…","note":"…"}],"pantry":["1,5 kg de poulet"]}
+
+CATALOGUE (id | nom | autres noms | catégorie) :
+${cata.map(p=>`${p.id} | ${p.name} | ${aliasesOf(p)} | ${cat(p.cat).name}`).join("\n")}
+
+DEMANDE DU CLIENT : ${text}`;
+  const out = await SAMPLE.json(prompt, {modelTier:"quick"});
+  const ids = new Set(cata.map(p=>p.id)), items = [];
+  for(const i of Array.isArray(out?.items)?out.items:[]){ const id=Number(i.id); if(ids.has(id)&&!items.some(x=>x.id===id)) items.push({id, qty:Math.min(10,Math.max(1,Math.round(Number(i.qty))||1)), note:String(i.note||"").slice(0,80)}); }
+  return {title:String(out?.title||"Votre panier").slice(0,120), intro:String(out?.intro||"").slice(0,400), ai:true, items,
+    missing:(Array.isArray(out?.missing)?out.missing:[]).slice(0,10).map(m=>({name:String(m.name||"").slice(0,80),note:String(m.note||"").slice(0,120)})).filter(m=>m.name),
+    pantry:(Array.isArray(out?.pantry)?out.pantry:[]).slice(0,12).map(x=>String(x).slice(0,80))};
+}
+async function runAssistant(text){
+  text = text.trim().slice(0,500);
+  if(text.length<3){ S.params = {text, err:"Décrivez un plat ou une liste de produits."}; render(); return; }
+  S.params = {text, busy:true}; ASST_RUNNING = true; render();
+  let plan = null, note = "";
+  if(SAMPLE){ try{ plan = await aiPlan(text); } catch(e){ note = e?.code==="not_granted" ? "IA non autorisée : suggestion basée sur nos recettes." : "IA indisponible pour le moment : suggestion basée sur nos recettes."; } }
+  if(!plan) plan = localPlan(text);
+  ASST_RUNNING = false;
+  if(S.view!=="assistant") return;
+  S.params = {text, plan, note, qty:Object.fromEntries(plan.items.map(i=>[i.id,i.qty]))}; save(); render();
+}
 
 // ---------- État ----------
 const fmt = new Intl.NumberFormat("fr-CA",{style:"currency",currency:"CAD"});
@@ -825,13 +936,14 @@ const ICONS = {
   chevron:'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>',
   spark:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6"/></svg>',
   user:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>',
+  pot:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11h16a8 8 0 0 1-16 0z"/><path d="M8 7c0-1.5 1-2 1-3.5M12 7c0-1.5 1-2 1-3.5M16 7c0-1.5 1-2 1-3.5"/></svg>',
   search:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>'
 };
 
 // ---------- Rendu ----------
 const main = document.getElementById("main");
 const TITLES = {product:"",cart:"Mon panier",checkout:"Commande",order:"Suivi",orders:"Mes commandes","a-order":"Commande","a-orders":"Commandes","a-list":"Liste d'achat","a-products":"","a-product":"","a-stores":"Boutiques",request:"",requests:"",account:"",register:"",profile:"","a-clients":"","a-client":"Client","a-cats":"","a-requests":"","a-request":"Demande"};
-const ROOTS = ["a-clients","home","shop","cart","account","a-orders","a-list","a-products","a-requests"];
+const ROOTS = ["assistant","a-clients","home","shop","cart","account","a-orders","a-list","a-products","a-requests"];
 
 function render(){
   unmountStage();
@@ -858,7 +970,7 @@ function render(){
       <nav class="az-nav" aria-label="Rayons"><button data-a="shopcat" data-v="" aria-current="${curCat===""}">Tout</button>${CATS.map(c=>`<button data-a="shopcat" data-v="${c.id}" aria-current="${curCat===c.id}">${c.name}</button>`).join("")}<button data-a="newreq">Demande spéciale</button></nav>` : "";
   } else { const extra = document.getElementById("azExtra"); if(extra) extra.innerHTML = ""; }
   const tabs = S.mode==="client"
-    ? [["home","Accueil","home"],["shop","Boutique","shop"],["cart","Panier","cart"],["account",S.user?S.user.name.split(" ")[0]:"Vous","user"]]
+    ? [["home","Accueil","home"],["shop","Boutique","shop"],["assistant","Recettes","pot"],["cart","Panier","cart"],["account",S.user?S.user.name.split(" ")[0]:"Vous","user"]]
     : [["a-orders","Commandes","box"],["a-list","Achats","list"],["a-requests","Demandes","spark"],["a-products","Produits","tag"],["a-clients","Clients","user"]];
   const active = {product:"shop",checkout:"cart",order:"account",orders:"account",profile:"account",request:"account",requests:"account",register:"account","a-order":"a-orders","a-request":"a-requests","a-stores":"a-products","a-product":"a-products","a-cats":"a-products","a-client":"a-clients"}[S.view] || S.view;
   const newReqs = S.requests.filter(r=>r.status==="PENDING").length;
@@ -1066,6 +1178,40 @@ function requestPromo(q){
 function pill(status){ return `<span class="pill s-${status}">${STATUS[status]}</span>`; }
 
 const VIEWS = {
+  assistant({text="",busy=false,plan=null,note="",err="",qty={},added=false}){
+    if(busy && !ASST_RUNNING) busy = false;
+    const EX = ["Poulet yassa pour 6 personnes","Mafé pour 4","Soupe egusi avec eba","2 sacs d'attiéké, de l'huile rouge et du zobo","Un repas de Noël ivoirien pour 10"];
+    let res = "";
+    if(busy) res = `<section class="az-card" aria-live="polite" style="align-items:center;text-align:center"><span style="font-size:44px" class="asst-pulse">🍲</span><b>${SAMPLE?"L'assistant réfléchit…":"Je prépare votre panier…"}</b>${SAMPLE?`<span class="az-free">Quelques secondes. La première fois, Claude vous demande l'autorisation.</span>`:""}</section>`;
+    else if(plan){
+      const lines = plan.items.map(i=>({i,p:prod(i.id)})).filter(x=>x.p), sub = lines.reduce((s,{p})=>s+(qty[p.id]??0)*p.price,0), n = lines.filter(({p})=>(qty[p.id]??0)>0).length;
+      res = `<section class="az-card" aria-live="polite"><h2 style="font-size:20px">${esc(plan.title)}</h2><span class="az-free">${esc(plan.intro)}</span>
+          <span class="small" style="font-weight:700;color:${plan.ai?"#007185":"#565959"}">${plan.ai?"✨ Proposé par l'IA":"Suggestion basée sur nos recettes classiques"}</span>${note?`<span class="small">${esc(note)}</span>`:""}</section>
+        ${lines.length?`<section class="az-card"><h2>À ajouter au panier</h2>
+          ${lines.map(({i,p})=>`<div class="row" style="gap:10px;align-items:center;border-top:1px solid #e7e7e7;padding-top:10px">${thumb(p)}
+            <div class="grow" style="min-width:0"><button class="link" style="text-align:left;font-weight:600" data-a="product" data-id="${p.id}">${esc(p.name)}</button>${i.note?`<div class="small">${esc(i.note)}</div>`:""}<div style="font-weight:700">${money(p.price)}</div></div>
+            <select class="asst-q" data-id="${p.id}" aria-label="Quantité pour ${esc(p.name)}" style="border:1px solid #d5d9d9;background:#f0f2f2;border-radius:8px;padding:8px">${[...Array(11).keys()].map(k=>`<option value="${k}" ${k===(qty[p.id]??0)?"selected":""}>${k?k:"Retirer"}</option>`).join("")}</select></div>`).join("")}
+          <div style="font-size:18px">Sous-total : <b>${money(sub)}</b></div>
+          ${added?`<button class="az-btn y" data-a="tab" data-v="cart">✓ Ajouté · Voir le panier</button>`:`<button class="az-btn y" data-a="asst-add" ${n?"":"disabled"}>Tout ajouter au panier (${n})</button>`}</section>`:""}
+        ${plan.missing.length?`<section class="az-card" style="background:linear-gradient(135deg,#e3f4ff,#fdeef4)"><h2>✨ Pas encore au catalogue</h2><span class="az-free">On peut les chercher pour vous et vous envoyer un prix.</span>
+          ${plan.missing.map(m=>`<div class="row" style="justify-content:space-between;gap:8px;background:rgba(255,255,255,.7);padding:8px;border-radius:8px"><span><b>${esc(m.name)}</b>${m.note?`<span class="small" style="display:block">${esc(m.note)}</span>`:""}</span><button class="az-more" data-a="newreq" data-q="${esc(m.name)}">Demander un prix ›</button></div>`).join("")}</section>`:""}
+        ${plan.pantry.length?`<section class="az-card"><h2>À prévoir de votre côté</h2><ul style="margin:0;padding-left:20px;color:#565959">${plan.pantry.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></section>`:""}`;
+    }
+    return `
+      <section class="az-card" style="background:linear-gradient(160deg,#c9f2ec,#e3f4ff 60%,#fdeef4);margin-inline:-12px;border-radius:0">
+        <span class="small" style="font-weight:800;letter-spacing:.12em;color:#007185">ASSISTANT CUISINE${SAMPLE?" · IA":""}</span>
+        <h1 style="font-size:24px;line-height:1.2">Dites-nous ce que vous voulez cuisiner</h1>
+        <span class="az-free">Un plat, un repas de fête ou une simple liste : on remplit votre panier. Les noms de chez vous sont compris (pondu, zobo, garri, attiéké…).</span>
+      </section>
+      <form id="assistForm" class="az-card">
+        <label for="asst-t" style="font-weight:700">Votre plat ou votre liste</label>
+        <textarea id="asst-t" rows="3" maxlength="500" placeholder="Ex. : je veux faire un ndolé pour 8 personnes" style="font:inherit;border:1px solid #888c8c;border-radius:8px;padding:10px;resize:vertical">${esc(text)}</textarea>
+        <div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px">${EX.map(x=>`<button type="button" data-a="asst-ex" data-q="${esc(x)}" style="flex:none;border:1px solid #d5d9d9;background:#f7fafa;border-radius:999px;padding:6px 12px;font:inherit;font-size:13px">${esc(x)}</button>`).join("")}</div>
+        <button class="az-btn y" ${busy?"disabled":""} style="align-self:flex-start">${busy?"Je prépare votre panier…":"Préparer mon panier"}</button>
+        ${err?`<span role="alert" style="color:#b12704;font-size:14px">${esc(err)}</span>`:""}
+      </form>
+      ${res}`;
+  },
   home(){
     const feat = allProducts().filter(p=>p.active&&p.featured);
     const byCat = id => allProducts().filter(p=>p.active&&p.cat===id);
@@ -1093,6 +1239,12 @@ const VIEWS = {
           <div class="az-rail">${feat.map(p=>`<button data-a="product" data-id="${p.id}"><span class="qimg">${imgFor(p)}</span><span class="qlbl" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${esc(p.name)}</span>${priceHTML(p.price,true)}</button>`).join("")}</div>
         </section>
         ${CATS.map(c=>{ const l=byCat(c.id); return l.length?quad(c.name, l.slice(0,4), `data-a="shopcat" data-v="${c.id}"`, "Voir plus"):""; }).slice(2).join("")}
+        <section class="az-card" style="background:linear-gradient(135deg,#fff4d6,#c9f2ec)">
+          <h2>Que cuisinez-vous cette semaine ?</h2>
+          <span class="az-free">« Poulet yassa pour 6 », « mafé », « zobo » : l'assistant remplit votre panier avec les bons produits.</span>
+          <span style="font-size:48px;line-height:1">🍲</span>
+          <button class="az-btn y" data-a="tab" data-v="assistant">Essayer l'assistant cuisine</button>
+        </section>
         <section class="az-card" style="background:linear-gradient(135deg,#e3f4ff,#fdeef4)">
           <h2>Vous ne trouvez pas un produit ?</h2>
           <span class="az-free">Dites-nous ce que vous cherchez : nous le trouvons dans nos épiceries partenaires et vous envoyons un prix.</span>
@@ -1105,10 +1257,11 @@ const VIEWS = {
       </div>`;
   },
   shop({cat:c="",q=""}){
-    const ql = q.trim().toLowerCase();
-    const list = allProducts().filter(p=>p.active&&(!c||p.cat===c)&&(!ql||(p.name+" "+p.origin+" "+cat(p.cat).name).toLowerCase().includes(ql)));
+    const base = allProducts().filter(p=>p.active&&(!c||p.cat===c));
+    const r = q.trim() ? rankP(q,base) : {list:base, exact:true}, list = r.list;
     return `
       <div class="az-results-h">${list.length} résultat${list.length>1?"s":""}${q?` pour <b>« ${esc(q)} »</b>`:c?` dans <b>${esc(cat(c).name)}</b>`:""}</div>
+      ${q&&!r.exact?`<div class="az-card" style="margin-inline:-12px;gap:8px"><span>Pas de résultat exact pour <b>« ${esc(q)} »</b>.${list.length?" Produits proches :":""}</span><button class="az-btn y sm" style="align-self:flex-start" data-a="ask" data-q="${esc(q)}">🍲 Demander à l'assistant cuisine</button></div>`:""}
       ${list.length?`<div class="az-list">${list.map(p=>`
         <article class="az-item">
           <button class="rimg" data-a="product" data-id="${p.id}" aria-label="${esc(p.name)}">${imgFor(p)}</button>
@@ -1463,7 +1616,7 @@ const VIEWS = {
   },
   "a-products"({q=""}){
     const ql = q.trim().toLowerCase();
-    const list = allProducts().filter(p=>!ql||(p.name+" "+p.origin+" "+cat(p.cat).name+" "+store(p.store).name).toLowerCase().includes(ql));
+    const list = allProducts().filter(p=>!ql||(p.name+" "+aliasesOf(p)+" "+cat(p.cat).name+" "+store(p.store).name).toLowerCase().includes(ql));
     return `<div class="line"><h1 style="font-size:26px">Produits</h1><span style="display:flex;gap:14px"><button class="link" data-a="go" data-v="a-cats">Catégories</button><button class="link" data-a="go" data-v="a-stores">Boutiques</button></span></div>
       <button class="btn btn-primary" data-a="editprod">+ Nouveau produit</button>
       <label class="search">${ICONS.search}<input id="aq" type="search" placeholder="Rechercher par nom, catégorie, boutique…" value="${esc(q)}" aria-label="Rechercher un produit"></label>
@@ -1484,7 +1637,7 @@ const VIEWS = {
   },
   "a-product"({id,draft}){
     const p = id ? prod(id) : null;
-    const d = draft || (p ? {name:p.name,price:(p.price/100).toFixed(2),cost:(p.cost/100).toFixed(2),cat:p.cat,store:p.store,origin:p.origin,desc:p.desc||"",featured:p.featured,shape:p.v.shape,color:colorOf(p.v)}
+    const d = draft || (p ? {name:p.name,price:(p.price/100).toFixed(2),cost:(p.cost/100).toFixed(2),cat:p.cat,store:p.store,origin:p.origin,desc:p.desc||"",aliases:aliasesOf(p),featured:p.featured,shape:p.v.shape,color:colorOf(p.v)}
       : {name:S.params.prefill||"",price:"",cost:"",cat:CATS[0].id,store:STORES[0].id,origin:"",desc:"",featured:false,shape:"sack",color:SWATCHES[0]});
     const custom = !p || (S.custom||[]).some(x=>x.id===p.id);
     const preview = {id:"preview",name:d.name||"Nouveau produit",short:shortName(d.name||"Nouveau"),origin:d.origin||"",cat:d.cat,v:visualFor(d.shape,d.color)};
@@ -1500,6 +1653,7 @@ const VIEWS = {
           <div class="field"><label for="p-cat" style="display:flex;justify-content:space-between">Catégorie <button type="button" class="link" style="font-size:12px" data-a="go" data-v="a-cats">+ Nouvelle</button></label><select id="p-cat" name="cat">${CATS.map(c=>`<option value="${c.id}" ${c.id===d.cat?"selected":""}>${c.name}</option>`).join("")}</select></div>
           <div class="field"><label for="p-store">Boutique</label><select id="p-store" name="store">${STORES.map(x=>`<option value="${x.id}" ${x.id===d.store?"selected":""}>${esc(x.name)}</option>`).join("")}</select></div>
         </div>
+        <div class="field"><label for="p-aliases">Autres noms (séparés par des virgules)</label><input id="p-aliases" name="aliases" value="${esc(d.aliases||"")}" placeholder="Ex. : garri, gali, cassava flakes"><span class="small">Noms locaux, en anglais ou fautes courantes : le client trouve le produit en les tapant.</span></div>
         <div class="field"><label for="p-desc">Description (facultatif)</label><input id="p-desc" name="desc" value="${esc(d.desc)}" placeholder="Ex. : semoule de manioc fermentée, grain fin"></div>
         <label class="row" style="gap:8px;font-weight:600"><input type="checkbox" name="featured" ${d.featured?"checked":""}> Mettre en avant sur l'accueil</label>
         ${custom?`
@@ -1693,6 +1847,10 @@ document.addEventListener("click", e=>{
       history_.length=0; go("a-products",{},false); toast("Produit supprimé","","🗑️"); break; }
     case "rmphoto": delete PHOTOS[id]; savePhotos(); render(); break;
     case "newreq": go("request",{prefill:b.dataset.q||""}); break;
+    case "ask": go("assistant",{text:b.dataset.q||""}); runAssistant(b.dataset.q||""); break;
+    case "asst-ex": { const t=document.getElementById("asst-t"); t.value=b.dataset.q; S.params.text=b.dataset.q; t.focus(); break; }
+    case "asst-add": { const P=S.params; let n=0; for(const it of P.plan.items){ const q=P.qty[it.id]??0; if(q>0&&prod(it.id)){ S.cart[it.id]=Math.min(99,(S.cart[it.id]||0)+q); n+=q; } }
+      P.added=true; save(); render(); toast(`${n} article${n>1?"s":""} ajouté${n>1?"s":""} au panier`, `Panier : ${money(cartSub())}`, "🛒"); break; }
     case "sendreq": { e.preventDefault(); sendRequest(); break; }
     case "acceptreq": { const r=S.requests.find(x=>x.id===id); r.status="ACCEPTED"; S.cart["r"+r.id]=r.qty; save(); render(); toast(`${r.name} ajouté au panier`,`${r.qty} × ${money(r.quote.price)}`,"🛒"); break; }
     case "declinereq": { const r=S.requests.find(x=>x.id===id); r.status="DECLINED"; save(); render(); toast("Demande fermée","Merci, nous avons prévenu le vendeur.",""); break; }
@@ -1808,7 +1966,7 @@ function saveProduct(id){
   const price = parseCents(d.price), cost = parseCents(d.cost);
   const problem = d.name.trim().length<2?"Indiquez le nom du produit.":price<=0?"Indiquez le prix de vente (ex. 7,99).":"";
   if(problem){ err.textContent=problem; err.hidden=false; S.params.draft=d; return; }
-  const fields = {name:d.name.trim(),short:shortName(d.name.trim()),price,cost,cat:d.cat,store:d.store,origin:(d.origin||"").trim(),desc:d.desc.trim(),featured:d.featured};
+  const fields = {name:d.name.trim(),short:shortName(d.name.trim()),price,cost,cat:d.cat,store:d.store,origin:(d.origin||"").trim(),desc:d.desc.trim(),aliases:(d.aliases||"").trim().slice(0,300),featured:d.featured};
   if(id){
     const c = S.custom.find(x=>x.id===id);
     if(c){ Object.assign(c, fields, {v:visualFor(d.shape,d.color)}); }
@@ -1843,13 +2001,18 @@ function placeOrder(){
   mail(o,`Commande ${num(o.id)} reçue, ${money(t.total)} autorisés`);
 }
 
+document.addEventListener("change", e=>{
+  if(e.target.classList?.contains("asst-q")){ S.params.qty[Number(e.target.dataset.id)] = Number(e.target.value); S.params.added=false; save(); render(); }
+});
 document.addEventListener("input", e=>{
+  if(e.target.id==="asst-t"){ S.params.text = e.target.value; return; }
   if(e.target.id==="q"||e.target.id==="aq"||e.target.id==="cq"){ const fid=e.target.id; S.params.q=e.target.value; save();
     const pos=e.target.selectionStart; render(); const q=document.getElementById(fid); q.focus(); try{q.setSelectionRange(pos,pos);}catch{} }
 });
 document.addEventListener("submit", e=>{
   e.preventDefault();
   if(e.target.id==="authForm"){ submitAuth(e.target); return; }
+  if(e.target.id==="assistForm"){ runAssistant(document.getElementById("asst-t").value); return; }
   if(/^pf-/.test(e.target.id)){ submitProfile(e.target); return; }
   if(e.target.id==="catNew" || e.target.classList.contains("catRow")){ saveCategory(e.target); return; }
   if(e.target.id==="homeSearch"){ const q=document.getElementById("hq").value.trim(); document.getElementById("hq").blur(); go("shop",{cat:"",q}, S.view!=="shop"); }

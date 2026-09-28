@@ -135,6 +135,12 @@ export function rankProducts<T extends Searchable>(q: string, products: T[]) {
   return { products: list.map((x) => x.p), exact };
 }
 
+/** Le texte contient-il un nom de produit africain connu du dictionnaire (même absent du catalogue) ? */
+export function isKnownProductName(q: string) {
+  const nq = normalize(q);
+  return LOCAL_NAMES.some((group) => group.some((n) => hasPhrase(nq, n)));
+}
+
 /** Meilleur produit pour un ingrédient, ou null si rien ne correspond vraiment. */
 export function bestMatch<T extends Searchable>(q: string, products: T[]) {
   const { products: list, exact } = rankProducts(q, products);

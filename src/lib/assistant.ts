@@ -4,7 +4,7 @@ import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { z } from "zod";
 import { aiEnabled } from "./env";
 import { RECIPES, parseServings, type Recipe } from "./recipes";
-import { bestMatch, normalize, type Searchable } from "./search";
+import { bestMatch, isKnownProductName, normalize, type Searchable } from "./search";
 
 // Assistant cuisine : « Je veux faire un poulet yassa pour 6 » ou « 2 sacs d'attiéké et de
 // l'huile rouge » → panier prêt. Avec ANTHROPIC_API_KEY, Claude comprend n'importe quelle
@@ -57,7 +57,8 @@ function localShoppingList(text: string, catalog: CatalogProduct[]): AssistantPl
   const pieces = text.split(/[,;\n+]|\s(?:et|and)\s/i).map((s) => s.trim()).filter(Boolean);
   const items: AssistantPlan["items"] = [];
   const missing: AssistantPlan["missing"] = [];
-  if (pieces.length < 2 && !pieces.some((piece) => bestMatch(piece, catalog))) pieces.length = 0;
+  // Une seule demande sans correspondance : on la garde seulement si c'est un produit connu (« pondu »)
+  if (pieces.length < 2 && !pieces.some((piece) => bestMatch(piece, catalog) || isKnownProductName(piece))) pieces.length = 0;
   for (const piece of pieces) {
     let n = normalize(piece);
     let qty = 1;
