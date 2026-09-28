@@ -37,7 +37,9 @@ const cartSchema = z
 export type CheckoutState = { error?: string; values?: Record<string, string> };
 
 export async function placeOrder(_prev: CheckoutState, formData: FormData): Promise<CheckoutState> {
-  const raw = Object.fromEntries(formData) as Record<string, string>;
+  const user = await getCurrentUser();
+  if (!user) redirect("/connexion?suite=/commande");
+  const raw: Record<string, string> = { ...(Object.fromEntries(formData) as Record<string, string>), email: user.email };
   const fail = (error: string): CheckoutState => ({ error, values: raw });
   const parsed = schema.safeParse(raw);
   if (!parsed.success) return fail(parsed.error.issues[0].message);
@@ -69,11 +71,10 @@ export async function placeOrder(_prev: CheckoutState, formData: FormData): Prom
   if (totals.subtotalCents < MIN_ORDER_CENTS)
     return fail(`Le montant minimum de commande est de ${formatMoney(MIN_ORDER_CENTS)}.`);
 
-  const user = await getCurrentUser();
   const order = await db.order.create({
     data: {
       ...customer,
-      userId: user?.id ?? null,
+      userId: user.id,
       subtotalCents: totals.subtotalCents,
       shippingCents: totals.shippingCents,
       taxCents: totals.taxCents,

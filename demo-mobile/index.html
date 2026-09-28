@@ -964,7 +964,8 @@ async function submitAuth(form){
     S.users.push({name:String(d.name).trim(), email, hash, createdAt:Date.now()});
     S.user = {name:String(d.name).trim(), email};
   }
-  history_.length = 0; save(); go("account",{},false);
+  const next = S.afterLogin || "account"; S.afterLogin = null;
+  history_.length = 0; save(); go(next,{},false);
   toast(`Bonjour, ${S.user.name.split(" ")[0]} !`, kind==="login"?"Vous êtes connecté.":"Votre compte est créé.", "👋");
 }
 function priceHTML(c, small){ const [d,cents] = (c/100).toFixed(2).split("."); return `<span class="az-price${small?" sm":""}" aria-label="${money(c)}"><span class="d">${d}</span><span class="c">,${cents}</span><span class="cur">$</span></span>`; }
@@ -1105,15 +1106,16 @@ const VIEWS = {
   },
   checkout(){
     const lines = cartLines(); if(!lines.length) return VIEWS.cart();
+    // Il faut être connecté pour commander : connexion puis retour ici, panier conservé
+    if(!S.user){ S.afterLogin = "checkout"; return `<div class="note" style="background:#fff;border:1px solid #d5d9d9;margin-top:12px">🔒 <b>Identifiez-vous pour passer votre commande.</b> Votre panier est conservé.</div>` + authView("login"); }
     const c = {...(S.lastCustomer || {name:"",email:"",phone:"",address:"",city:"",province:"QC",postal:""}), ...(S.user?{name:S.user.name,email:S.user.email}:{})};
     const prov = S.params.province || c.province || "QC";
     const t = totals(lines.map(l=>({price:l.p.price,qty:l.qty})),prov);
     return `
       <form id="checkout" class="card" novalidate>
-        ${S.user?"":`<div class="note" style="background:#fff;border:1px solid #d5d9d9">Déjà client ? <button class="az-more" data-a="tab" data-v="account" style="display:inline">Identifiez-vous</button> pour retrouver vos commandes. Vous pouvez aussi commander sans compte.</div>`}
         <h2 style="font-size:18px">Vos coordonnées</h2>
         <div class="field"><label for="f-name">Nom complet</label><input id="f-name" name="name" autocomplete="name" value="${esc(c.name)}" required></div>
-        <div class="field"><label for="f-email">Courriel</label><input id="f-email" name="email" type="email" autocomplete="email" value="${esc(c.email)}" required></div>
+        <div class="field"><label for="f-email">Courriel</label><input id="f-email" name="email" type="email" autocomplete="email" readonly style="color:var(--muted)" value="${esc(c.email)}" required></div>
         <div class="field"><label for="f-phone">Téléphone (facultatif)</label><input id="f-phone" name="phone" type="tel" autocomplete="tel" value="${esc(c.phone)}"></div>
         <h2 style="font-size:18px;margin-top:6px">Livraison</h2>
         <div class="field"><label for="f-address">Adresse</label><input id="f-address" name="address" autocomplete="street-address" value="${esc(c.address)}" required></div>
@@ -1492,7 +1494,7 @@ document.addEventListener("click", e=>{
   const O = () => S.orders.find(x=>x.id===id);
   switch(a){
     case "back": back(); break;
-    case "tab": history_.length=0; go(v,{},false); break;
+    case "tab": history_.length=0; if(v!=="account") S.afterLogin=null; go(v,{},false); break;
     case "go": go(v); break;
     case "mode": if(S.mode!==v){ S.mode=v; history_.length=0; go(v==="client"?"home":"a-orders",{},false); } break;
     case "shopcat": go("shop",{cat:v,q:S.view==="shop"?(S.params.q||""):""},S.view!=="shop"); break;
@@ -1656,6 +1658,7 @@ function saveProduct(id){
   toast(`${fields.name} enregistré`, "Visible dans la boutique client", "✅");
 }
 function placeOrder(){
+  if(!S.user){ S.afterLogin = "checkout"; go("checkout",{},false); return; }
   const f = document.getElementById("checkout"); const d = Object.fromEntries(new FormData(f));
   const err = document.getElementById("formErr");
   const postal = String(d.postal||"").toUpperCase().replace(/\s/g,"");

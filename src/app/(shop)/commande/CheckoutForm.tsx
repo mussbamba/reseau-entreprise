@@ -15,7 +15,7 @@ export function CheckoutForm({
 }: {
   taxesEnabled: boolean;
   demoMode: boolean;
-  user: { name: string; email: string; phone: string } | null;
+  user: { name: string; email: string; phone: string };
 }) {
   const { lines, ready } = useCart();
   const [province, setProvince] = useState("QC");
@@ -29,7 +29,7 @@ export function CheckoutForm({
       </p>
     );
 
-  const v: Record<string, string | undefined> = state.values ?? { name: user?.name, email: user?.email, phone: user?.phone };
+  const v: Record<string, string | undefined> = state.values ?? { name: user.name, phone: user.phone };
   const totals = computeTotals(lines, province, taxesEnabled);
   const cart = JSON.stringify(lines.map((l) => ({ productId: l.productId, quantity: l.quantity })));
 
@@ -40,7 +40,7 @@ export function CheckoutForm({
         <fieldset className="card grid gap-4 p-5 sm:grid-cols-2">
           <legend className="px-1 font-bold">Vos coordonnées</legend>
           <Field label="Nom complet" name="name" defaultValue={v.name} autoComplete="name" required className="sm:col-span-2" />
-          <Field label="Courriel" name="email" defaultValue={v.email} type="email" autoComplete="email" required />
+          <Field label="Courriel (celui de votre compte)" name="email" value={user.email} readOnly type="email" className="[&_input]:bg-slate-50 [&_input]:text-slate-500" />
           <Field label="Téléphone (facultatif)" name="phone" defaultValue={v.phone} type="tel" autoComplete="tel" />
         </fieldset>
 

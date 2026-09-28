@@ -79,9 +79,11 @@ Si le produit est introuvable, le bouton « Introuvable » prévient le client p
   commandes et ses demandes spéciales, puis se déconnecter.
 - Les mots de passe sont hachés avec scrypt et un sel unique. La session est un cookie signé
   (`AUTH_SECRET`) valable 30 jours.
-- Commander sans compte reste possible. Une commande ou une demande passée en étant connecté est
-  rattachée au compte ; pour la sécurité, rien n'est rattaché par simple correspondance de courriel
-  (le courriel n'est pas vérifié).
+- **Il faut être connecté pour commander** : `/commande` renvoie vers `/connexion` (ou la création
+  de compte) puis revient à la commande, panier conservé. L'action serveur refuse aussi toute
+  commande sans compte, et le courriel de la commande est toujours celui du compte.
+- Une demande spéciale passée en étant connecté est rattachée au compte ; rien n'est rattaché par
+  simple correspondance de courriel (le courriel n'est pas vérifié).
 - Gérer les clients : **Admin → 👤 Clients** (`/admin/clients`). La fiche d'un client permet de
   modifier son nom et son téléphone, de **bloquer / débloquer** son compte (la session est coupée
   aussitôt), de **réinitialiser son mot de passe** (mot de passe temporaire affiché une seule fois)
