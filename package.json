@@ -17,6 +17,7 @@
     "telephone": "node scripts/telephone.mjs"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.128.0",
     "@prisma/client": "^6.19.3",
     "next": "15.5.26",
     "prisma": "^6.19.3",

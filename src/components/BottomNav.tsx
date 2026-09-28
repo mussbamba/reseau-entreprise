@@ -7,6 +7,7 @@ import { useCart } from "./CartProvider";
 const TABS = [
   { href: "/", label: "Accueil", match: (p: string) => p === "/", icon: <path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" /> },
   { href: "/produits", label: "Boutique", match: (p: string) => p.startsWith("/produits"), icon: <><rect x="3" y="3" width="7" height="7" rx="2" /><rect x="14" y="3" width="7" height="7" rx="2" /><rect x="3" y="14" width="7" height="7" rx="2" /><rect x="14" y="14" width="7" height="7" rx="2" /></> },
+  { href: "/assistant", label: "Recettes", match: (p: string) => p.startsWith("/assistant"), icon: <><path d="M4 11h16a8 8 0 0 1-16 0z" /><path d="M8 7c0-1.5 1-2 1-3.5M12 7c0-1.5 1-2 1-3.5M16 7c0-1.5 1-2 1-3.5" /></> },
   { href: "/panier", label: "Panier", match: (p: string) => p.startsWith("/panier") || p === "/commande", icon: <><path d="M3 4h2l2.4 11.2a1.5 1.5 0 0 0 1.5 1.2h8.7a1.5 1.5 0 0 0 1.5-1.1L21 8H6" /><circle cx="9.5" cy="20" r="1.3" /><circle cx="17.5" cy="20" r="1.3" /></> },
   { href: "/compte", label: "Compte", match: (p: string) => p.startsWith("/compte") || p.startsWith("/connexion") || p.startsWith("/inscription") || p.startsWith("/commande/"), icon: <><circle cx="12" cy="8" r="4" /><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" /></> },
 ];
@@ -18,7 +19,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Navigation principale"
-      className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t border-[#d5d9d9] bg-white pb-[env(safe-area-inset-bottom)] sm:hidden"
+      className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-[#d5d9d9] bg-white pb-[env(safe-area-inset-bottom)] sm:hidden"
     >
       {TABS.map((t) => {
         const active = t.match(pathname);

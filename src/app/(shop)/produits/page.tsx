@@ -3,6 +3,7 @@ import type { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { SPECIAL_CATEGORY } from "@/lib/config";
 import { ProductCard } from "@/components/ProductCard";
+import { rankProducts } from "@/lib/search";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Boutique" };
@@ -15,17 +16,14 @@ export default async function ProductsPage({
   const { categorie, q } = await searchParams;
   const where: Prisma.ProductWhereInput = { active: true, listed: true };
   if (categorie) where.category = { slug: categorie };
-  if (q)
-    where.OR = [
-      { name: { contains: q, mode: "insensitive" } },
-      { origin: { contains: q, mode: "insensitive" } },
-      { description: { contains: q, mode: "insensitive" } },
-    ];
 
-  const [categories, products] = await Promise.all([
+  const [categories, all] = await Promise.all([
     db.category.findMany({ where: { slug: { not: SPECIAL_CATEGORY.slug } }, orderBy: { position: "asc" } }),
     db.product.findMany({ where, include: { category: true }, orderBy: { name: "asc" } }),
   ]);
+  // Recherche tolérante : noms locaux, sans accents, fautes de frappe
+  const ranked = q?.trim() ? rankProducts(q, all) : { products: all, exact: true };
+  const products = ranked.products;
   const current = categories.find((c) => c.slug === categorie);
 
   return (
@@ -48,8 +46,23 @@ export default async function ProductsPage({
         ))}
       </div>
 
+      {q && !ranked.exact && (
+        <p className="mt-3 bg-white p-3 text-sm">
+          Pas de résultat exact pour <b>« {q} »</b>.{" "}
+          {products.length > 0 && "Produits proches : "}
+          <Link href={`/assistant?q=${encodeURIComponent(q)}`} className="az-link font-semibold">
+            Demander à l&apos;assistant cuisine
+          </Link>{" "}
+          ou{" "}
+          <Link href={`/demande?produit=${encodeURIComponent(q)}`} className="az-link font-semibold">
+            faire une demande spéciale
+          </Link>
+          .
+        </p>
+      )}
+
       {products.length === 0 ? (
-        <p className="mt-6 bg-white p-6 text-center text-[#565959]">Aucun résultat{q ? ` pour « ${q} »` : ""}.</p>
+        !q && <p className="mt-6 bg-white p-6 text-center text-[#565959]">Aucun produit dans cette catégorie.</p>
       ) : (
         <div className="-mx-4 mt-3 grid gap-2 sm:mx-0 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
           {products.map((p) => (

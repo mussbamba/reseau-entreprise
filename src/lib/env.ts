@@ -4,3 +4,6 @@ export const siteUrl = () =>
 export const taxesEnabled = () => process.env.TAXES_ENABLED === "true";
 
 export const stripeEnabled = () => Boolean(process.env.STRIPE_SECRET_KEY);
+
+/** Assistant IA (Claude) : actif si une clé API est configurée */
+export const aiEnabled = () => Boolean(process.env.ANTHROPIC_API_KEY);

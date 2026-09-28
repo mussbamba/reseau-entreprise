@@ -37,6 +37,7 @@ model Product {
   slug        String      @unique
   description String      @default("")
   origin      String      @default("") // pays d'origine
+  aliases     String      @default("") // autres noms (locaux, anglais…), séparés par des virgules
   priceCents  Int // prix de vente
   costCents   Int         @default(0) // prix d'achat estimé en boutique
   weightGrams Int         @default(500)

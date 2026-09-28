@@ -89,6 +89,7 @@ Chaque nouveau `git push` sur la branche de production redéploie le site automa
 - **Vrais paiements** : compte Stripe, puis ajoutez `STRIPE_SECRET_KEY` et `STRIPE_WEBHOOK_SECRET`
   (webhook : `https://VOTRE-ADRESSE/api/stripe/webhook`, événement `checkout.session.completed`).
 - **Vrais courriels** : compte Resend, domaine vérifié, `RESEND_API_KEY`, `EMAIL_FROM`, `ADMIN_EMAIL`.
+- **Assistant cuisine IA** : `ANTHROPIC_API_KEY` (clé sur console.anthropic.com). Sans clé, l'assistant utilise les recettes intégrées.
 - **Nom de domaine** (ex. `saveursdafrique.ca`, environ 15 $/an) : *Vercel → Settings → Domains*.
 
 ## Dépannage

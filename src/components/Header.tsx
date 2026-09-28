@@ -45,6 +45,7 @@ function CategoryNav({ categories }: { categories: Cat[] }) {
           {c.name}
         </Link>
       ))}
+      <Link href="/assistant" className="font-semibold hover:underline">🍲 Assistant cuisine</Link>
       <Link href="/demande" className="hover:underline">Demande spéciale</Link>
     </nav>
   );

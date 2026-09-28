@@ -120,6 +120,32 @@ Si le produit est introuvable, le bouton « Introuvable » prévient le client p
 - À prévoir avant la production : vérification du courriel, mot de passe oublié, limite de
   tentatives de connexion.
 
+## Recherche intelligente et assistant cuisine (IA)
+
+**Recherche « comme je parle »** (`/produits?q=…`) : sans accents, tolérante aux fautes (« atieke »,
+« maggie ») et aux noms locaux ou anglais (« zobo » trouve le bissap, « garri » le gari, « huile
+rouge » l'huile de palme). Deux sources :
+
+- le dictionnaire `LOCAL_NAMES` dans `src/lib/search.ts` (groupes de noms équivalents) ;
+- le champ **Autres noms** de chaque produit (Admin → Produits), séparés par des virgules.
+
+Sans résultat exact, la page propose l'assistant cuisine et la demande spéciale.
+
+**Assistant cuisine** (`/assistant`, onglet « Recettes » sur téléphone) : le client écrit un plat
+(« poulet yassa pour 6 »), un repas (« Noël ivoirien pour 10 ») ou une liste (« 2 sacs d'attiéké,
+de l'huile rouge et du zobo »). L'assistant prépare le panier, ajustable avant « Tout ajouter au
+panier ». Il liste aussi les produits absents du catalogue, avec un lien de demande spéciale, et
+les ingrédients courants à prévoir soi-même.
+
+- **Sans clé API** : recettes intégrées (`src/lib/recipes.ts` : yassa, mafé, attiéké, egusi, ndolé,
+  thiéboudienne, jollof, alloco, bissap…) et lecture de listes. Gratuit.
+- **Avec `ANTHROPIC_API_KEY`** : Claude comprend n'importe quelle demande, pour les clients
+  connectés seulement (20 demandes par heure et par compte). Il ne peut proposer que des produits
+  du catalogue (les identifiants sont vérifiés) et ne nomme jamais d'épicerie. En cas d'erreur,
+  l'assistant repasse aux recettes intégrées. Modèle par défaut : `claude-opus-5` (modifiable avec
+  `ANTHROPIC_MODEL`). Coût : quelques cents par demande ; suivez la consommation dans la console
+  Anthropic et fixez-y une limite de dépenses.
+
 ## Catégories d'articles
 
 **Admin → 🗂️ Catégories** (`/admin/categories`) : ajouter une catégorie (nom, icône), la renommer,
@@ -151,7 +177,7 @@ TPS ailleurs.
 ## Stack
 
 Next.js 15 (App Router, Server Actions) · Prisma · Stripe Checkout (`capture_method: manual`) ·
-Tailwind CSS 4 · Resend (optionnel).
+Tailwind CSS 4 · Resend (optionnel) · Claude API (optionnel, assistant cuisine).
 
 ## Pas encore dans le MVP (phase 2)
 

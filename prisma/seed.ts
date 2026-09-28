@@ -38,8 +38,31 @@ const products: [string, string, number, number, number, number, string, boolean
   ["Savon noir africain 200 g", "beaute-soins", 1, 7.99, 4.0, 200, "Ghana", false],
 ];
 
+// Autres noms (noms locaux, anglais) pour la recherche et l'assistant cuisine
+const aliases: Record<string, string> = {
+  "gari-blanc-1-kg": "garri, gali, eba, cassava flakes",
+  "farine-d-igname-poundo-1-8-kg": "pounded yam, iyan, igname pilée, foutou",
+  "attieke-deshydrate-1-kg": "acheke, atcheke, garba",
+  "farine-de-manioc-foufou-1-5-kg": "fufu, cassava flour, kpokpo",
+  "soumbala-moutarde-africaine-100-g": "sumbala, dawadawa, iru, nététou",
+  "piment-de-cayenne-moulu-200-g": "pili pili, pepper, chili",
+  "cubes-d-assaisonnement-maggi-x100": "bouillon, jumbo, cube",
+  "huile-de-palme-rouge-1-l": "huile rouge, palm oil, zomi",
+  "pate-d-arachide-500-g": "beurre d'arachide, peanut butter, groundnut paste, tigadèguè",
+  "poisson-fume-machoiron-250-g": "smoked fish, poisson séché, kobo",
+  "crevettes-sechees-moulues-100-g": "crayfish, njanga, écrevisses",
+  "bissap-fleurs-d-hibiscus-250-g": "zobo, sobolo, oseille, karkadé, foléré",
+  "chips-de-plantain-85-g": "plantain chips, kelewele",
+  "malta-guinness-6-x-330-ml": "maltina, malt",
+  "beurre-de-karite-brut-250-g": "shea butter, ori",
+  "savon-noir-africain-200-g": "black soap, alata, ose dudu",
+};
 
 async function main() {
+  // Bases existantes : complète les autres noms s'ils sont vides (sans rien écraser)
+  for (const [slug, value] of Object.entries(aliases))
+    await db.product.updateMany({ where: { slug, aliases: "" }, data: { aliases: value } });
+
   if ((await db.product.count()) > 0) {
     console.log("Base déjà initialisée, rien à faire.");
     return;

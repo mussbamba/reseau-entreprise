@@ -12,6 +12,7 @@ const schema = z.object({
   name: z.string().trim().min(2, "Nom requis"),
   description: z.string().trim().default(""),
   origin: z.string().trim().default(""),
+  aliases: z.string().trim().max(300, "Autres noms : 300 caractères maximum").default(""),
   price: z.string().min(1, "Prix requis"),
   cost: z.string().default("0"),
   weightGrams: z.coerce.number().int().min(0).default(500),

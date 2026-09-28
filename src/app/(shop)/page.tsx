@@ -69,9 +69,17 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         {featured.length > 0 && (
           <QuadCard title="Les incontournables" products={featured.slice(0, 4)} href="/produits" more="Voir toute la boutique" />
         )}
-        {quads.slice(0, 2).map(({ c, list }) => (
+        {quads.slice(0, 1).map(({ c, list }) => (
           <QuadCard key={c.id} title={c.name} products={list} href={`/produits?categorie=${c.slug}`} more="Voir plus" />
         ))}
+        <section className="flex flex-col gap-3 bg-gradient-to-br from-[#fff4d6] to-[#c9f2ec] p-4">
+          <h2 className="text-lg font-extrabold">Que cuisinez-vous cette semaine ?</h2>
+          <p className="text-sm text-[#565959]">
+            « Poulet yassa pour 6 », « mafé », « zobo » : l&apos;assistant remplit votre panier avec les bons produits.
+          </p>
+          <span className="text-6xl" aria-hidden>🍲</span>
+          <Link href="/assistant" className="az-yellow mt-auto">Essayer l&apos;assistant cuisine</Link>
+        </section>
         <section className="flex flex-col gap-3 bg-gradient-to-br from-[#e3f4ff] to-[#fdeef4] p-4">
           <h2 className="text-lg font-extrabold">Vous ne trouvez pas un produit ?</h2>
           <p className="text-sm text-[#565959]">
@@ -98,9 +106,9 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           </section>
         )}
 
-        {quads.length > 2 && (
+        {quads.length > 1 && (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {quads.slice(2).map(({ c, list }) => (
+            {quads.slice(1).map(({ c, list }) => (
               <QuadCard key={c.id} title={c.name} products={list} href={`/produits?categorie=${c.slug}`} more="Voir plus" />
             ))}
           </div>

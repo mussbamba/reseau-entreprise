@@ -10,6 +10,7 @@ type Product = {
   name: string;
   description: string;
   origin: string;
+  aliases: string;
   priceCents: number;
   costCents: number;
   weightGrams: number;
@@ -68,6 +69,20 @@ export function ProductForm({
         </select>
       </div>
       <input type="hidden" name="origin" value={p?.origin ?? ""} />
+      <div className="sm:col-span-2">
+        <label className="label" htmlFor="aliases">Autres noms (séparés par des virgules)</label>
+        <input
+          id="aliases"
+          name="aliases"
+          maxLength={300}
+          defaultValue={p?.aliases}
+          className="input"
+          placeholder="garri, gali, eba, cassava flakes"
+        />
+        <p className="mt-1 text-xs text-slate-500">
+          Noms locaux, en anglais ou fautes courantes : le client trouve le produit en les tapant dans la recherche.
+        </p>
+      </div>
       <div>
         <label className="label" htmlFor="weightGrams">Poids (grammes)</label>
         <input id="weightGrams" name="weightGrams" type="number" min={0} defaultValue={p?.weightGrams ?? 500} className="input" />
