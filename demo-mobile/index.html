@@ -538,6 +538,12 @@ let S;
 try { S = JSON.parse(localStorage.getItem(KEY)) || fresh(); } catch { S = fresh(); }
 if(!S.products||!S.orders) S = fresh();
 if(!S.users){ S.users=[]; S.user=null; }
+// Lien direct vers l'espace vendeur : …#vendeur (et #client pour la boutique)
+try {
+  const h = location.hash.replace("#","");
+  if(h==="vendeur" && S.mode!=="admin"){ S.mode="admin"; S.view="a-orders"; S.params={}; }
+  if(h==="client" && S.mode!=="client"){ S.mode="client"; S.view="home"; S.params={}; }
+} catch {}
 if(!S.custom){ S.custom=[]; S.nextProdId=100; }
 if(!S.requests){ S.requests=[sampleRequest()]; S.nextReqId=2; }
 let PHOTOS = {};
