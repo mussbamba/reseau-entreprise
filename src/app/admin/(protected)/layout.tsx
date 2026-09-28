@@ -10,6 +10,7 @@ const links = [
   ["/admin", "📋 Commandes"],
   ["/admin/liste-achat", "🛍️ Liste d'achat"],
   ["/admin/demandes", "✨ Demandes"],
+  ["/admin/clients", "👤 Clients"],
   ["/admin/produits", "🏷️ Produits"],
   ["/admin/boutiques", "🏪 Boutiques & catégories"],
 ];
