@@ -7,12 +7,19 @@ partenaires, puis vous expédiez.
 vous *encaissez seulement le montant réel* après vos achats. Les articles introuvables ne sont
 jamais facturés et vous n'avez pas de remboursement à gérer.
 
+## Mise en ligne gratuite
+
+Suivez **[DEPLOIEMENT.md](./DEPLOIEMENT.md)** : base Neon (PostgreSQL gratuit) + hébergement Vercel.
+
 ## Démarrer en local
+
+La base de données est **PostgreSQL**. Le plus simple : créez une base gratuite sur Neon (voir
+DEPLOIEMENT.md, étape 1), ou utilisez un PostgreSQL installé sur votre ordinateur.
 
 ```bash
 npm install
-cp .env.example .env      # puis modifiez ADMIN_PASSWORD et AUTH_SECRET
-npm run setup             # crée la base SQLite + données d'exemple
+cp .env.example .env      # puis renseignez DATABASE_URL, DIRECT_URL, ADMIN_PASSWORD, AUTH_SECRET
+npm run setup             # crée les tables + données d'exemple
 npm run dev               # http://localhost:3000
 ```
 
@@ -34,8 +41,8 @@ s'affichent dans la console. Vous pouvez donc tester tout le parcours tout de su
    npm run dev
    ```
 
-   Sous Windows, avant `npm run setup`, créez le fichier `.env` avec `copy .env.example .env`
-   (macOS/Linux : `cp .env.example .env`).
+   Avant `npm run setup`, créez le fichier `.env` (Windows : `copy .env.example .env`,
+   macOS/Linux : `cp .env.example .env`) et collez-y vos chaînes de connexion Neon.
 4. Ouvrez http://localhost:3000 dans votre navigateur.
 
 ### Démo mobile 3D
@@ -92,7 +99,8 @@ Si le produit est introuvable, le bouton « Introuvable » prévient le client p
   modifier son nom et son téléphone, de **bloquer / débloquer** son compte (la session est coupée
   aussitôt), de **réinitialiser son mot de passe** (mot de passe temporaire affiché une seule fois)
   et de **supprimer** le compte (les commandes sont conservées). Toute la base de données avec
-  `npm run db:studio` (ouvre Prisma Studio sur http://localhost:5555, table `User`).
+  `npm run db:studio` (Prisma Studio sur http://localhost:5555, table `User`) ou depuis la
+  console Neon (*Tables*).
 - À prévoir avant la production : vérification du courriel, mot de passe oublié, limite de
   tentatives de connexion.
 
@@ -118,9 +126,9 @@ TPS ailleurs.
    son secret dans `STRIPE_WEBHOOK_SECRET`.
 2. **Courriels** : compte [Resend](https://resend.com), domaine vérifié, `RESEND_API_KEY` et
    `EMAIL_FROM`. `ADMIN_EMAIL` reçoit une alerte à chaque nouvelle commande.
-3. **Base de données** : pour Vercel, passez à PostgreSQL (Supabase, Neon…). Dans
-   `prisma/schema.prisma`, mettez `provider = "postgresql"` et `DATABASE_URL`, puis ajoutez
-   `mode: "insensitive"` aux recherches `contains` de `src/app/(shop)/produits/page.tsx`.
+3. **Base de données** : PostgreSQL (Neon). Les migrations sont dans `prisma/migrations` et
+   s'appliquent automatiquement au build (`prisma migrate deploy`). Pour modifier le schéma :
+   `npm run db:migrate`.
 4. Remplacez les textes modèles de `/conditions` et `/confidentialite` (responsable Loi 25, etc.)
    et faites-les relire.
 

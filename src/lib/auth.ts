@@ -9,7 +9,15 @@ const MAX_AGE = 60 * 60 * 24 * 14; // 14 jours
 function secret(): string {
   const s = process.env.AUTH_SECRET;
   if (!s) throw new Error("AUTH_SECRET manquant");
+  if (process.env.NODE_ENV === "production" && s.length < 32)
+    throw new Error("AUTH_SECRET trop court : utilisez au moins 32 caractères aléatoires en production.");
   return s;
+}
+
+/** En production, on refuse le mot de passe d'exemple et les mots de passe trop courts. */
+function adminPasswordIsSafe(p: string): boolean {
+  if (process.env.NODE_ENV !== "production") return true;
+  return p.length >= 12 && p !== "changez-moi";
 }
 
 function sign(value: string): string {
@@ -24,7 +32,7 @@ function safeEqual(a: string, b: string): boolean {
 
 export function checkPassword(password: string): boolean {
   const expected = process.env.ADMIN_PASSWORD;
-  if (!expected) return false;
+  if (!expected || !adminPasswordIsSafe(expected)) return false;
   return safeEqual(sign(password), sign(expected));
 }
 

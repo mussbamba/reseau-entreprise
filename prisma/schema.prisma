@@ -1,8 +1,10 @@
-// SQLite en développement. Pour la production, passer à PostgreSQL :
-// provider = "postgresql" et DATABASE_URL="postgresql://..."
+// PostgreSQL (Neon gratuit en production, ou n'importe quel PostgreSQL en local).
+// DATABASE_URL : connexion « poolée » utilisée par l'application.
+// DIRECT_URL   : connexion directe utilisée pour les migrations.
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 generator client {
@@ -126,7 +128,7 @@ model ProductRequest {
   details       String   @default("")
   quantity      Int      @default(1)
   maxPriceCents Int?
-  photo         String   @default("") // petite image JPEG en data URL, réduite dans le navigateur
+  photo         String   @default("") @db.Text // petite image JPEG en data URL, réduite dans le navigateur
   userId        Int?
   user          User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   customerName  String

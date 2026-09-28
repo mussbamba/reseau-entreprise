@@ -10,6 +10,8 @@ const MAX_AGE = 60 * 60 * 24 * 30; // 30 jours
 function secret(): string {
   const s = process.env.AUTH_SECRET;
   if (!s) throw new Error("AUTH_SECRET manquant");
+  if (process.env.NODE_ENV === "production" && s.length < 32)
+    throw new Error("AUTH_SECRET trop court : utilisez au moins 32 caractères aléatoires en production.");
   return s;
 }
 

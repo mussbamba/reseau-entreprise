@@ -21,7 +21,7 @@ export default async function AdminClientsPage({ searchParams }: { searchParams:
       },
       _count: { select: { requests: true } },
     },
-    where: q ? { OR: [{ name: { contains: q } }, { email: { contains: q } }] } : undefined,
+    where: q ? { OR: [{ name: { contains: q, mode: "insensitive" } }, { email: { contains: q, mode: "insensitive" } }] } : undefined,
     orderBy: { createdAt: "desc" },
     take: 500,
   });

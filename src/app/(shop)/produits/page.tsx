@@ -15,7 +15,12 @@ export default async function ProductsPage({
   const { categorie, q } = await searchParams;
   const where: Prisma.ProductWhereInput = { active: true, listed: true };
   if (categorie) where.category = { slug: categorie };
-  if (q) where.OR = [{ name: { contains: q } }, { origin: { contains: q } }, { description: { contains: q } }];
+  if (q)
+    where.OR = [
+      { name: { contains: q, mode: "insensitive" } },
+      { origin: { contains: q, mode: "insensitive" } },
+      { description: { contains: q, mode: "insensitive" } },
+    ];
 
   const [categories, products] = await Promise.all([
     db.category.findMany({ where: { slug: { not: SPECIAL_CATEGORY.slug } }, orderBy: { position: "asc" } }),
