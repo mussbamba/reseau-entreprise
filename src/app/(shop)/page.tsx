@@ -27,7 +27,8 @@ function QuadCard({ title, products, href, more }: { title: string; products: P[
   );
 }
 
-export default async function HomePage() {
+export default async function HomePage({ searchParams }: { searchParams: Promise<{ "compte-supprime"?: string }> }) {
+  const deleted = (await searchParams)["compte-supprime"];
   const [categories, products] = await Promise.all([
     db.category.findMany({ where: { slug: { not: SPECIAL_CATEGORY.slug } }, orderBy: { position: "asc" } }),
     db.product.findMany({ where: { active: true, listed: true }, include: { category: true }, orderBy: { name: "asc" } }),
@@ -38,6 +39,9 @@ export default async function HomePage() {
 
   return (
     <div className="-mx-4 -mt-6">
+      {deleted && (
+        <p className="bg-[#f0fdf6] px-4 py-3 text-center text-sm text-[#067d62]">Votre compte a été supprimé. Merci d&apos;avoir magasiné avec nous.</p>
+      )}
       {/* Bannière qui se fond dans le fond gris */}
       <section className="relative h-[300px] overflow-hidden bg-gradient-to-br from-[#c9f2ec] via-[#e3f4ff] to-[#fde8ef] sm:h-[340px]">
         <div className="mx-auto flex h-full max-w-6xl items-start justify-between gap-6 px-6 pt-8">

@@ -821,13 +821,13 @@ const ICONS = {
 
 // ---------- Rendu ----------
 const main = document.getElementById("main");
-const TITLES = {product:"",cart:"Mon panier",checkout:"Commande",order:"Suivi",orders:"Mes commandes","a-order":"Commande","a-orders":"Commandes","a-list":"Liste d'achat","a-products":"","a-product":"","a-stores":"Boutiques",request:"",requests:"",account:"",register:"","a-clients":"","a-client":"Client","a-requests":"","a-request":"Demande"};
+const TITLES = {product:"",cart:"Mon panier",checkout:"Commande",order:"Suivi",orders:"Mes commandes","a-order":"Commande","a-orders":"Commandes","a-list":"Liste d'achat","a-products":"","a-product":"","a-stores":"Boutiques",request:"",requests:"",account:"",register:"",profile:"","a-clients":"","a-client":"Client","a-requests":"","a-request":"Demande"};
 const ROOTS = ["a-clients","home","shop","cart","account","a-orders","a-list","a-products","a-requests"];
 
 function render(){
   unmountStage();
   const isRoot = ROOTS.includes(S.view);
-  const showBrand = S.view==="home"||S.view==="shop"||S.view==="a-orders"||(S.mode==="client"&&["cart","orders","account","register"].includes(S.view));
+  const showBrand = S.view==="home"||S.view==="shop"||S.view==="a-orders"||(S.mode==="client"&&["cart","orders","account","register","profile"].includes(S.view));
   document.getElementById("topbar").innerHTML = `
     ${isRoot?"":`<button class="back" data-a="back" aria-label="Retour">${ICONS.chevron}</button>`}
     ${showBrand?`<span class="brand">${LOGO}<span>Saveurs <b>d'Afrique</b></span></span>`:`<h1 style="font-size:19px">${esc(TITLES[S.view]||"")}</h1>`}
@@ -851,7 +851,7 @@ function render(){
   const tabs = S.mode==="client"
     ? [["home","Accueil","home"],["shop","Boutique","shop"],["cart","Panier","cart"],["account",S.user?S.user.name.split(" ")[0]:"Vous","user"]]
     : [["a-orders","Commandes","box"],["a-list","Achats","list"],["a-requests","Demandes","spark"],["a-products","Produits","tag"],["a-clients","Clients","user"]];
-  const active = {product:"shop",checkout:"cart",order:"account",orders:"account",request:"account",requests:"account",register:"account","a-order":"a-orders","a-request":"a-requests","a-stores":"a-products","a-product":"a-products","a-client":"a-clients"}[S.view] || S.view;
+  const active = {product:"shop",checkout:"cart",order:"account",orders:"account",profile:"account",request:"account",requests:"account",register:"account","a-order":"a-orders","a-request":"a-requests","a-stores":"a-products","a-product":"a-products","a-client":"a-clients"}[S.view] || S.view;
   const newReqs = S.requests.filter(r=>r.status==="PENDING").length;
   const quoted = S.requests.filter(r=>isMine(r)&&r.status==="QUOTED").length;
   const toHandle = S.orders.filter(o=>["NEW","SHOPPING","PURCHASED"].includes(o.status)).length;
@@ -944,6 +944,45 @@ async function hashPw(email, pw){
   const data = new TextEncoder().encode(`saveurs:${email}:${pw}`);
   try { const h = await crypto.subtle.digest("SHA-256", data); return [...new Uint8Array(h)].map(b=>b.toString(16).padStart(2,"0")).join(""); }
   catch { let h = 0; for(const b of data) h = (h*31 + b) >>> 0; return "x"+h.toString(16); }
+}
+function me(){ return S.users.find(x=>S.user && x.email===S.user.email) || {name:S.user?.name||"",email:S.user?.email||""}; }
+async function submitProfile(form){
+  const d = Object.fromEntries(new FormData(form)), u = me(), msg = {};
+  const done = (key, ok, text, keep) => { msg[key] = {ok, text}; S.params = {msg, ...(keep||{})}; save(); render(); };
+  if(form.id==="pf-info"){
+    const postal = String(d.postal||"").toUpperCase().replace(/\s/g,"");
+    if(String(d.name||"").trim().length<2) return done("info", false, "Indiquez votre nom.", {draft:d});
+    if(postal && !/^[A-Z]\d[A-Z]\d[A-Z]\d$/.test(postal)) return done("info", false, "Code postal invalide (ex. H2X 1Y4).", {draft:d});
+    Object.assign(u, {name:String(d.name).trim(), phone:String(d.phone||"").trim(), address1:String(d.address1||"").trim(), city:String(d.city||"").trim(),
+      postal: postal ? postal.slice(0,3)+" "+postal.slice(3) : "", province:d.province});
+    S.user.name = u.name;
+    return done("info", true, "Vos informations ont été enregistrées.");
+  }
+  if(form.id==="pf-email"){
+    const email = String(d.email||"").trim().toLowerCase(), keep = {newEmail:email};
+    if(!/^\S+@\S+\.\S+$/.test(email)) return done("email", false, "Indiquez une adresse courriel valide.", keep);
+    if(await hashPw(u.email, String(d.password||"")) !== u.hash) return done("email", false, "Mot de passe incorrect.", keep);
+    if(email===u.email) return done("email", false, "C'est déjà votre adresse courriel.", keep);
+    if(S.users.some(x=>x.email===email)) return done("email", false, "Cette adresse est déjà utilisée par un autre compte.", keep);
+    const old = u.email;
+    u.hash = await hashPw(email, String(d.password)); u.email = email; S.user.email = email;
+    // les commandes et demandes suivent le compte
+    S.orders.forEach(o=>{ if(o.owner===old) o.owner=email; }); S.requests.forEach(r=>{ if(r.owner===old) r.owner=email; });
+    return done("email", true, `Votre courriel est maintenant ${email}.`);
+  }
+  if(form.id==="pf-pass"){
+    if(await hashPw(u.email, String(d.current||"")) !== u.hash) return done("pass", false, "Mot de passe actuel incorrect.");
+    if(String(d.next||"").length<8) return done("pass", false, "Le nouveau mot de passe doit contenir au moins 8 caractères.");
+    if(d.next!==d.confirm) return done("pass", false, "Les deux nouveaux mots de passe ne correspondent pas.");
+    u.hash = await hashPw(u.email, String(d.next));
+    return done("pass", true, "Votre mot de passe a été changé.");
+  }
+  if(form.id==="pf-del"){
+    if(!d.confirm) return done("del", false, "Cochez la case pour confirmer.");
+    if(await hashPw(u.email, String(d.password||"")) !== u.hash) return done("del", false, "Mot de passe incorrect.");
+    S.users = S.users.filter(x=>x.email!==u.email); S.user = null; history_.length = 0; save(); go("home",{},false);
+    toast("Votre compte a été supprimé","Merci d'avoir magasiné avec nous.","👋");
+  }
 }
 async function submitAuth(form){
   const d = Object.fromEntries(new FormData(form)), kind = form.dataset.kind, err = document.getElementById("authErr");
@@ -1108,7 +1147,7 @@ const VIEWS = {
     const lines = cartLines(); if(!lines.length) return VIEWS.cart();
     // Il faut être connecté pour commander : connexion puis retour ici, panier conservé
     if(!S.user){ S.afterLogin = "checkout"; return `<div class="note" style="background:#fff;border:1px solid #d5d9d9;margin-top:12px">🔒 <b>Identifiez-vous pour passer votre commande.</b> Votre panier est conservé.</div>` + authView("login"); }
-    const c = {...(S.lastCustomer || {name:"",email:"",phone:"",address:"",city:"",province:"QC",postal:""}), ...(S.user?{name:S.user.name,email:S.user.email}:{})};
+    const c = {...(S.lastCustomer || {name:"",email:"",phone:"",address:"",city:"",province:"QC",postal:""}), ...(S.user?(()=>{ const u=me(); return {name:u.name,email:u.email,...(u.phone?{phone:u.phone}:{}),...(u.address1?{address:u.address1,city:u.city,postal:u.postal,province:u.province}:{})}; })():{})};
     const prov = S.params.province || c.province || "QC";
     const t = totals(lines.map(l=>({price:l.p.price,qty:l.qty})),prov);
     return `
@@ -1145,6 +1184,11 @@ const VIEWS = {
         <h1 style="font-size:24px;font-weight:500">Bonjour, <b>${esc(S.user.name.split(" ")[0])}</b></h1>
         <span class="az-free">${esc(S.user.email)}</span>
       </section>
+      <section class="az-card" style="margin-inline:-12px;flex-direction:row;align-items:center;gap:12px">
+        <span style="width:46px;height:46px;border-radius:50%;background:#e3f4ff;color:#007185;display:grid;place-items:center;font-weight:800;font-size:20px;flex:none">${esc(S.user.name.charAt(0).toUpperCase())}</span>
+        <div style="flex:1;min-width:0"><b>Votre profil</b><div class="az-free">${(()=>{ const u=me(); return `${esc(u.phone||"Téléphone non renseigné")} · ${u.address1?esc(`${u.address1}, ${u.city} ${u.postal}`):"Aucune adresse enregistrée"}`; })()}</div></div>
+        <button class="az-btn w sm" style="width:auto" data-a="go" data-v="profile">Modifier</button>
+      </section>
       <section class="az-card" style="margin-inline:-12px">
         <h2>Vos commandes</h2>
         ${orders.length?orders.slice(0,5).map(o=>`<button class="oitem" data-a="order" data-id="${o.id}" style="box-shadow:none"><div class="line"><b>${num(o.id)}</b>${pill(o.status)}</div><span class="small">${new Date(o.createdAt).toLocaleDateString("fr-CA",{dateStyle:"long"})} · ${o.items.reduce((s,i)=>s+i.qty,0)} article(s) · ${money(o.final??o.total)}</span></button>`).join(""):`<span class="az-free">Aucune commande pour l'instant.</span><button class="az-btn y" data-a="tab" data-v="shop">Commencer vos achats</button>`}
@@ -1158,6 +1202,54 @@ const VIEWS = {
       <button class="az-btn w" data-a="logout">Se déconnecter</button>`;
   },
   register(){ return authView("register"); },
+  profile(){
+    if(!S.user) return authView("login");
+    const u = me(), m = S.params.msg || {};
+    const note = k => m[k] ? `<p class="note" style="border:1px solid ${m[k].ok?"#067d62":"#c40000"};color:${m[k].ok?"#067d62":"#c40000"};background:${m[k].ok?"#f0fdf6":"#fff5f5"}">${m[k].ok?"✓ ":""}${esc(m[k].text)}</p>` : "";
+    const d = S.params.draft || {};
+    const v = k => esc(d[k] ?? u[k] ?? "");
+    return `
+      <section class="az-cart-top"><span class="az-free"><button class="az-more" data-a="tab" data-v="account" style="display:inline">Votre compte</button> › Profil</span><h1 style="font-size:24px;font-weight:500">Votre profil</h1></section>
+      <form id="pf-info" class="az-card" style="margin-inline:-12px" novalidate>
+        <h2>Informations personnelles</h2>
+        <div class="field"><label for="pi-name">Nom</label><input id="pi-name" name="name" autocomplete="name" value="${v("name")}"></div>
+        <div class="field"><label for="pi-phone">Téléphone</label><input id="pi-phone" name="phone" type="tel" autocomplete="tel" value="${v("phone")}" placeholder="Facultatif"></div>
+        <h2 style="font-size:16px;margin-top:6px">Adresse de livraison par défaut</h2>
+        <span class="az-free" style="margin-top:-6px">Elle pré-remplit vos prochaines commandes.</span>
+        <div class="field"><label for="pi-a1">Adresse</label><input id="pi-a1" name="address1" autocomplete="address-line1" value="${v("address1")}"></div>
+        <div class="two">
+          <div class="field"><label for="pi-city">Ville</label><input id="pi-city" name="city" autocomplete="address-level2" value="${v("city")}"></div>
+          <div class="field"><label for="pi-postal">Code postal</label><input id="pi-postal" name="postal" autocomplete="postal-code" value="${v("postal")}" placeholder="H2X 1Y4"></div>
+        </div>
+        <div class="field"><label for="pi-prov">Province</label><select id="pi-prov" name="province">${Object.entries(PROVINCES).map(([k,n])=>`<option value="${k}" ${k===(d.province||u.province||"QC")?"selected":""}>${n}</option>`).join("")}</select></div>
+        ${note("info")}
+        <button class="az-btn y">Enregistrer</button>
+      </form>
+      <form id="pf-email" class="az-card" style="margin-inline:-12px" novalidate>
+        <h2>Adresse courriel</h2>
+        <span class="az-free">Actuelle : <b style="color:var(--az-ink)">${esc(u.email)}</b></span>
+        <div class="field"><label for="pe-email">Nouvelle adresse courriel</label><input id="pe-email" name="email" type="email" autocomplete="email" value="${esc(S.params.newEmail||"")}"></div>
+        <div class="field"><label for="pe-pass">Mot de passe actuel</label><input id="pe-pass" name="password" type="password" autocomplete="current-password"></div>
+        ${note("email")}
+        <button class="az-btn w">Changer le courriel</button>
+      </form>
+      <form id="pf-pass" class="az-card" style="margin-inline:-12px" novalidate>
+        <h2>Mot de passe</h2>
+        <div class="field"><label for="pp-cur">Mot de passe actuel</label><input id="pp-cur" name="current" type="password" autocomplete="current-password"></div>
+        <div class="field"><label for="pp-new">Nouveau mot de passe</label><input id="pp-new" name="next" type="password" autocomplete="new-password" placeholder="Au moins 8 caractères"></div>
+        <div class="field"><label for="pp-conf">Confirmez le nouveau mot de passe</label><input id="pp-conf" name="confirm" type="password" autocomplete="new-password"></div>
+        ${note("pass")}
+        <button class="az-btn w">Changer le mot de passe</button>
+      </form>
+      <form id="pf-del" class="az-card" style="margin-inline:-12px" novalidate>
+        <h2 style="color:#c40000">Supprimer mon compte</h2>
+        <span class="az-free">Votre compte et vos informations seront supprimés. Vos commandes passées sont conservées pour nos obligations fiscales.</span>
+        <div class="field"><label for="pd-pass">Mot de passe</label><input id="pd-pass" name="password" type="password" autocomplete="current-password"></div>
+        <label class="row" style="gap:8px;font-size:14px"><input type="checkbox" name="confirm"> Je veux supprimer mon compte définitivement</label>
+        ${note("del")}
+        <button class="btn btn-bad">Supprimer mon compte</button>
+      </form>`;
+  },
   orders(){
     const mine = S.orders.filter(isMine).sort((a,b)=>b.createdAt-a.createdAt);
     const myReqs = S.requests.filter(isMine);
@@ -1668,6 +1760,7 @@ function placeOrder(){
   S.lastCustomer = customer;
   const items = cartLines().map(({p,qty})=>({pid:p.id,name:p.name,store:p.store,price:p.price,cost:p.cost,qty,status:"PENDING"}));
   const t = totals(items,customer.province);
+  const prof = me(); if(!prof.address1){ Object.assign(prof,{address1:customer.address,city:customer.city,postal:customer.postal,province:customer.province,phone:prof.phone||customer.phone}); }
   const o = {owner:S.user?S.user.email:null,id:S.nextId++,status:"NEW",payment:"Autorisé (non débité)",customer,items,...t,final:null,carrier:"",tracking:"",createdAt:Date.now(),events:[],mine:true};
   log(o,`Paiement autorisé : ${money(t.total)}`);
   items.forEach(i=>{ if(String(i.pid).startsWith("r")){ const r=S.requests.find(x=>"r"+x.id===i.pid); if(r) r.status="ORDERED"; } });
@@ -1683,6 +1776,7 @@ document.addEventListener("input", e=>{
 document.addEventListener("submit", e=>{
   e.preventDefault();
   if(e.target.id==="authForm"){ submitAuth(e.target); return; }
+  if(/^pf-/.test(e.target.id)){ submitProfile(e.target); return; }
   if(e.target.id==="homeSearch"){ const q=document.getElementById("hq").value.trim(); document.getElementById("hq").blur(); go("shop",{cat:"",q}, S.view!=="shop"); }
 });
 

@@ -146,6 +146,12 @@ model User {
   email        String   @unique
   name         String
   phone        String   @default("")
+  // Adresse de livraison par défaut (pré-remplit la commande)
+  address1     String   @default("")
+  address2     String   @default("")
+  city         String   @default("")
+  province     String   @default("QC")
+  postalCode   String   @default("")
   passwordHash String
   disabled     Boolean  @default(false) // compte bloqué par l'administrateur
   orders       Order[]

@@ -33,6 +33,20 @@ export default async function AccountPage() {
         </form>
       </section>
 
+      <section className="flex flex-wrap items-center gap-3 bg-white p-4 sm:rounded-md">
+        <span className="grid h-12 w-12 place-items-center rounded-full bg-[#e3f4ff] text-xl font-bold text-[#007185]">
+          {user.name.charAt(0).toUpperCase()}
+        </span>
+        <div className="min-w-0 flex-1 text-sm">
+          <p className="font-bold">Votre profil</p>
+          <p className="text-[#565959]">
+            {user.phone || "Téléphone non renseigné"} ·{" "}
+            {user.address1 ? `${user.address1}, ${user.city} ${user.postalCode}` : "Aucune adresse enregistrée"}
+          </p>
+        </div>
+        <Link href="/compte/profil" className="az-white">Voir et modifier</Link>
+      </section>
+
       <section className="bg-white p-4 sm:rounded-md">
         <h2 className="text-lg font-bold">Vos commandes</h2>
         {orders.length === 0 ? (

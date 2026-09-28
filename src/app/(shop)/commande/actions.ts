@@ -92,6 +92,21 @@ export async function placeOrder(_prev: CheckoutState, formData: FormData): Prom
     },
   });
 
+  // Première commande : l'adresse devient l'adresse par défaut du profil
+  if (!user.address1) {
+    await db.user.update({
+      where: { id: user.id },
+      data: {
+        address1: customer.address1,
+        address2: customer.address2,
+        city: customer.city,
+        province: customer.province,
+        postalCode: customer.postalCode,
+        phone: user.phone || customer.phone,
+      },
+    });
+  }
+
   // Les demandes spéciales dont le produit est commandé passent à « Commandé »
   await db.productRequest.updateMany({
     where: { productId: { in: lines.map((l) => l.product.id) }, status: "QUOTED" },

@@ -15,10 +15,19 @@ export function CheckoutForm({
 }: {
   taxesEnabled: boolean;
   demoMode: boolean;
-  user: { name: string; email: string; phone: string };
+  user: {
+    name: string;
+    email: string;
+    phone: string;
+    address1: string;
+    address2: string;
+    city: string;
+    province: string;
+    postalCode: string;
+  };
 }) {
   const { lines, ready } = useCart();
-  const [province, setProvince] = useState("QC");
+  const [province, setProvince] = useState(user.province || "QC");
   const [state, action, pending] = useActionState<CheckoutState, FormData>(placeOrder, {});
 
   if (!ready) return null;
@@ -29,7 +38,14 @@ export function CheckoutForm({
       </p>
     );
 
-  const v: Record<string, string | undefined> = state.values ?? { name: user.name, phone: user.phone };
+  const v: Record<string, string | undefined> = state.values ?? {
+    name: user.name,
+    phone: user.phone,
+    address1: user.address1,
+    address2: user.address2,
+    city: user.city,
+    postalCode: user.postalCode,
+  };
   const totals = computeTotals(lines, province, taxesEnabled);
   const cart = JSON.stringify(lines.map((l) => ({ productId: l.productId, quantity: l.quantity })));
 

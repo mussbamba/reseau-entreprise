@@ -77,6 +77,9 @@ Si le produit est introuvable, le bouton « Introuvable » prévient le client p
 
 - `/connexion` pour s'identifier, `/inscription` pour créer un compte, `/compte` pour voir ses
   commandes et ses demandes spéciales, puis se déconnecter.
+- `/compte/profil` : le client modifie son nom, son téléphone et son adresse de livraison par
+  défaut (qui pré-remplit la commande), change son courriel ou son mot de passe (mot de passe
+  actuel exigé) et peut supprimer son compte (Loi 25 ; les commandes sont conservées).
 - Les mots de passe sont hachés avec scrypt et un sel unique. La session est un cookie signé
   (`AUTH_SECRET`) valable 30 jours.
 - **Il faut être connecté pour commander** : `/commande` renvoie vers `/connexion` (ou la création

@@ -59,7 +59,10 @@ export async function getCurrentUser() {
   if (Number(expires) < Date.now()) return null;
   const user = await db.user.findUnique({
     where: { id: Number(id) },
-    select: { id: true, email: true, name: true, phone: true, disabled: true },
+    select: {
+      id: true, email: true, name: true, phone: true, disabled: true,
+      address1: true, address2: true, city: true, province: true, postalCode: true,
+    },
   });
   // Un compte bloqué perd immédiatement sa session
   return user && !user.disabled ? user : null;

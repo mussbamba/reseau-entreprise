@@ -20,7 +20,16 @@ export default async function CheckoutPage({ searchParams }: { searchParams: Pro
       <CheckoutForm
         taxesEnabled={taxesEnabled()}
         demoMode={!stripeEnabled()}
-        user={{ name: user.name, email: user.email, phone: user.phone }}
+        user={{
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          address1: user.address1,
+          address2: user.address2,
+          city: user.city,
+          province: user.province,
+          postalCode: user.postalCode,
+        }}
       />
     </div>
   );
