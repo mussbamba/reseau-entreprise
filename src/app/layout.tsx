@@ -1,10 +1,23 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { SHOP } from "@/lib/config";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: { default: `${SHOP.name} | Produits africains au Québec`, template: `%s | ${SHOP.name}` },
   description: SHOP.tagline,
+  // iPhone : ouverture plein écran depuis l'écran d'accueil, avec l'icône de l'app
+  appleWebApp: { capable: true, title: "Saveurs", statusBarStyle: "default" },
+  icons: {
+    icon: [{ url: "/icons/icon-192.png", sizes: "192x192" }],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180" }],
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#82d8e3",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

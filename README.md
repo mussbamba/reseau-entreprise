@@ -45,9 +45,25 @@ s'affichent dans la console. Vous pouvez donc tester tout le parcours tout de su
    macOS/Linux : `cp .env.example .env`) et collez-y vos chaînes de connexion Neon.
 4. Ouvrez http://localhost:3000 dans votre navigateur.
 
+### Tester sur iPhone (ou Android) comme une application
+
+L'application est une **PWA** (application web installable) : icône sur l'écran d'accueil,
+ouverture en plein écran, barre d'onglets en bas.
+
+1. Ordinateur et téléphone sur le **même Wi-Fi**.
+2. Dans VS Code : `npm run telephone`. Un **QR code** et une adresse (ex. `http://192.168.1.20:3000`)
+   s'affichent.
+3. Sur l'iPhone : scannez le QR code avec l'appareil photo, ou tapez l'adresse dans **Safari**.
+4. Safari → bouton **Partager** ⬆️ → **Sur l'écran d'accueil** → **Ajouter**.
+5. Ouvrez **Saveurs** depuis l'écran d'accueil.
+
+Sous Windows, si le pare-feu demande l'autorisation pour Node.js, acceptez pour les **réseaux
+privés**. Une application native (.ipa, App Store) demanderait un compte Apple Developer (99 $ US/an)
+et un Mac ; la PWA couvre les tests et l'usage au quotidien.
+
 ### Démo mobile 3D
 
-`demo-mobile/index.html` est la maquette mobile interactive (produits en 3D, espace vendeur,
+`public/demo/index.html` est la maquette mobile interactive (aussi servie par l’app sur `/demo/index.html`) (produits en 3D, espace vendeur,
 demandes spéciales). Double-cliquez sur le fichier pour l'ouvrir dans votre navigateur (connexion
 Internet nécessaire pour charger la 3D et les polices). Elle fonctionne seule, sans serveur.
 
