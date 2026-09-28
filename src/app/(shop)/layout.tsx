@@ -3,8 +3,10 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { SPECIAL_CATEGORY } from "@/lib/config";
 import { db } from "@/lib/db";
+import { getCurrentUser } from "@/lib/customer-auth";
 
 export default async function ShopLayout({ children }: { children: React.ReactNode }) {
+  const user = await getCurrentUser();
   const categories = await db.category.findMany({
     where: { slug: { not: SPECIAL_CATEGORY.slug } },
     orderBy: { position: "asc" },
@@ -12,7 +14,7 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
   });
   return (
     <CartProvider>
-      <Header categories={categories} />
+      <Header categories={categories} userName={user?.name.split(" ")[0] ?? null} />
       <main className="mx-auto min-h-[60vh] max-w-6xl px-4 py-6">{children}</main>
       <Footer />
     </CartProvider>

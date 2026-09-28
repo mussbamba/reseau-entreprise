@@ -73,6 +73,18 @@ prix maximum et photo, tous facultatifs sauf le nom. Il reçoit un lien de suivi
 
 Si le produit est introuvable, le bouton « Introuvable » prévient le client par courriel.
 
+## Comptes clients
+
+- `/connexion` pour s'identifier, `/inscription` pour créer un compte, `/compte` pour voir ses
+  commandes et ses demandes spéciales, puis se déconnecter.
+- Les mots de passe sont hachés avec scrypt et un sel unique. La session est un cookie signé
+  (`AUTH_SECRET`) valable 30 jours.
+- Commander sans compte reste possible. Une commande ou une demande passée en étant connecté est
+  rattachée au compte ; pour la sécurité, rien n'est rattaché par simple correspondance de courriel
+  (le courriel n'est pas vérifié).
+- À prévoir avant la production : vérification du courriel, mot de passe oublié, limite de
+  tentatives de connexion.
+
 ## Réglages d'affaires
 
 Dans `src/lib/config.ts` : nom de la boutique, minimum de commande, tarifs de livraison, seuil de

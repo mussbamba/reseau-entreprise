@@ -537,6 +537,7 @@ function fresh(){ return {products:PRODUCTS.map(p=>({id:p.id,active:true})),cart
 let S;
 try { S = JSON.parse(localStorage.getItem(KEY)) || fresh(); } catch { S = fresh(); }
 if(!S.products||!S.orders) S = fresh();
+if(!S.users){ S.users=[]; S.user=null; }
 if(!S.custom){ S.custom=[]; S.nextProdId=100; }
 if(!S.requests){ S.requests=[sampleRequest()]; S.nextReqId=2; }
 let PHOTOS = {};
@@ -804,18 +805,19 @@ const ICONS = {
   store:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9 4.5 4h15L21 9M3 9v11h18V9M3 9h18"/><path d="M9 20v-6h6v6"/></svg>',
   chevron:'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>',
   spark:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6"/></svg>',
+  user:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>',
   search:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>'
 };
 
 // ---------- Rendu ----------
 const main = document.getElementById("main");
-const TITLES = {product:"",cart:"Mon panier",checkout:"Commande",order:"Suivi",orders:"Mes commandes","a-order":"Commande","a-orders":"Commandes","a-list":"Liste d'achat","a-products":"","a-product":"","a-stores":"Boutiques",request:"",requests:"","a-requests":"","a-request":"Demande"};
-const ROOTS = ["home","shop","cart","orders","a-orders","a-list","a-products","a-requests"];
+const TITLES = {product:"",cart:"Mon panier",checkout:"Commande",order:"Suivi",orders:"Mes commandes","a-order":"Commande","a-orders":"Commandes","a-list":"Liste d'achat","a-products":"","a-product":"","a-stores":"Boutiques",request:"",requests:"",account:"",register:"","a-requests":"","a-request":"Demande"};
+const ROOTS = ["home","shop","cart","account","a-orders","a-list","a-products","a-requests"];
 
 function render(){
   unmountStage();
   const isRoot = ROOTS.includes(S.view);
-  const showBrand = S.view==="home"||S.view==="shop"||S.view==="a-orders"||(S.mode==="client"&&["cart","orders"].includes(S.view));
+  const showBrand = S.view==="home"||S.view==="shop"||S.view==="a-orders"||(S.mode==="client"&&["cart","orders","account","register"].includes(S.view));
   document.getElementById("topbar").innerHTML = `
     ${isRoot?"":`<button class="back" data-a="back" aria-label="Retour">${ICONS.chevron}</button>`}
     ${showBrand?`<span class="brand">${LOGO}<span>Saveurs <b>d'Afrique</b></span></span>`:`<h1 style="font-size:19px">${esc(TITLES[S.view]||"")}</h1>`}
@@ -833,19 +835,19 @@ function render(){
     ts.innerHTML = `<form id="homeSearch" class="az-search" role="search"><input id="hq" type="search" enterkeyhint="search" value="${esc(S.view==="shop"?(S.params.q||""):"")}" placeholder="Rechercher sur Saveurs d'Afrique" aria-label="Rechercher un produit"><button aria-label="Rechercher">${ICONS.search}</button></form>`;
     let extra = document.getElementById("azExtra");
     if(!extra){ extra = document.createElement("div"); extra.id = "azExtra"; document.querySelector(".topbar").after(extra); }
-    extra.innerHTML = S.view==="home"||S.view==="shop" ? `<div class="az-deliver">${PIN}<span>Livraison au <b>Québec</b> · <b>GRATUITE</b> dès ${FREE_OVER/100} $</span></div>
+    extra.innerHTML = S.view==="home"||S.view==="shop" ? `<div class="az-deliver">${PIN}<span>Livraison au <b>Québec</b> · <b>GRATUITE</b> dès ${FREE_OVER/100} $</span><button data-a="tab" data-v="account" style="margin-left:auto;border:0;background:none;padding:0;font-weight:700;font-size:13px;white-space:nowrap">${S.user?`Bonjour, ${esc(S.user.name.split(" ")[0])}`:"S'identifier ›"}</button></div>
       <nav class="az-nav" aria-label="Rayons"><button data-a="shopcat" data-v="" aria-current="${curCat===""}">Tout</button>${CATS.map(c=>`<button data-a="shopcat" data-v="${c.id}" aria-current="${curCat===c.id}">${c.name}</button>`).join("")}<button data-a="newreq">Demande spéciale</button></nav>` : "";
   } else { const extra = document.getElementById("azExtra"); if(extra) extra.innerHTML = ""; }
   const tabs = S.mode==="client"
-    ? [["home","Accueil","home"],["shop","Boutique","shop"],["cart","Panier","cart"],["orders","Commandes","box"]]
+    ? [["home","Accueil","home"],["shop","Boutique","shop"],["cart","Panier","cart"],["account",S.user?S.user.name.split(" ")[0]:"Vous","user"]]
     : [["a-orders","Commandes","box"],["a-list","Liste d'achat","list"],["a-requests","Demandes","spark"],["a-products","Produits","tag"]];
-  const active = {product:"shop",checkout:"cart",order:"orders",request:"orders",requests:"orders","a-order":"a-orders","a-request":"a-requests","a-stores":"a-products","a-product":"a-products"}[S.view] || S.view;
+  const active = {product:"shop",checkout:"cart",order:"account",orders:"account",request:"account",requests:"account",register:"account","a-order":"a-orders","a-request":"a-requests","a-stores":"a-products","a-product":"a-products"}[S.view] || S.view;
   const newReqs = S.requests.filter(r=>r.status==="PENDING").length;
-  const quoted = S.requests.filter(r=>r.mine&&r.status==="QUOTED").length;
+  const quoted = S.requests.filter(r=>isMine(r)&&r.status==="QUOTED").length;
   const toHandle = S.orders.filter(o=>["NEW","SHOPPING","PURCHASED"].includes(o.status)).length;
   const toBuy = new Set(S.orders.filter(o=>["NEW","SHOPPING"].includes(o.status)).flatMap(o=>o.items.filter(i=>i.status==="PENDING").map(i=>i.pid))).size;
   document.getElementById("tabbar").innerHTML = tabs.map(([v,l,ic])=>{
-    const n = v==="cart"?cartCount():v==="a-orders"?toHandle:v==="a-list"?toBuy:v==="a-requests"?newReqs:v==="orders"?quoted:0;
+    const n = v==="cart"?cartCount():v==="a-orders"?toHandle:v==="a-list"?toBuy:v==="a-requests"?newReqs:v==="account"?quoted:0;
     return `<button class="tab" data-a="tab" data-v="${v}" ${active===v?'aria-current="page"':""}>${ICONS[ic]}${l}${n?`<span class="badge">${n}</span>`:""}</button>`;
   }).join("");
   const fn = VIEWS[S.view] || VIEWS.home;
@@ -904,6 +906,54 @@ function productCard(p,i){
       <span class="pmeta"><b>Acheté pour vous</b></span>
       <button class="addbar" data-a="add" data-id="${p.id}" aria-label="Ajouter ${esc(p.name)} au panier">Ajouter</button>
     </div></article>`;
+}
+function isMine(x){ return x.mine && (S.user ? x.owner===S.user.email : !x.owner); }
+function authView(kind){
+  const d = S.params.draft || {};
+  const login = kind==="login";
+  return `
+    <section class="az-cart-top" style="align-items:stretch">
+      <div style="text-align:center">${LOGO.replace('aria-hidden="true"','aria-hidden="true" width="44" height="44"')}</div>
+      <h1 style="font-size:24px;font-weight:500">${login?"S'identifier":"Créer un compte"}</h1>
+      <form id="authForm" data-kind="${kind}" novalidate style="display:flex;flex-direction:column;gap:12px">
+        ${login?"":`<div class="field"><label for="u-name">Votre nom</label><input id="u-name" name="name" autocomplete="name" value="${esc(d.name||"")}" placeholder="Prénom et nom"></div>`}
+        <div class="field"><label for="u-email">Adresse courriel</label><input id="u-email" name="email" type="email" autocomplete="email" value="${esc(d.email||"")}"></div>
+        <div class="field"><label for="u-pass">Mot de passe</label><input id="u-pass" name="password" type="password" autocomplete="${login?"current-password":"new-password"}" ${login?"":'placeholder="Au moins 8 caractères"'}></div>
+        ${login?"":`<div class="field"><label for="u-pass2">Entrez à nouveau le mot de passe</label><input id="u-pass2" name="confirm" type="password" autocomplete="new-password"></div>`}
+        <p id="authErr" class="note" style="border:1px solid #c40000;color:#c40000;background:#fff5f5" hidden></p>
+        <button class="az-btn y">${login?"Se connecter":"Créer votre compte"}</button>
+      </form>
+      <span class="az-free" style="font-size:11.5px">Démo : le compte est enregistré seulement sur ce téléphone.</span>
+    </section>
+    ${login?`<div style="display:flex;align-items:center;gap:10px;color:var(--az-muted);font-size:12px"><span style="flex:1;height:1px;background:#d5d9d9"></span>Nouveau client ?<span style="flex:1;height:1px;background:#d5d9d9"></span></div>
+      <button class="az-btn w" data-a="go" data-v="register">Créer votre compte Saveurs d'Afrique</button>`
+    :`<span class="az-free" style="text-align:center">Vous avez déjà un compte ? <button class="az-more" data-a="tab" data-v="account" style="display:inline">S'identifier ›</button></span>`}`;
+}
+async function hashPw(email, pw){
+  const data = new TextEncoder().encode(`saveurs:${email}:${pw}`);
+  try { const h = await crypto.subtle.digest("SHA-256", data); return [...new Uint8Array(h)].map(b=>b.toString(16).padStart(2,"0")).join(""); }
+  catch { let h = 0; for(const b of data) h = (h*31 + b) >>> 0; return "x"+h.toString(16); }
+}
+async function submitAuth(form){
+  const d = Object.fromEntries(new FormData(form)), kind = form.dataset.kind, err = document.getElementById("authErr");
+  const email = String(d.email||"").trim().toLowerCase();
+  const fail = m => { err.textContent = m; err.hidden = false; S.params.draft = {name:d.name||"", email}; };
+  if(!/^\S+@\S+\.\S+$/.test(email)) return fail("Indiquez une adresse courriel valide.");
+  const hash = await hashPw(email, String(d.password||""));
+  if(kind==="login"){
+    const u = S.users.find(x=>x.email===email);
+    if(!u || u.hash!==hash) return fail("Courriel ou mot de passe incorrect.");
+    S.user = {name:u.name, email:u.email};
+  } else {
+    if(String(d.name||"").trim().length<2) return fail("Indiquez votre nom.");
+    if(String(d.password||"").length<8) return fail("Le mot de passe doit contenir au moins 8 caractères.");
+    if(d.password!==d.confirm) return fail("Les deux mots de passe ne correspondent pas.");
+    if(S.users.some(x=>x.email===email)) return fail("Un compte existe déjà avec ce courriel. Identifiez-vous.");
+    S.users.push({name:String(d.name).trim(), email, hash});
+    S.user = {name:String(d.name).trim(), email};
+  }
+  history_.length = 0; save(); go("account",{},false);
+  toast(`Bonjour, ${S.user.name.split(" ")[0]} !`, kind==="login"?"Vous êtes connecté.":"Votre compte est créé.", "👋");
 }
 function priceHTML(c, small){ const [d,cents] = (c/100).toFixed(2).split("."); return `<span class="az-price${small?" sm":""}" aria-label="${money(c)}"><span class="d">${d}</span><span class="c">,${cents}</span><span class="cur">$</span></span>`; }
 function imgFor(p){
@@ -1043,11 +1093,12 @@ const VIEWS = {
   },
   checkout(){
     const lines = cartLines(); if(!lines.length) return VIEWS.cart();
-    const c = S.lastCustomer || {name:"",email:"",phone:"",address:"",city:"",province:"QC",postal:""};
+    const c = {...(S.lastCustomer || {name:"",email:"",phone:"",address:"",city:"",province:"QC",postal:""}), ...(S.user?{name:S.user.name,email:S.user.email}:{})};
     const prov = S.params.province || c.province || "QC";
     const t = totals(lines.map(l=>({price:l.p.price,qty:l.qty})),prov);
     return `
       <form id="checkout" class="card" novalidate>
+        ${S.user?"":`<div class="note" style="background:#fff;border:1px solid #d5d9d9">Déjà client ? <button class="az-more" data-a="tab" data-v="account" style="display:inline">Identifiez-vous</button> pour retrouver vos commandes. Vous pouvez aussi commander sans compte.</div>`}
         <h2 style="font-size:18px">Vos coordonnées</h2>
         <div class="field"><label for="f-name">Nom complet</label><input id="f-name" name="name" autocomplete="name" value="${esc(c.name)}" required></div>
         <div class="field"><label for="f-email">Courriel</label><input id="f-email" name="email" type="email" autocomplete="email" value="${esc(c.email)}" required></div>
@@ -1071,9 +1122,31 @@ const VIEWS = {
         <span class="small" style="text-align:center">Démo : aucun vrai paiement. Tapez n'importe quelles coordonnées.</span>
       </div>`;
   },
+  account(){
+    if(!S.user) return authView("login");
+    const orders = S.orders.filter(isMine).sort((a,b)=>b.createdAt-a.createdAt);
+    const reqs = S.requests.filter(isMine);
+    return `
+      <section class="az-cart-top">
+        <h1 style="font-size:24px;font-weight:500">Bonjour, <b>${esc(S.user.name.split(" ")[0])}</b></h1>
+        <span class="az-free">${esc(S.user.email)}</span>
+      </section>
+      <section class="az-card" style="margin-inline:-12px">
+        <h2>Vos commandes</h2>
+        ${orders.length?orders.slice(0,5).map(o=>`<button class="oitem" data-a="order" data-id="${o.id}" style="box-shadow:none"><div class="line"><b>${num(o.id)}</b>${pill(o.status)}</div><span class="small">${new Date(o.createdAt).toLocaleDateString("fr-CA",{dateStyle:"long"})} · ${o.items.reduce((s,i)=>s+i.qty,0)} article(s) · ${money(o.final??o.total)}</span></button>`).join(""):`<span class="az-free">Aucune commande pour l'instant.</span><button class="az-btn y" data-a="tab" data-v="shop">Commencer vos achats</button>`}
+        ${orders.length>5?`<button class="az-more" data-a="go" data-v="orders">Voir toutes vos commandes</button>`:""}
+      </section>
+      <section class="az-card" style="margin-inline:-12px">
+        <h2>Vos demandes spéciales</h2>
+        <span class="az-free">${reqs.length?`${reqs.length} demande(s)${reqs.some(r=>r.status==="QUOTED")?" · un prix vous attend":""}`:"Aucune demande."}</span>
+        <div class="two"><button class="az-btn w sm" data-a="go" data-v="requests">Voir mes demandes</button><button class="az-btn y sm" data-a="newreq">Nouvelle demande</button></div>
+      </section>
+      <button class="az-btn w" data-a="logout">Se déconnecter</button>`;
+  },
+  register(){ return authView("register"); },
   orders(){
-    const mine = S.orders.filter(o=>o.mine).sort((a,b)=>b.createdAt-a.createdAt);
-    const myReqs = S.requests.filter(r=>r.mine);
+    const mine = S.orders.filter(isMine).sort((a,b)=>b.createdAt-a.createdAt);
+    const myReqs = S.requests.filter(isMine);
     const reqBlock = myReqs.length?`<button class="oitem" data-a="go" data-v="requests"><div class="line"><b>Mes demandes spéciales</b>${myReqs.some(r=>r.status==="QUOTED")?`<span class="pill s-PURCHASED">Prix reçu</span>`:`<span class="small">${myReqs.length}</span>`}</div><span class="small">Produits que vous nous avez demandé de trouver</span></button>`:"";
     if(!mine.length) return reqBlock +  `<div class="empty"><span class="big">📦</span><h2>Aucune commande</h2><span>Passez une commande pour la voir ici, puis traitez-la dans l'espace Vendeur.</span><button class="btn btn-primary" style="width:auto" data-a="tab" data-v="shop">Commencer mes achats</button></div>`;
     return `${reqBlock}<h1 style="font-size:28px">Mes commandes</h1><div class="olist">${mine.map(o=>`
@@ -1103,7 +1176,7 @@ const VIEWS = {
   },
 
   request(){
-    const c = S.lastCustomer || {name:"",email:""}; const d = S.params.draft || {};
+    const c = S.user ? {name:S.user.name,email:S.user.email} : (S.lastCustomer || {name:"",email:""}); const d = S.params.draft || {};
     return `
       <div style="display:flex;flex-direction:column;gap:6px">
         <span class="eyebrow">Demande spéciale</span>
@@ -1133,7 +1206,7 @@ const VIEWS = {
       </form>`;
   },
   requests(){
-    const mine = S.requests.filter(r=>r.mine).sort((a,b)=>b.createdAt-a.createdAt);
+    const mine = S.requests.filter(isMine).sort((a,b)=>b.createdAt-a.createdAt);
     return `<div class="line"><h1 style="font-size:28px">Mes demandes</h1><button class="link" data-a="newreq">+ Nouvelle</button></div>
       ${mine.length?`<div class="olist">${mine.map(r=>`
         <div class="card">
@@ -1363,7 +1436,7 @@ document.addEventListener("click", e=>{
     case "back": back(); break;
     case "tab": history_.length=0; go(v,{},false); break;
     case "go": go(v); break;
-    case "mode": if(S.mode!==v){ S.mode=v; history_.length=0; go(v==="client"?(S.orders.some(o=>o.mine)?"orders":"home"):"a-orders",{},false); } break;
+    case "mode": if(S.mode!==v){ S.mode=v; history_.length=0; go(v==="client"?"home":"a-orders",{},false); } break;
     case "shopcat": go("shop",{cat:v,q:S.view==="shop"?(S.params.q||""):""},S.view!=="shop"); break;
     case "product": go("product",{id,qty:1}); break;
     case "pqty": { S.params.qty=Math.max(1,Math.min(20,(S.params.qty||1)+Number(b.dataset.d))); const btn=document.querySelector('[data-a="addq"]'); b.parentElement.querySelector("span").textContent=S.params.qty; btn.textContent=`Ajouter · ${money(prod(S.params.id).price*S.params.qty)}`; save(); break; }
@@ -1407,6 +1480,7 @@ document.addEventListener("click", e=>{
     case "areq": go("a-request",{id}); break;
     case "sendquote": { e.preventDefault(); sendQuote(id); break; }
     case "unavailreq": { e.preventDefault(); const r=S.requests.find(x=>x.id===id); r.status="UNAVAILABLE"; r.quote={...(r.quote||{}),note:document.getElementById("q-note").value.trim()}; save(); render(); toast(`Courriel envoyé à ${r.customer.email}`,"Produit introuvable pour le moment (simulé)"); break; }
+    case "logout": { S.user = null; history_.length=0; save(); go("home",{},false); toast("Vous êtes déconnecté","",""); break; }
     case "reset": { if(b.dataset.sure){ S=fresh(); PHOTOS={}; savePhotos(); history_.length=0; save(); render(); toast("Démo réinitialisée","",""); } else { b.dataset.sure="1"; b.textContent="Touchez encore pour tout effacer"; } break; }
   }
 });
@@ -1469,7 +1543,7 @@ function sendRequest(){
   const problem = d.name.trim().length<2?"Indiquez le produit recherché.":!d.cname.trim()?"Indiquez votre nom.":!/^\S+@\S+\.\S+$/.test(d.email)?"Indiquez un courriel valide pour recevoir le prix.":"";
   if(problem){ err.textContent=problem; err.hidden=false; S.params.draft=d; return; }
   S.lastCustomer = {...(S.lastCustomer||{}), name:d.cname.trim(), email:d.email.trim()};
-  const r = {id:S.nextReqId++,status:"PENDING",name:d.name.trim(),details:d.details.trim(),qty,maxPrice:parseCents(d.max)||null,photo:S.params.reqPhoto||"",
+  const r = {owner:S.user?S.user.email:null,id:S.nextReqId++,status:"PENDING",name:d.name.trim(),details:d.details.trim(),qty,maxPrice:parseCents(d.max)||null,photo:S.params.reqPhoto||"",
     customer:{name:d.cname.trim(),email:d.email.trim()},quote:null,createdAt:Date.now(),mine:true};
   S.requests.push(r); history_.length=0; save(); go("requests",{},false);
   toast(`Demande envoyée`, `Confirmation envoyée à ${r.customer.email} (simulé)`);
@@ -1519,7 +1593,7 @@ function placeOrder(){
   S.lastCustomer = customer;
   const items = cartLines().map(({p,qty})=>({pid:p.id,name:p.name,store:p.store,price:p.price,cost:p.cost,qty,status:"PENDING"}));
   const t = totals(items,customer.province);
-  const o = {id:S.nextId++,status:"NEW",payment:"Autorisé (non débité)",customer,items,...t,final:null,carrier:"",tracking:"",createdAt:Date.now(),events:[],mine:true};
+  const o = {owner:S.user?S.user.email:null,id:S.nextId++,status:"NEW",payment:"Autorisé (non débité)",customer,items,...t,final:null,carrier:"",tracking:"",createdAt:Date.now(),events:[],mine:true};
   log(o,`Paiement autorisé : ${money(t.total)}`);
   items.forEach(i=>{ if(String(i.pid).startsWith("r")){ const r=S.requests.find(x=>"r"+x.id===i.pid); if(r) r.status="ORDERED"; } });
   S.orders.push(o); S.cart={}; history_.length=0; save();
@@ -1533,6 +1607,7 @@ document.addEventListener("input", e=>{
 });
 document.addEventListener("submit", e=>{
   e.preventDefault();
+  if(e.target.id==="authForm"){ submitAuth(e.target); return; }
   if(e.target.id==="homeSearch"){ const q=document.getElementById("hq").value.trim(); document.getElementById("hq").blur(); go("shop",{cat:"",q}, S.view!=="shop"); }
 });
 

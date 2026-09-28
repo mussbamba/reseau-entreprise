@@ -82,6 +82,10 @@ model Order {
   carrier        String @default("")
   trackingNumber String @default("")
 
+  // Compte client (facultatif : la commande sans compte reste possible)
+  userId Int?
+  user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
   items     OrderItem[]
   events    OrderEvent[]
   createdAt DateTime    @default(now())
@@ -123,6 +127,8 @@ model ProductRequest {
   quantity      Int      @default(1)
   maxPriceCents Int?
   photo         String   @default("") // petite image JPEG en data URL, réduite dans le navigateur
+  userId        Int?
+  user          User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   customerName  String
   email         String
   phone         String   @default("")
@@ -132,4 +138,16 @@ model ProductRequest {
   product       Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+// Compte client
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  name         String
+  phone        String   @default("")
+  passwordHash String
+  orders       Order[]
+  requests     ProductRequest[]
+  createdAt    DateTime @default(now())
 }

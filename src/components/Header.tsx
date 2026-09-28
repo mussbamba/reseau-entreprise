@@ -50,7 +50,7 @@ function CategoryNav({ categories }: { categories: Cat[] }) {
   );
 }
 
-export function Header({ categories }: { categories: Cat[] }) {
+export function Header({ categories, userName }: { categories: Cat[]; userName: string | null }) {
   const { count, ready } = useCart();
   return (
     <header className="sticky top-0 z-20">
@@ -68,9 +68,19 @@ export function Header({ categories }: { categories: Cat[] }) {
             </Suspense>
           </div>
           <nav className="ml-auto flex items-center gap-1 text-sm">
-            <Link href="/suivi" className="hidden rounded px-2 py-1 leading-tight hover:outline hover:outline-1 md:block">
-              <span className="block text-xs">Retours</span>
-              <b>et commandes</b>
+            <Link
+              href={userName ? "/compte" : "/connexion"}
+              className="flex items-center gap-1 rounded px-2 py-1 leading-tight hover:outline hover:outline-1"
+            >
+              <svg viewBox="0 0 24 24" className="h-6 w-6 sm:hidden" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+                <circle cx="12" cy="8" r="4" />
+                <path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" />
+              </svg>
+              <span className="text-xs sm:hidden">{userName ?? "S'identifier"}</span>
+              <span className="hidden sm:block">
+                <span className="block text-xs">Bonjour, {userName ?? "identifiez-vous"}</span>
+                <b>Compte et commandes</b>
+              </span>
             </Link>
             <Link href="/panier" aria-label="Panier" className="relative flex items-end gap-1 rounded px-2 py-1 hover:outline hover:outline-1">
               <svg viewBox="0 0 24 24" className="h-8 w-8" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">

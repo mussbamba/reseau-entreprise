@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { mailRequestReceived } from "@/lib/email";
+import { getCurrentUser } from "@/lib/customer-auth";
 import { parseMoneyToCents } from "@/lib/money";
 
 const MAX_PHOTO_LENGTH = 400_000; // ~300 Ko d'image
@@ -34,8 +35,9 @@ export async function createRequest(_prev: RequestState, formData: FormData): Pr
     return { error: parsed.error.issues[0].message, values };
   }
   const { maxPrice, ...data } = parsed.data;
+  const user = await getCurrentUser();
   const request = await db.productRequest.create({
-    data: { ...data, maxPriceCents: parseMoneyToCents(maxPrice) || null },
+    data: { ...data, maxPriceCents: parseMoneyToCents(maxPrice) || null, userId: user?.id ?? null },
   });
   await mailRequestReceived({ ...request });
   redirect(`/demande/${request.publicId}?nouvelle=1`);

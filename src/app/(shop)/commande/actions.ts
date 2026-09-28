@@ -10,6 +10,7 @@ import { computeTotals } from "@/lib/pricing";
 import { getStripe } from "@/lib/stripe";
 import { markAuthorized } from "@/lib/order-service";
 import { orderNumber } from "@/lib/orders";
+import { getCurrentUser } from "@/lib/customer-auth";
 
 const schema = z.object({
   email: z.string().trim().email("Courriel invalide"),
@@ -68,9 +69,11 @@ export async function placeOrder(_prev: CheckoutState, formData: FormData): Prom
   if (totals.subtotalCents < MIN_ORDER_CENTS)
     return fail(`Le montant minimum de commande est de ${formatMoney(MIN_ORDER_CENTS)}.`);
 
+  const user = await getCurrentUser();
   const order = await db.order.create({
     data: {
       ...customer,
+      userId: user?.id ?? null,
       subtotalCents: totals.subtotalCents,
       shippingCents: totals.shippingCents,
       taxCents: totals.taxCents,

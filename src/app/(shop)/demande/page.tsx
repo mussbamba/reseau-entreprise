@@ -1,9 +1,11 @@
+import { getCurrentUser } from "@/lib/customer-auth";
 import { RequestForm } from "./RequestForm";
 
 export const metadata = { title: "Demande spéciale" };
 
 export default async function RequestPage({ searchParams }: { searchParams: Promise<{ produit?: string }> }) {
   const { produit = "" } = await searchParams;
+  const user = await getCurrentUser();
   return (
     <div className="mx-auto max-w-2xl">
       <p className="text-sm font-semibold uppercase tracking-widest text-terre-600">Demande spéciale</p>
@@ -12,7 +14,7 @@ export default async function RequestPage({ searchParams }: { searchParams: Prom
         Dites-nous ce que vous cherchez. Nous vérifions dans nos épiceries partenaires et vous envoyons un prix par
         courriel. Vous décidez ensuite si vous l&apos;ajoutez à votre panier.
       </p>
-      <RequestForm prefill={produit.slice(0, 120)} />
+      <RequestForm prefill={produit.slice(0, 120)} user={user ? { name: user.name, email: user.email } : null} />
     </div>
   );
 }

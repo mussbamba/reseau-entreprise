@@ -26,11 +26,11 @@ function resize(file: File): Promise<string> {
   });
 }
 
-export function RequestForm({ prefill }: { prefill: string }) {
+export function RequestForm({ prefill, user }: { prefill: string; user: { name: string; email: string } | null }) {
   const [state, action, pending] = useActionState<RequestState, FormData>(createRequest, {});
   const [photo, setPhoto] = useState("");
   const [photoError, setPhotoError] = useState("");
-  const v = state.values ?? {};
+  const v: Record<string, string | undefined> = state.values ?? { customerName: user?.name, email: user?.email };
 
   async function onPhoto(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];

@@ -17,7 +17,8 @@ export function Footer() {
           <Link href="/produits" className="hover:text-terre-600">Boutique</Link>
           <Link href="/comment-ca-marche" className="hover:text-terre-600">Comment ça marche / FAQ</Link>
           <Link href="/demande" className="hover:text-terre-600">Demander un produit introuvable</Link>
-          <Link href="/suivi" className="hover:text-terre-600">Suivre ma commande</Link>
+          <Link href="/compte" className="hover:text-terre-600">Votre compte</Link>
+          <Link href="/suivi" className="hover:text-terre-600">Suivre une commande sans compte</Link>
         </div>
         <div className="flex flex-col gap-2">
           <Link href="/conditions" className="hover:text-terre-600">Conditions de vente et retours</Link>

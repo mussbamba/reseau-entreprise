@@ -8,7 +8,15 @@ import { formatMoney } from "@/lib/money";
 import { computeTotals } from "@/lib/pricing";
 import { placeOrder, type CheckoutState } from "./actions";
 
-export function CheckoutForm({ taxesEnabled, demoMode }: { taxesEnabled: boolean; demoMode: boolean }) {
+export function CheckoutForm({
+  taxesEnabled,
+  demoMode,
+  user,
+}: {
+  taxesEnabled: boolean;
+  demoMode: boolean;
+  user: { name: string; email: string; phone: string } | null;
+}) {
   const { lines, ready } = useCart();
   const [province, setProvince] = useState("QC");
   const [state, action, pending] = useActionState<CheckoutState, FormData>(placeOrder, {});
@@ -21,7 +29,7 @@ export function CheckoutForm({ taxesEnabled, demoMode }: { taxesEnabled: boolean
       </p>
     );
 
-  const v = state.values ?? {};
+  const v: Record<string, string | undefined> = state.values ?? { name: user?.name, email: user?.email, phone: user?.phone };
   const totals = computeTotals(lines, province, taxesEnabled);
   const cart = JSON.stringify(lines.map((l) => ({ productId: l.productId, quantity: l.quantity })));
 
