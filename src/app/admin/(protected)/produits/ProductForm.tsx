@@ -49,7 +49,9 @@ export function ProductForm({
         <input id="cost" name="cost" inputMode="decimal" defaultValue={p ? dollars(p.costCents) : ""} className="input" />
       </div>
       <div>
-        <label className="label" htmlFor="categoryId">Catégorie</label>
+        <label className="label flex justify-between" htmlFor="categoryId">
+          Catégorie <Link href="/admin/categories" className="text-xs font-normal text-terre-600 hover:underline">+ Nouvelle catégorie</Link>
+        </label>
         <select id="categoryId" name="categoryId" defaultValue={p?.categoryId} className="input">
           {categories.map((c) => (
             <option key={c.id} value={c.id}>{c.name}</option>

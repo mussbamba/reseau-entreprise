@@ -75,7 +75,8 @@ Si le produit est introuvable, le bouton « Introuvable » prévient le client p
 
 ## Comptes clients
 
-- `/connexion` pour s'identifier, `/inscription` pour créer un compte, `/compte` pour voir ses
+- `/connexion` pour s'identifier, `/inscription` pour créer un compte (nom, courriel, adresse de
+  livraison obligatoire, téléphone facultatif ; l'adresse est enregistrée dans le profil), `/compte` pour voir ses
   commandes et ses demandes spéciales, puis se déconnecter.
 - `/compte/profil` : le client modifie son nom, son téléphone et son adresse de livraison par
   défaut (qui pré-remplit la commande), change son courriel ou son mot de passe (mot de passe
@@ -94,6 +95,12 @@ Si le produit est introuvable, le bouton « Introuvable » prévient le client p
   `npm run db:studio` (ouvre Prisma Studio sur http://localhost:5555, table `User`).
 - À prévoir avant la production : vérification du courriel, mot de passe oublié, limite de
   tentatives de connexion.
+
+## Catégories d'articles
+
+**Admin → 🗂️ Catégories** (`/admin/categories`) : ajouter une catégorie (nom, icône), la renommer,
+changer son icône ou son ordre d'affichage, et la supprimer si elle ne contient aucun produit.
+Le formulaire de produit a un lien « + Nouvelle catégorie ».
 
 ## Réglages d'affaires
 

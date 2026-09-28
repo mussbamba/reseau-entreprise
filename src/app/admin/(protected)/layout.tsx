@@ -12,7 +12,8 @@ const links = [
   ["/admin/demandes", "✨ Demandes"],
   ["/admin/clients", "👤 Clients"],
   ["/admin/produits", "🏷️ Produits"],
-  ["/admin/boutiques", "🏪 Boutiques & catégories"],
+  ["/admin/categories", "🗂️ Catégories"],
+  ["/admin/boutiques", "🏪 Boutiques"],
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {

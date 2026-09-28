@@ -490,10 +490,17 @@ const STEPS = [["NEW","Commande reçue","Votre carte est autorisée, pas encore 
 const REQ_STATUS = {PENDING:["En attente de prix","s-NEW"],QUOTED:["Prix proposé","s-PURCHASED"],ACCEPTED:["Dans le panier","s-SHOPPING"],ORDERED:["Commandé","s-SHIPPED"],DECLINED:["Refusé","s-CANCELLED"],UNAVAILABLE:["Introuvable","s-CANCELLED"]};
 const CARRIERS = ["Postes Canada","Chit Chats","Stallion Express","Purolator","Livraison locale"];
 
-const CATS = [
+const BASE_CATS = [
   {id:"farines",name:"Farines & céréales",emoji:"🌾"},{id:"epices",name:"Épices",emoji:"🌶️"},
   {id:"huiles",name:"Huiles & sauces",emoji:"🫙"},{id:"poissons",name:"Poissons séchés",emoji:"🐟"},
   {id:"boissons",name:"Boissons & snacks",emoji:"🥤"},{id:"beaute",name:"Beauté & soins",emoji:"🧴"}];
+// Liste réelle des catégories : celles de base (renommables) + celles créées par le vendeur, triées par ordre
+let CATS = BASE_CATS.slice();
+function rebuildCats(){
+  const edits = S.catEdits || {}, hidden = S.catHidden || [];
+  CATS = [...BASE_CATS.map((c,i)=>({pos:i,...c,...(edits[c.id]||{})})).filter(c=>!hidden.includes(c.id)), ...(S.customCats||[])]
+    .sort((a,b)=>(a.pos??99)-(b.pos??99));
+}
 const STORES = [
   {id:"A",name:"Épicerie A (exemple)",address:"123 rue Exemple, Montréal",hours:"Lun-sam 9h-20h"},
   {id:"B",name:"Marché B (exemple)",address:"456 boul. Exemple, Montréal",hours:"Tous les jours 10h-19h"}];
@@ -533,7 +540,7 @@ function sampleRequest(){
   return {id:1,status:"PENDING",name:"Poivre de Selim (kani) 100 g",details:"En gousses entières si possible.",qty:2,maxPrice:1000,photo:"",
     customer:{name:"Moussa K. (exemple)",email:"moussa@exemple.ca"},quote:null,createdAt:Date.now()-36e5*5,mine:false,example:true};
 }
-function fresh(){ return {products:PRODUCTS.map(p=>({id:p.id,active:true})),cart:{},orders:[sampleOrder()],nextId:2,requests:[sampleRequest()],nextReqId:2,mode:"client",view:"home",params:{},lastCustomer:null}; }
+function fresh(){ return {products:PRODUCTS.map(p=>({id:p.id,active:true})),cart:{},orders:[sampleOrder()],nextId:2,requests:[sampleRequest()],nextReqId:2,custom:[],nextProdId:100,customCats:[],catEdits:{},catHidden:[],users:[],user:null,mode:"client",view:"home",params:{},lastCustomer:null}; }
 let S;
 try { S = JSON.parse(localStorage.getItem(KEY)) || fresh(); } catch { S = fresh(); }
 if(!S.products||!S.orders) S = fresh();
@@ -549,6 +556,8 @@ try {
   if(h==="client" && S.mode!=="client"){ S.mode="client"; S.view="home"; S.params={}; }
 } catch {}
 if(!S.custom){ S.custom=[]; S.nextProdId=100; }
+if(!S.customCats){ S.customCats=[]; S.catEdits={}; S.catHidden=[]; }
+rebuildCats();
 if(!S.requests){ S.requests=[sampleRequest()]; S.nextReqId=2; }
 let PHOTOS = {};
 try { PHOTOS = JSON.parse(localStorage.getItem(PHOTO_KEY)) || {}; } catch {}
@@ -557,7 +566,7 @@ const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch
 // ---------- Utilitaires ----------
 function money(c){ return fmt.format(c/100); }
 function esc(s){ return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
-const cat = id => CATS.find(c=>c.id===id);
+const cat = id => CATS.find(c=>c.id===id) || {id, name:"Sans catégorie", emoji:"🛍️"};
 const store = id => STORES.find(s=>s.id===id);
 // Produits de base + produits ajoutés par le vendeur ; S.products garde les modifications (prix, visibilité…)
 const prod = id => { const base = PRODUCTS.find(p=>p.id===id) || (S.custom||[]).find(p=>p.id===id); if(!base) return null; const st = S.products.find(p=>p.id===id) || {}; return {...base,...st,v:base.v,active:st.active??true}; };
@@ -821,7 +830,7 @@ const ICONS = {
 
 // ---------- Rendu ----------
 const main = document.getElementById("main");
-const TITLES = {product:"",cart:"Mon panier",checkout:"Commande",order:"Suivi",orders:"Mes commandes","a-order":"Commande","a-orders":"Commandes","a-list":"Liste d'achat","a-products":"","a-product":"","a-stores":"Boutiques",request:"",requests:"",account:"",register:"",profile:"","a-clients":"","a-client":"Client","a-requests":"","a-request":"Demande"};
+const TITLES = {product:"",cart:"Mon panier",checkout:"Commande",order:"Suivi",orders:"Mes commandes","a-order":"Commande","a-orders":"Commandes","a-list":"Liste d'achat","a-products":"","a-product":"","a-stores":"Boutiques",request:"",requests:"",account:"",register:"",profile:"","a-clients":"","a-client":"Client","a-cats":"","a-requests":"","a-request":"Demande"};
 const ROOTS = ["a-clients","home","shop","cart","account","a-orders","a-list","a-products","a-requests"];
 
 function render(){
@@ -851,7 +860,7 @@ function render(){
   const tabs = S.mode==="client"
     ? [["home","Accueil","home"],["shop","Boutique","shop"],["cart","Panier","cart"],["account",S.user?S.user.name.split(" ")[0]:"Vous","user"]]
     : [["a-orders","Commandes","box"],["a-list","Achats","list"],["a-requests","Demandes","spark"],["a-products","Produits","tag"],["a-clients","Clients","user"]];
-  const active = {product:"shop",checkout:"cart",order:"account",orders:"account",profile:"account",request:"account",requests:"account",register:"account","a-order":"a-orders","a-request":"a-requests","a-stores":"a-products","a-product":"a-products","a-client":"a-clients"}[S.view] || S.view;
+  const active = {product:"shop",checkout:"cart",order:"account",orders:"account",profile:"account",request:"account",requests:"account",register:"account","a-order":"a-orders","a-request":"a-requests","a-stores":"a-products","a-product":"a-products","a-cats":"a-products","a-client":"a-clients"}[S.view] || S.view;
   const newReqs = S.requests.filter(r=>r.status==="PENDING").length;
   const quoted = S.requests.filter(r=>isMine(r)&&r.status==="QUOTED").length;
   const toHandle = S.orders.filter(o=>["NEW","SHOPPING","PURCHASED"].includes(o.status)).length;
@@ -930,7 +939,15 @@ function authView(kind){
         ${login?"":`<div class="field"><label for="u-name">Votre nom</label><input id="u-name" name="name" autocomplete="name" value="${esc(d.name||"")}" placeholder="Prénom et nom"></div>`}
         <div class="field"><label for="u-email">Adresse courriel</label><input id="u-email" name="email" type="email" autocomplete="email" value="${esc(d.email||"")}"></div>
         <div class="field"><label for="u-pass">Mot de passe</label><input id="u-pass" name="password" type="password" autocomplete="${login?"current-password":"new-password"}" ${login?"":'placeholder="Au moins 8 caractères"'}></div>
-        ${login?"":`<div class="field"><label for="u-pass2">Entrez à nouveau le mot de passe</label><input id="u-pass2" name="confirm" type="password" autocomplete="new-password"></div>`}
+        ${login?"":`<div class="field"><label for="u-pass2">Entrez à nouveau le mot de passe</label><input id="u-pass2" name="confirm" type="password" autocomplete="new-password"></div>
+        <b style="margin-top:6px;padding-top:10px;border-top:1px solid #e7e7e7">Adresse de livraison</b>
+        <div class="field"><label for="u-phone">Téléphone (facultatif)</label><input id="u-phone" name="phone" type="tel" autocomplete="tel"></div>
+        <div class="field"><label for="u-a1">Adresse</label><input id="u-a1" name="address1" autocomplete="address-line1" placeholder="Numéro et rue"></div>
+        <div class="two">
+          <div class="field"><label for="u-city">Ville</label><input id="u-city" name="city" autocomplete="address-level2"></div>
+          <div class="field"><label for="u-postal">Code postal</label><input id="u-postal" name="postal" autocomplete="postal-code" placeholder="H2X 1Y4"></div>
+        </div>
+        <div class="field"><label for="u-prov">Province</label><select id="u-prov" name="province">${Object.entries(PROVINCES).map(([k,n])=>`<option value="${k}" ${k==="QC"?"selected":""}>${n}</option>`).join("")}</select></div>`}
         <p id="authErr" class="note" style="border:1px solid #c40000;color:#c40000;background:#fff5f5" hidden></p>
         <button class="az-btn y">${login?"Se connecter":"Créer votre compte"}</button>
       </form>
@@ -944,6 +961,20 @@ async function hashPw(email, pw){
   const data = new TextEncoder().encode(`saveurs:${email}:${pw}`);
   try { const h = await crypto.subtle.digest("SHA-256", data); return [...new Uint8Array(h)].map(b=>b.toString(16).padStart(2,"0")).join(""); }
   catch { let h = 0; for(const b of data) h = (h*31 + b) >>> 0; return "x"+h.toString(16); }
+}
+function saveCategory(form){
+  const d = Object.fromEntries(new FormData(form)), name = String(d.name||"").trim().slice(0,40), emoji = String(d.emoji||"").trim().slice(0,8) || "🛍️";
+  const id = form.dataset.id;
+  const msg = (ok,text) => { S.params = {msg:{ok,text}, ...(!ok && !id ? {emo:emoji, draftName:name} : {})}; save(); render(); };
+  if(name.length<2) return msg(false, "Le nom de la catégorie doit contenir au moins 2 caractères.");
+  if(CATS.some(c=>c.id!==id && c.name.toLowerCase()===name.toLowerCase())) return msg(false, `La catégorie « ${name} » existe déjà.`);
+  if(id){
+    const cc = S.customCats.find(x=>x.id===id);
+    if(cc) Object.assign(cc,{name,emoji}); else S.catEdits[id] = {...(S.catEdits[id]||{}), name, emoji};
+    rebuildCats(); return msg(true, `Catégorie « ${name} » enregistrée.`);
+  }
+  S.customCats.push({id:"c"+Date.now().toString(36), name, emoji, pos:CATS.length});
+  rebuildCats(); msg(true, `Catégorie « ${name} » ajoutée. Elle apparaît dans le menu de la boutique.`);
 }
 function me(){ return S.users.find(x=>S.user && x.email===S.user.email) || {name:S.user?.name||"",email:S.user?.email||""}; }
 async function submitProfile(form){
@@ -1000,7 +1031,13 @@ async function submitAuth(form){
     if(String(d.password||"").length<8) return fail("Le mot de passe doit contenir au moins 8 caractères.");
     if(d.password!==d.confirm) return fail("Les deux mots de passe ne correspondent pas.");
     if(S.users.some(x=>x.email===email)) return fail("Un compte existe déjà avec ce courriel. Identifiez-vous.");
-    S.users.push({name:String(d.name).trim(), email, hash, createdAt:Date.now()});
+    const postal = String(d.postal||"").toUpperCase().replace(/\s/g,"");
+    if(String(d.address1||"").trim().length<3) return fail("Indiquez votre adresse de livraison.");
+    if(String(d.city||"").trim().length<2) return fail("Indiquez votre ville.");
+    if(!/^[A-Z]\d[A-Z]\d[A-Z]\d$/.test(postal)) return fail("Code postal invalide (ex. H2X 1Y4).");
+    // L'adresse saisie à l'inscription devient l'adresse de livraison du profil
+    S.users.push({name:String(d.name).trim(), email, hash, createdAt:Date.now(), phone:String(d.phone||"").trim(),
+      address1:String(d.address1).trim(), city:String(d.city).trim(), postal:postal.slice(0,3)+" "+postal.slice(3), province:d.province||"QC"});
     S.user = {name:String(d.name).trim(), email};
   }
   const next = S.afterLogin || "account"; S.afterLogin = null;
@@ -1427,7 +1464,7 @@ const VIEWS = {
   "a-products"({q=""}){
     const ql = q.trim().toLowerCase();
     const list = allProducts().filter(p=>!ql||(p.name+" "+p.origin+" "+cat(p.cat).name+" "+store(p.store).name).toLowerCase().includes(ql));
-    return `<div class="line"><h1 style="font-size:26px">Produits</h1><button class="link" data-a="go" data-v="a-stores">Boutiques</button></div>
+    return `<div class="line"><h1 style="font-size:26px">Produits</h1><span style="display:flex;gap:14px"><button class="link" data-a="go" data-v="a-cats">Catégories</button><button class="link" data-a="go" data-v="a-stores">Boutiques</button></span></div>
       <button class="btn btn-primary" data-a="editprod">+ Nouveau produit</button>
       <label class="search">${ICONS.search}<input id="aq" type="search" placeholder="Rechercher par nom, catégorie, boutique…" value="${esc(q)}" aria-label="Rechercher un produit"></label>
       <span class="small" style="margin-top:-12px">${list.length} produit(s)${ql?` pour « ${esc(q)} »`:""}. Touchez un produit pour le modifier.</span>
@@ -1460,7 +1497,7 @@ const VIEWS = {
           <div class="field"><label for="p-cost">Coût en boutique ($)</label><input id="p-cost" name="cost" inputmode="decimal" value="${esc(d.cost)}" placeholder="4,50"></div>
         </div>
         <div class="two">
-          <div class="field"><label for="p-cat">Catégorie</label><select id="p-cat" name="cat">${CATS.map(c=>`<option value="${c.id}" ${c.id===d.cat?"selected":""}>${c.name}</option>`).join("")}</select></div>
+          <div class="field"><label for="p-cat" style="display:flex;justify-content:space-between">Catégorie <button type="button" class="link" style="font-size:12px" data-a="go" data-v="a-cats">+ Nouvelle</button></label><select id="p-cat" name="cat">${CATS.map(c=>`<option value="${c.id}" ${c.id===d.cat?"selected":""}>${c.name}</option>`).join("")}</select></div>
           <div class="field"><label for="p-store">Boutique</label><select id="p-store" name="store">${STORES.map(x=>`<option value="${x.id}" ${x.id===d.store?"selected":""}>${esc(x.name)}</option>`).join("")}</select></div>
         </div>
         <div class="field"><label for="p-desc">Description (facultatif)</label><input id="p-desc" name="desc" value="${esc(d.desc)}" placeholder="Ex. : semoule de manioc fermentée, grain fin"></div>
@@ -1564,6 +1601,36 @@ const VIEWS = {
       <button class="btn btn-bad" data-a="delclient" data-v="${esc(u.email)}">${S.params.confirmDel?"Confirmer : supprimer définitivement":"Supprimer le compte"}</button>
       ${u.example?`<span class="small" style="text-align:center">Client d'exemple de la démo.</span>`:""}`;
   },
+  "a-cats"(){
+    const EMO = ["🌾","🌶️","🫙","🐟","🥤","🧴","🍠","🥜","🍚","🫘","🥥","🍌","🍫","🧂","🧺","👗"];
+    const count = id => allProducts().filter(p=>p.cat===id).length;
+    const m = S.params.msg;
+    return `<div><h1 style="font-size:26px">Catégories (${CATS.length})</h1><span class="small">Les rayons de la boutique. Une catégorie ne peut être supprimée que si elle est vide.</span></div>
+      ${m?`<div class="note ${m.ok?"note-ok":"note-warn"}">${esc(m.text)}</div>`:""}
+      <form id="catNew" class="card" novalidate>
+        <b>+ Nouvelle catégorie</b>
+        <div class="row" style="align-items:flex-end">
+          <div class="field" style="width:70px"><label for="cn-emo">Icône</label><input id="cn-emo" name="emoji" value="${esc(S.params.emo||"🛍️")}" style="text-align:center;font-size:20px"></div>
+          <div class="field grow"><label for="cn-name">Nom</label><input id="cn-name" name="name" value="${esc(S.params.draftName||"")}" placeholder="Ex. : Tubercules frais"></div>
+        </div>
+        <div class="seg">${EMO.map(e=>`<button type="button" data-a="pickemo" data-v="${e}" style="font-size:18px;padding:4px 8px">${e}</button>`).join("")}</div>
+        <button class="btn btn-primary">Ajouter la catégorie</button>
+      </form>
+      <div class="card">${CATS.map((c,k)=>`
+        <form class="catRow" data-id="${c.id}" novalidate style="display:flex;flex-direction:column;gap:6px;padding-block:8px;border-top:${k?"1px solid var(--line)":"0"}">
+          <div class="row">
+            <input name="emoji" value="${esc(c.emoji)}" aria-label="Icône" style="width:52px;text-align:center;font-size:20px;border:1.5px solid var(--line);border-radius:12px;padding:8px">
+            <input name="name" value="${esc(c.name)}" aria-label="Nom" style="flex:1;min-width:0;border:1.5px solid var(--line);border-radius:12px;padding:10px">
+          </div>
+          <div class="seg" style="align-items:center">
+            <span class="small" style="margin-right:auto">${count(c.id)} produit(s)</span>
+            <button type="button" data-a="catmove" data-id="${k}" data-v="-1" ${k?"":"disabled"} aria-label="Monter">↑</button>
+            <button type="button" data-a="catmove" data-id="${k}" data-v="1" ${k<CATS.length-1?"":"disabled"} aria-label="Descendre">↓</button>
+            <button>Enregistrer</button>
+            ${count(c.id)?"":`<button type="button" class="u" data-a="catdel" data-v="${c.id}" style="color:var(--bad)">Supprimer</button>`}
+          </div>
+        </form>`).join("")}</div>`;
+  },
   "a-stores"(){
     return `<div><h1 style="font-size:26px">Boutiques fournisseurs</h1><span class="small">Les épiceries où vous achetez. La liste d'achat est regroupée par boutique.</span></div>
       ${STORES.map(s=>{ const n=PRODUCTS.filter(p=>p.store===s.id).length; return `<div class="card"><b>${esc(s.name)}</b><span>${esc(s.address)}</span><span class="small">${esc(s.hours)} · ${n} produits</span></div>`;}).join("")}
@@ -1632,6 +1699,13 @@ document.addEventListener("click", e=>{
     case "areq": go("a-request",{id}); break;
     case "sendquote": { e.preventDefault(); sendQuote(id); break; }
     case "unavailreq": { e.preventDefault(); const r=S.requests.find(x=>x.id===id); r.status="UNAVAILABLE"; r.quote={...(r.quote||{}),note:document.getElementById("q-note").value.trim()}; save(); render(); toast(`Courriel envoyé à ${r.customer.email}`,"Produit introuvable pour le moment (simulé)"); break; }
+    case "pickemo": { const n=document.getElementById("cn-name"); S.params={emo:v, draftName:n?n.value:""}; render(); const n2=document.getElementById("cn-name"); if(n2){ n2.value=S.params.draftName||""; n2.focus(); } break; }
+    case "catdel": { const c=cat(v); if(allProducts().some(p=>p.cat===v)){ S.params={msg:{ok:false,text:"Cette catégorie contient encore des produits."}}; render(); break; }
+      if(S.customCats.some(x=>x.id===v)) S.customCats=S.customCats.filter(x=>x.id!==v); else S.catHidden.push(v);
+      rebuildCats(); S.params={msg:{ok:true,text:`Catégorie « ${c.name} » supprimée.`}}; save(); render(); break; }
+    case "catmove": { const i=id, j=i+Number(v); if(j<0||j>=CATS.length) break; const order=CATS.map(c=>c.id); [order[i],order[j]]=[order[j],order[i]];
+      order.forEach((cid,pos)=>{ const cc=S.customCats.find(x=>x.id===cid); if(cc) cc.pos=pos; else S.catEdits[cid]={...(S.catEdits[cid]||{}),pos}; });
+      rebuildCats(); S.params={}; save(); render(); break; }
     case "aclient": go("a-client",{email:v}); break;
     case "saveclient": { e.preventDefault(); const u=S.users.find(x=>x.email===v); const d=Object.fromEntries(new FormData(document.getElementById("clientForm")));
       if(String(d.name||"").trim().length<2){ S.params.msg="Le nom doit contenir au moins 2 caractères."; render(); break; }
@@ -1647,7 +1721,7 @@ document.addEventListener("click", e=>{
       S.users=S.users.filter(x=>x.email!==v); if(S.user&&S.user.email===v) S.user=null;
       history_.length=0; save(); go("a-clients",{},false); toast("Compte supprimé","Ses commandes sont conservées.","🗑️"); break; }
     case "logout": { S.user = null; history_.length=0; save(); go("home",{},false); toast("Vous êtes déconnecté","",""); break; }
-    case "reset": { if(b.dataset.sure){ S=fresh(); PHOTOS={}; savePhotos(); history_.length=0; save(); render(); toast("Démo réinitialisée","",""); } else { b.dataset.sure="1"; b.textContent="Touchez encore pour tout effacer"; } break; }
+    case "reset": { if(b.dataset.sure){ S=fresh(); rebuildCats(); PHOTOS={}; savePhotos(); history_.length=0; save(); render(); toast("Démo réinitialisée","",""); } else { b.dataset.sure="1"; b.textContent="Touchez encore pour tout effacer"; } break; }
   }
 });
 function refreshBadges(){ // met à jour la barre d'onglets sans reconstruire la page (garde la 3D fluide)
@@ -1777,6 +1851,7 @@ document.addEventListener("submit", e=>{
   e.preventDefault();
   if(e.target.id==="authForm"){ submitAuth(e.target); return; }
   if(/^pf-/.test(e.target.id)){ submitProfile(e.target); return; }
+  if(e.target.id==="catNew" || e.target.classList.contains("catRow")){ saveCategory(e.target); return; }
   if(e.target.id==="homeSearch"){ const q=document.getElementById("hq").value.trim(); document.getElementById("hq").blur(); go("shop",{cat:"",q}, S.view!=="shop"); }
 });
 

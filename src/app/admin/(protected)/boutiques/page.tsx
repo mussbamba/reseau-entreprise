@@ -1,11 +1,8 @@
 import { db } from "@/lib/db";
-import { deleteStore, saveCategory, saveStore } from "./actions";
+import { deleteStore, saveStore } from "./actions";
 
 export default async function StoresPage() {
-  const [stores, categories] = await Promise.all([
-    db.store.findMany({ include: { _count: { select: { products: true } } }, orderBy: { name: "asc" } }),
-    db.category.findMany({ include: { _count: { select: { products: true } } }, orderBy: { position: "asc" } }),
-  ]);
+  const stores = await db.store.findMany({ include: { _count: { select: { products: true } } }, orderBy: { name: "asc" } });
 
   return (
     <div className="grid gap-8 lg:grid-cols-2">
@@ -34,19 +31,8 @@ export default async function StoresPage() {
 
       <section className="space-y-4">
         <h2 className="text-2xl font-extrabold">Catégories</h2>
-        <p className="text-sm text-slate-600">L&apos;ordre définit l&apos;affichage sur le site.</p>
-        <div className="card divide-y divide-slate-100">
-          {[...categories, null].map((c) => (
-            <form key={c?.id ?? "new"} action={saveCategory} className="flex flex-wrap items-center gap-2 p-3">
-              {c && <input type="hidden" name="id" value={c.id} />}
-              <input name="emoji" defaultValue={c?.emoji ?? "🛍️"} className="input w-14! text-center" aria-label="Emoji" />
-              <input name="name" defaultValue={c?.name} placeholder="Nouvelle catégorie" required className="input min-w-0 flex-1" />
-              <input name="position" type="number" defaultValue={c?.position ?? categories.length} className="input w-16!" aria-label="Ordre" />
-              <button className="btn-secondary px-3! py-1.5!">{c ? "OK" : "Ajouter"}</button>
-              {c && <span className="w-full text-xs text-slate-500">{c._count.products} produit(s)</span>}
-            </form>
-          ))}
-        </div>
+        <p className="text-sm text-slate-600">Les catégories d&apos;articles ont maintenant leur propre page.</p>
+        <a href="/admin/categories" className="btn-primary">🗂️ Gérer les catégories</a>
       </section>
     </div>
   );

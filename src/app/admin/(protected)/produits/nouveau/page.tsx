@@ -1,9 +1,10 @@
+import { SPECIAL_CATEGORY } from "@/lib/config";
 import { db } from "@/lib/db";
 import { ProductForm } from "../ProductForm";
 
 export default async function NewProductPage() {
   const [categories, stores] = await Promise.all([
-    db.category.findMany({ orderBy: { position: "asc" } }),
+    db.category.findMany({ where: { slug: { not: SPECIAL_CATEGORY.slug } }, orderBy: { position: "asc" } }),
     db.store.findMany({ orderBy: { name: "asc" } }),
   ]);
   return (
